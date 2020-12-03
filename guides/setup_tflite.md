@@ -1,54 +1,68 @@
-<h1>How to use tflite on a fresh raspberry os install.</h1>
-The process is the same for 32 bit and 64 bit versions.<br>
+<h1>How to use the Tflite-Interpreter on a fresh Raspberry OS install.</h1>
+The process is the same for 32 bit and 64 bit versions.
 
-<h2>BASICS</h2><br>
+## <h2>BASICS</h2>
 
-Install Raspberry OS on your device and boot to desktop. The site [Raspberry Pi OS](https://www.raspberrypi.org/software/) offers tools to install the OS quickly.<br>
+Install Raspberry OS on your device and boot to desktop. The site [Raspberry Pi OS](https://www.raspberrypi.org/software/) offers tools to install the OS quickly.
 To easily change your keyboard layout to German, click the icon in the left upper corner
-and under Preferences > Keyboard and Mouse Layout choose German (or whatever other language).<br>
-Connect to a wifi or ethernet of your choice using the GUI or the wpa supplicant. [The wifi setup process via GUI is described here](https://www.raspberrypi.org/documentation/configuration/wireless/desktop.md).<br>
+and under Preferences > Keyboard and Mouse Layout choose German (or whatever other language).
+Connect to a wifi or ethernet of your choice using the GUI or the wpa supplicant. [The wifi setup process via GUI is described here](https://www.raspberrypi.org/documentation/configuration/wireless/desktop.md).
 
-To check your IP adress enter<br>
+To check your IP adress enter
 $ ifconfig
 
-It is recommended to run<br>
-$ sudo apt update<br>
-$ sudo apt upgrade -y<br>
-$ sudo apt autoremove<br>
-To bring your system up to date. This may take a while, depending on the age your image and the speed of your device.<br>
+It is recommended to run
+```
+sudo apt update
+sudo apt upgrade -y
+sudo apt autoremove
+```
+To bring your system up to date. This may take a while, depending on the age your image and the speed of your device.
 
-<h3>(Optional)</h3>
+## <h3>ssh (Optional)</h3>
 
-if you want to work remotely, enable ssh by entering<br>
-$ sudo raspbi-config<br>
-and then under<br>
-    3 Interface Options<br>
-        P2 SSH<br>
-            \<Yes\> \<No\><br>
-choose the option Yes.<br>
-SSH will be available after a restart<br>
+if you want to work remotely, enable ssh by entering
+```
+sudo raspbi-config
+```
+then under
+1. 3\. Interface Options
+2. P2 SSH
+3. \<Yes\> \<No\>
+4. choose the option Yes.
 
-<h3>TFLITE</h3>
+SSH will be available after a restart
 
-There are a few methods to get tflite to run on a RPi. It can be built from source via cross compilation or directly on the Pi or a pre-compiled Python wheel can easily be installed via pip, if it is available for your platform.<br>
-It is recommended to use a virtual environment (venv) of Python for better version control.<br>
-To setup a venv, go to a directory of your choosing where the virtual environment will be setup and enter<br>
-$ python3 -m venv venv_tflite<br>
+## <h3>Tflite interpreter setup</h3>
 
-This will use Python 3 as a base. To check which Python version you have enter
-$ python3 --version<br>
-Now a directory venv_tflite has been created in the current folder. The virtual environment can be activated by sourcing the activate file via<br>
-$ source venv_tflite/bin/activate<br>
+There are a few methods to get tflite to run on a RPi. It can be built from source via cross compilation or directly on the Pi or a pre-compiled Python wheel can easily be installed via pip, if it is available for your platform.
+It is recommended to use a **virtual environment** (venv) of Python for better version control.
+The next comamnd will use Python 3 as base. To check which Python3 version you are running and setup a venv, go to a directory of your choosing where the virtual environment will be setup and enter
+```
+python3 --version
+python3 -m venv venv_tflite
+```
+
+Now a directory venv_tflite has been created in the current folder. The virtual environment can be activated by sourcing the activate file via
+```
+source venv_tflite/bin/activate
+```
 Now every package that will be installed via pip, will be contained in this directory
-To check which packages are installed enter<br>
-```pip list```
+To check which packages are installed enter
+```
+pip list
+```
 
 To update pip enter
-$ pip install --upgrade pip
+```
+pip install --upgrade pip
+```
 
 Now everything is ready to install the tflite interpreter
 For example for Python3.7 and ARM 32 enter
-$ pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_armv7l.whl
+```
+pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_armv7l.whl
+```
 and after a few seconds it should be completed
 Links to other tflite packages and how to run inference can be found in
 https://www.tensorflow.org/lite/guide/python
