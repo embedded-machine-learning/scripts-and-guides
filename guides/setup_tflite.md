@@ -22,7 +22,7 @@ sudo apt autoremove
 ```
 on a fresh install of any Linux distribution to bring your system up to date. This may take a while, depending on the age your image and the speed of your device.
 
-## <h3>ssh on the Pi(Optional)</h3>
+## <h3>(OPTIONAL) ssh on the RPi</h3>
 
 if you want to work remotely, enable ssh by entering
 ```
