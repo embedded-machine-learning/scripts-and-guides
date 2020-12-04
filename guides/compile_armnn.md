@@ -1,4 +1,4 @@
-<h1>Guide to compile ARMNN with Pyarmnn as an option from source</h1>
+<h1>Guide to compile Armnn with Pyarmnn as an option from source</h1>
 
 This guides structure is based on other guides. None of the existing guides worked out of the box, so we found the need to write our own. Some commands were copied, many, especially in the later parts, werde modified to fit our needs.
 
@@ -418,44 +418,92 @@ cmake .. \
 ```
 -DCAFFE_GENERATED_SOURCES= # the location of the parent directory of caffe.pb.h and caffe.pb.cc
 ```
+<h4>Compilation</h4>
+After setting the options of cmake, all that's left is the compilation with
 
 ```
 make -j 8
 ```
 
-  caffe is missing for pyarmnn
-  [Onnx build commands](https://developer.arm.com/solutions/machine-learning-on-arm/developer-material/how-to-guides/configuring-the-arm-nn-sdk-build-environment-for-onnx/single-page)
+# <h3>Build problems</h3>
+caffe is missing for pyarmnn
+[Onnx build commands](https://developer.arm.com/solutions/machine-learning-on-arm/developer-material/how-to-guides/configuring-the-arm-nn-sdk-build-environment-for-onnx/single-page)
 
-  TODO: how to describe what file to get where?
-  Which files to copy: to use ARMNN on your Raspberry you need to copy some libraries onto the device
+# <h2>Deployment</h2>
+To use Armnn you need to copy the compiled libraries onto your device. If you enabled ssh earlier in the guide, you can use a file transfer protocol of your choosing. Otherwise a fat32 partitioned usb drive is also an option.
 
-  You will need the libprotobuf files from protobuf-arm
-  destination is the folder where you want /lib to be
+You will need the **libprotobuf** files from protobuf-arm
+
+*destination* is the folder where you want your libraries to be. For example it might be a folder in /home/pi or /usr/lib/
+
+```
 cp -r $BASEDIR/protobuf-arm/lib ./destination
 cp -r $BASEDIR/armnn/build/lib* ./destination/lib/
-  Now you have to add the lib files to your library path on your Raspberry
+```
+Now you have to add the lib files to your library path on
+```
 cd path_to_lib/lib/
 export LD_LIBRARY_PATH=$PWD
-  You can always check if the path is correct by typing
+```
+
+You can always check the path by typing
+```
 echo $LD_LIBRARY_PATH
+```
 
-  Now you can copy and try out the test scripts onto your Raspberry
+Now you can copy and try out the test scripts on your Raspberry
+```
 cp -r $BASEDIR/armnn/build/tests/ ./destination
-  ExecuteNetwork takes a network and some parameters as input, performs inference with 0s at the input and prints out the results as well as the inference time.
-  First see if the program is executable, by entering
-cd ./destination/
+```
+The program **ExecuteNetwork** takes a network and some other parameters as input, performs inference with 0s (if no input image/file given) and prints out the results as well as the inference time.
+
+Firstly, **open a terminal session on your device** either via ssh or directly on the device. Then see if the program is executable, by entering
+
+```
+cd destination/
 ./ExecuteNetwork --help
-  This should print out all the options of the program. Try playing around the options. For example a mobilenet_v2 network in the tflite format can be run like this
-./ExecuteNetwork --model-format tflite-binary --model-path ~/projects/models/mobilenet-v2-1.4-224/mobilenet_v2_1.4_224.tflite --input-name input --output-name MobilenetV2/Predictions/Reshape_1 --compute CpuAcc --iterations 10
-  Or if you have a frozen Tensorflow model, try something similar to this
-./ExecuteNetwork --model-format tensorflow-binary --model-path ~/projects/models/mobilenet-v2-1.4-224/mobilenet_v2_1.4_224_frozen.pb --input-name input --output-name MobilenetV2/Predictions/Reshape_1 --compute CpuAcc --iterations 10 -s 1,224,224,3
+```
 
-  Should an error occur saying libraries cannot be found, make sure you copied all libraries from your host and if the library path is set correctly. Should these be alright, check if the libraries were compiled for the right platform by first checking your OS with
+This should print out all the options of the program. Try out the available options like CpuRef/CpuAcc or try printing the results of the intermediate layers to get a feel for the program.
+
+For example a mobilenet_v2 network in the Tflite format can be run like this
+
+```
+./ExecuteNetwork \
+--model-format tflite-binary \
+--model-path ~/projects/models/mobilenet-v2-1.4-224/mobilenet_v2_1.4_224.tflite \
+--input-name input \
+--output-name MobilenetV2/Predictions/Reshape_1 \
+--compute CpuAcc \
+--iterations 10
+```
+
+Or if you have a frozen Tensorflow model, try
+```
+./ExecuteNetwork \
+--model-format tensorflow-binary \
+--model-path ~/projects/models/mobilenet-v2-1.4-224/mobilenet_v2_1.4_224_frozen.pb \
+--input-name input \
+--output-name MobilenetV2/Predictions/Reshape_1 \
+--compute CpuAcc \
+--iterations 10 \
+-s 1,224,224,3
+```
+
+Should an error occur saying *libraries cannot be found*, make sure you copied all libraries from your host and check if the library path is set correctly. Should these be alright, check if the libraries were compiled for the right platform by first checking your OS with
+```
 uname -a
-  This will print your OS information.
-  On a 32 bit OS, **arm7a** should be somewhere in the output
-  On a 64 bit OS, **aarch64** should be somewhere in the output
+```
+This will print your general OS information.
 
-  Now you can check what platform the libraries were built for by using the command *file*
-file ./destination/lib/libprotobuf.so.15.0.0
-  Or any other lib\* should have a platform (e.g. **arm7a**, **aarch64**) in the output.
+On a 32 bit OS, **arm7a** should be in the output
+
+On a 64 bit OS, **aarch64** should be in the output
+
+Now you can double check what platform the libraries were built for by using the  **file** command.
+
+For example
+```
+file destination/lib/libprotobuf.so.15.0.0
+```
+You can check any other library which you copied to your device. There should be a platform (e.g. **arm7a**, **aarch64**) in the output.
