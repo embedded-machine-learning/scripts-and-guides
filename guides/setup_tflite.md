@@ -1,10 +1,10 @@
-<h1>How to use the Tflite-Interpreter on a fresh Raspberry OS install.</h1>
+# How to use the Tflite-Interpreter on a fresh Raspberry OS install.
 
 The process is the same for fresh Raspberry OS 32 bit and 64 bit versions.
 
 The non Raspberry OS specific parts can also be used for other Linux distributions, such as Ubuntu.
 
-## <h2>BASICS</h2>
+## BASICS
 
 Install Raspberry OS on your device and boot to desktop. The site [Raspberry Pi OS](https://www.raspberrypi.org/software/) offers tools to install the OS quickly.
 
@@ -22,7 +22,7 @@ sudo apt autoremove
 ```
 on a fresh install of any Linux distribution to bring your system up to date. This may take a while, depending on the age your image and the speed of your device.
 
-## <h3>(OPTIONAL) ssh on the RPi</h3>
+## (OPTIONAL) ssh on the RPi
 
 if you want to work remotely, enable ssh by entering
 ```
@@ -40,7 +40,7 @@ sudo reboot
 ```
 or through the GUI.
 
-## <h3>Tflite interpreter setup</h3>
+### Tflite interpreter setup
 
 There are a few methods to get the Tflite-Interpreter to run on Linux. It can be built from source via cross compilation, built directly on the device, or a pre-compiled Python wheel can easily be installed via pip, if it is available for your platform.
 It is recommended to use a Python **virtual environment** (venv) for better packet control.

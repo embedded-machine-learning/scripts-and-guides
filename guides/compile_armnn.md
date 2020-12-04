@@ -1,4 +1,4 @@
-<h1>Guide to compile Armnn with Pyarmnn as an option from source</h1>
+<h1>Guide to compile Armnn from source with Pyarmnn as an option </h1>
 
 This guides structure is based on other guides. None of the existing guides worked out of the box, so we found the need to write our own. Some commands were copied, many, especially in the later parts, werde modified to fit our needs.
 
