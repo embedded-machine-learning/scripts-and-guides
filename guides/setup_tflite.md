@@ -12,7 +12,7 @@ Connect to a wifi or ethernet of your choice using the GUI or the wpa supplicant
 
 To check your IP adress enter
 ```
-$ ifconfig
+ifconfig
 ```
 It is always recommended to run
 ```

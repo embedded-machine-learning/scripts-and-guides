@@ -102,7 +102,7 @@ using gcc : arm : arm-linux-gnueabihf-g++ ;
 ```
 using gcc : arm : aarch64-linux-gnu-g++ ;
 ```
-By copy pasting with \<Ctrl+C\>, \<Ctrl+Shift+V\> into the editor.
+by copy pasting with \<Ctrl+C\>, \<Ctrl+Shift+V\> into the editor.
 Then save with \<Ctrl+X\>, \<Y\>, \<ENTER\>*
 
 ```
