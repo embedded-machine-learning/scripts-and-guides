@@ -1,4 +1,4 @@
-<h1>Guide to compile Armnn from source with Pyarmnn as an option </h1>
+# Guide to compile Armnn from source with Pyarmnn as an option
 
 This guides structure is based on other guides. None of the existing guides worked out of the box, so we found the need to write our own. Some commands were copied, many, especially in the later parts, werde modified to fit our needs.
 
@@ -8,7 +8,7 @@ These guides were used as inspiration:
 * [Cross-compiling Arm NN for the Raspberry Pi and TensorFlow](https://developer.arm.com/solutions/machine-learning-on-arm/developer-material/how-to-guides/cross-compiling-arm-nn-for-the-raspberry-pi-and-tensorflow/single-page)
 * [ARM NN on RPi4](https://medium.com/@RouYunPan/arm-nn-on-rpi4-806ef8a10e61)
 
-# <h3>Information</h3>
+### Information
 
 [This forum post](https://community.arm.com/developer/tools-software/graphics/f/discussions/12066/cross-compile-armnn-on-x86_64-for-arm64) has lots of useful information and references and [these tools](https://github.com/ARM-software/Tool-Solutions/tree/master/ml-tool-examples/build-armnn) can be used for a quick setup.
 
@@ -22,11 +22,11 @@ in the compilation utilities. Change it to however many threads you want to run 
 
 [//]: # (this is a comment)
 
-# <h3>(OPTIONAL) SWIG > 4</h3>
+### (OPTIONAL) SWIG > 4
 
 In case you get an error about swig not being installed or being too old during this guide, consult [swig setup](http://www.linuxfromscratch.org/blfs/view/svn/general/swig.html) and follow the instructions.
 
-# <h3>Prepare directories and pull repositories</h3>
+### Prepare directories and pull repositories
 ```
 mkdir armnn-pi
 cd armnn-pi
@@ -53,7 +53,7 @@ export BASEDIR=$PWD
 ```
 This will set the BASEDIR variable for the current console session, which is used extensively throughout this guide.
 
-# <h3>Compile Compute Library</h3>
+### Compile Compute Library
 
 ```
 cd $BASEDIR/ComputeLibrary
@@ -69,7 +69,7 @@ Werror=0 debug=0 asserts=0 \
 neon=1 opencl=0 os=linux arch=armv7a examples=1
 ```
 
-# <h3>Compile Boost</h3>
+### Compile Boost
 ```
 cd $BASEDIR/boost_1_64_0/tools/build
 ./bootstrap.sh
@@ -118,7 +118,7 @@ cxxflags=-fPIC \
 --prefix=$BASEDIR/boost
 ```
 
-# <h3>Compile Protobuf for host system</h3>
+### Compile Protobuf for host system
 ```
 cd $BASEDIR/protobuf
 git submodule update --init --recursive
@@ -129,7 +129,7 @@ make install
 make clean
 ```
 
-# <h3>Compile Protobuf for your RPi</h3>
+### Compile Protobuf for your RPi
 ```
 cd $BASEDIR/protobuf
 export LD_LIBRARY_PATH=$BASEDIR/protobuf-host/lib/
@@ -152,13 +152,13 @@ make -j 8
 make install
 ```
 
-# <h3>Compile Tensorflow</h3>
+### Compile Tensorflow
  ```
 cd $BASEDIR/tensorflow
 ../armnn/scripts/generate_tensorflow_protobuf.sh ../tensorflow-protobuf ../protobuf-host
 ```
 
-# <h3>Compile Flatbuffers for Host</h3>
+### Compile Flatbuffers for Host
 ```
 cd $BASEDIR/flatbuffers-1.12.0
 rm -f CMakeCache.txt
@@ -172,7 +172,7 @@ make -j 8 all
 sudo make install
 ```
 
-# <h3>Compile Flatbuffers for RPi</h3>
+### Compile Flatbuffers for RPi
 ```
 cd $BASEDIR/flatbuffers-1.12.0
 ```
@@ -204,7 +204,7 @@ make -j 8 all
 make install
 ```
 
-# <h3>Flatbuffers for Tflite</h3>
+### Flatbuffers for Tflite
 ```
 cd $BASEDIR
 mkdir tflite
@@ -213,7 +213,7 @@ cp $BASEDIR/tensorflow/tensorflow/lite/schema/schema.fbs .
 $BASEDIR/flatbuffers-1.12.0/build/flatc -c --gen-object-api --reflect-types --reflect-names schema.fbs
 ```
 
-# <h2>(OPTIONAL) Setup ONNX for Pyarmnn</h2>
+## (OPTIONAL) Setup ONNX for Pyarmnn
 
 Pyarmnn requires ONNX as dependency.
 ```
@@ -228,7 +228,7 @@ onnx/onnx.proto --proto_path=. \
 --cpp_out $BASEDIR/onnx
 ```
 
-# <h2>(OPTIONAL) Setup Caffe for Pyarmnn</h2>
+## (OPTIONAL) Setup Caffe for Pyarmnn
 This part is only needed if you're planning on compiling the Pyhton wrapper with Armnn.
 
 Caffe is needed as a Pyarmnn dependency.
@@ -237,7 +237,7 @@ Caffe is needed as a Pyarmnn dependency.
 sudo apt install libhdf5-dev lmdb-utils libsnappy-dev libleveldb-dev python3-opencv libatlas-base-dev
 ```
 
-<h3>Building OpenCV as a Caffe dependence</h3>
+### Building OpenCV as a Caffe dependence
 OpenCV is a powerful computer vision framework, which is required for Caffe.
 
 ```
@@ -257,7 +257,7 @@ python3 -c "import cv2; print(cv2.__version__)"
 ```
 it should output your opencv version.
 
-<h3>Caffe for Pyarmnn</h3>
+### Caffe for Pyarmnn
 
 Caffe uses the already prepared Boost and Protobuf
 ```
@@ -274,7 +274,7 @@ cmake .. \
 -DPROTOBUF_LIBRARY_DEBUG=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0 \
 -DPROTOBUF_LIBRARY_RELEASE=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0
 ```
-# <h2>Compiling Armnn</h2>
+## Compiling Armnn
 There are many options which can be enabled for the Armnn compilation. We tried to make a mostly complete version, so no missing dependencies would pop out later on during the deployment of Armnn.
 To see the list of the available options enter:
 ```
@@ -289,7 +289,7 @@ mkdir build
 cd build
 ```
 
-# <h3>Armnn32 without Pyarmnn</h3>
+### Armnn32 without Pyarmnn
 
 ```
 cmake .. \
@@ -315,7 +315,7 @@ cmake .. \
 -DFLATC_DIR=$BASEDIR/flatbuffers-1.12.0/build
 ```
 
-# <h3>Armnn32 with Pyarmnn</h3>
+### Armnn32 with Pyarmnn
 This time, the (OPTIONAL) software packets will be linked in the arguments as an addition to the flags from the compilation without Pyarmnn.
 
 ```
@@ -348,7 +348,7 @@ cmake .. \
 -DONNX_GENERATED_SOURCES=$BASEDIR/onnx
 ```
 
-# <h3>Armnn64 without Pyarmnn</h3>
+### Armnn64 without Pyarmnn
 
 ```
 cmake .. \
@@ -373,7 +373,7 @@ cmake .. \
 -DFLATC_DIR=$BASEDIR/flatbuffers-1.12.0/build
 ```
 
-<h3>Armnn64 with Pyarmnn</h3>
+### Armnn64 with Pyarmnn
 
 ```
 cmake ..
@@ -382,7 +382,7 @@ cmake ..
 # bottom text
 ```
 
-<h3>Armnn64 with Pyarmnn ONLY for my work PC DELETE THIS WHEN PUBLISHING</h3>
+### Armnn64 with Pyarmnn ONLY for my work PC DELETE THIS WHEN PUBLISHING
 
 ```
 cmake .. \
@@ -425,11 +425,11 @@ After setting the options of cmake, all that's left is the compilation with
 make -j 8
 ```
 
-# <h3>Build problems</h3>
+### Build problems
 caffe is missing for pyarmnn
 [Onnx build commands](https://developer.arm.com/solutions/machine-learning-on-arm/developer-material/how-to-guides/configuring-the-arm-nn-sdk-build-environment-for-onnx/single-page)
 
-# <h2>Deployment</h2>
+## Deployment
 To use Armnn you need to copy the compiled libraries onto your device. If you enabled ssh earlier in the guide, you can use a file transfer protocol of your choosing. Otherwise a fat32 partitioned usb drive is also an option.
 
 You will need the **libprotobuf** files from protobuf-arm
