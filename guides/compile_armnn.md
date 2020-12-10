@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="./images/eml_logo.png">
+</div>
+
 # Guide to compile Armnn from source with Pyarmnn as an option
 
 This guides structure is based on other guides. None of the existing guides worked out of the box, so we found the need to write our own. Some commands were copied, many, especially in the later parts, werde modified to fit our needs.
@@ -507,3 +511,7 @@ For example
 file destination/lib/libprotobuf.so.15.0.0
 ```
 You can check any other library which you copied to your device. There should be a platform (e.g. **arm7a**, **aarch64**) in the output.
+
+
+## Issues
+Should any issues arise during the completion of the guide or any errors noted, please let us know by filing an issue and help us keep up the quality.

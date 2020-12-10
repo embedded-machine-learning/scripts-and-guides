@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="./images/eml_logo.png">
+</div>
+
 # How to use the Tflite-Interpreter on a fresh Raspberry OS install.
 
 The process is the same for fresh Raspberry OS 32 bit and 64 bit versions.
@@ -77,3 +81,6 @@ https://www.tensorflow.org/lite/guide/python
 
 To build Tflite from source, consider following this guide
 https://qengineering.eu/install-tensorflow-2-lite-on-raspberry-pi-4.html
+
+## Issues
+Should any issues arise during the completion of the guide or any errors noted, please let us know by filing an issue and help us keep up the quality.
