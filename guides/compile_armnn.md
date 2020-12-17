@@ -24,6 +24,32 @@ Throughout this guide, the compilation runs on 8 cores (threads), this is signif
 ```
 in the compilation utilities. Change it to however many threads you want to run simultaneously. If run without the argument, the compilation utilities default to 1 thread, which usually takes quite a while to finish.
 
+### On a new console
+
+Should you for whatever reason start a new console session where you want to finish setting up the frameworks and go ahead with the compilation, please don't forget to set the environment variables for the shell as follows:
+
+```
+cd armnn-pi
+export BASEDIR=$PWD
+```
+In case you came to the part where you compiled **boost** be sure to add
+
+```
+export PATH=$BASEDIR/boost.build/bin:$PATH
+```
+
+In case you came to the **protobuf** compilation, add
+
+```
+export LD_LIBRARY_PATH=$BASEDIR/protobuf-host/lib/
+```
+
+(OPTIONAL) If you came as far as the **ONNX** setup, be sure to add
+
+```
+export LD_LIBRARY_PATH=$BASEDIR/protobuf-host/lib:$LD_LIBRARY_PATH
+```
+
 [//]: # (this is a comment)
 
 ### (OPTIONAL) SWIG > 4
