@@ -10,7 +10,7 @@ and modified from other sources, the licence information of the other sources is
 ## Tools
 File: obj_visualize_compare_bbox.py
 Usage: Select two or three images with their bounding boxes in PASCAL VOC XML format and visualize then within one image.
-Example: 
+Example as Windows script: 
 ```
 python obj_visualize_compare_bbox.py --labelmap="samples/annotations/label_map.pbtxt" ^
 --output_dir="samples/results" ^
@@ -19,6 +19,12 @@ python obj_visualize_compare_bbox.py --labelmap="samples/annotations/label_map.p
 --image_path3="samples/images/20.jpg" --annotation_dir3="samples/annotations/xml" --title3="Image 3" ^
 --use_three_images
 ```
+
+Result for comparing three different images.
+
+<div align="center">
+  <img src="./samples/results/bbox_0_10_20.jpg">
+</div>
 
 
 ## Issues
