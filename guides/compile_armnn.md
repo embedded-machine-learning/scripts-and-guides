@@ -24,6 +24,32 @@ Throughout this guide, the compilation runs on 8 cores (threads), this is signif
 ```
 in the compilation utilities. Change it to however many threads you want to run simultaneously. If run without the argument, the compilation utilities default to 1 thread, which usually takes quite a while to finish.
 
+### On a new console
+
+Should you for whatever reason start a new console session where you want to finish setting up the frameworks and go ahead with the compilation, please don't forget to set the environment variables for the shell as follows:
+
+```
+cd armnn-pi
+export BASEDIR=$PWD
+```
+In case you came to the part where you compiled **boost** be sure to add
+
+```
+export PATH=$BASEDIR/boost.build/bin:$PATH
+```
+
+In case you came to the **protobuf** compilation, add
+
+```
+export LD_LIBRARY_PATH=$BASEDIR/protobuf-host/lib/
+```
+
+(OPTIONAL) If you came as far as the **ONNX** setup, be sure to add
+
+```
+export LD_LIBRARY_PATH=$BASEDIR/protobuf-host/lib:$LD_LIBRARY_PATH
+```
+
 [//]: # (this is a comment)
 
 ### (OPTIONAL) SWIG > 4
@@ -217,9 +243,8 @@ cp $BASEDIR/tensorflow/tensorflow/lite/schema/schema.fbs .
 $BASEDIR/flatbuffers-1.12.0/build/flatc -c --gen-object-api --reflect-types --reflect-names schema.fbs
 ```
 
-## (OPTIONAL) Setup ONNX for Pyarmnn
-
-Pyarmnn requires ONNX as dependency.
+## (OPTIONAL) Setup ONNX
+If you plan on using models in the ONNX format or you are building Pyarmnn, you will need to setup ONNX first.
 ```
 cd $BASEDIR/
 git clone https://github.com/onnx/onnx.git
@@ -233,15 +258,15 @@ onnx/onnx.proto --proto_path=. \
 ```
 
 ## (OPTIONAL) Setup Caffe for Pyarmnn
-This part is only needed if you're planning on compiling the Pyhton wrapper with Armnn.
-
-Caffe is needed as a Pyarmnn dependency.
+This part is only needed if you're planning on compiling the Python wrapper with Armnn where Caffe is required as a dependency.
 ```
 # install Caffe dependencies
-sudo apt install libhdf5-dev lmdb-utils libsnappy-dev libleveldb-dev python3-opencv libatlas-base-dev
+sudo apt install libhdf5-dev lmdb-utils liblmdb-dev \
+libsnappy-dev libleveldb-dev python3-opencv libatlas-base-dev \
+libgflags-dev libgoogle-glog-dev
 ```
 
-### Building OpenCV as a Caffe dependence
+### (OPTIONAL) Building OpenCV as a Caffe dependency
 OpenCV is a powerful computer vision framework, which is required for Caffe.
 
 ```
@@ -265,9 +290,13 @@ it should output your opencv version.
 
 Caffe uses the already prepared Boost and Protobuf
 ```
+git clone https://github.com/BVLC/caffe.git
 cd $BASEDIR/caffe
 mkdir build
 cd build/
+```
+### on work pc
+```
 cmake .. \
 -DBOOST_ROOT=$BASEDIR/armnn-devenv/boost_arm64_install/ \
 -DProtobuf_INCLUDE_DIR=$BASEDIR/armnn-devenv/google/x86_64_pb_install/include/ \
@@ -278,6 +307,28 @@ cmake .. \
 -DPROTOBUF_LIBRARY_DEBUG=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0 \
 -DPROTOBUF_LIBRARY_RELEASE=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0
 ```
+
+### on laptop
+```
+cmake .. \
+-DCPU_ONLY=ON \
+-DBOOST_ROOT=$BASEDIR/boost \
+-DProtobuf_INCLUDE_DIR=$BASEDIR/protobuf-host/include \
+-DProtobuf_PROTOC_EXECUTABLE=$BASEDIR/protobuf-host/bin/protoc \
+-DBOOST_ROOT=$BASEDIR/boost \
+-DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
+-DPYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
+-DPYTHON_EXECUTABLE=/usr/bin/python3 \
+-DPROTOBUF_LIBRARY_DEBUG=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
+-DPROTOBUF_LIBRARY_RELEASE=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0
+```
+
+If you made a mistake or tried some flags which you want to reset, simply delete the CMakeCache by entering
+```
+rm CMakeCache.txt
+```
+in the build folder and rerun your cmake command with appropriate flags.
+
 ## Compiling Armnn
 There are many options which can be enabled for the Armnn compilation. We tried to make a mostly complete version, so no missing dependencies would pop out later on during the deployment of Armnn.
 To see the list of the available options enter:
@@ -349,7 +400,23 @@ cmake .. \
 -DCMAKE_CXX_FLAGS=-mfpu=neon \
 -DFLATC_DIR=$BASEDIR/flatbuffers-1.12.0/build \
 -DBUILD_ONNX_PARSER=1 \
--DONNX_GENERATED_SOURCES=$BASEDIR/onnx
+-DONNX_GENERATED_SOURCES=$BASEDIR/onnx \
+-DBUILD_CAFFE_PARSER:BOOL=ON
+```
+Might want to use following flags as well
+```
+BUILD_CAFFE_PARSER:BOOL=OFF
+CAFFE_GENERATED_SOURCES:PATH=CAFFE_GENERATED_SOURCES-NOTFOUND
+
+BUILD_ACCURACY_TOOL:BOOL=OFF
+BUILD_ARMNN_QUANTIZER:BOOL=OFF
+BUILD_ARMNN_SERIALIZER:BOOL=OFF
+Boost_DIR:PATH=Boost_DIR-NOTFOUND
+
+DYNAMIC_BACKEND_PATHS:BOOL=OFF
+PROFILING_BACKEND_STREAMLINE:BOOL=OFF
+SAMPLE_DYNAMIC_BACKEND:BOOL=OFF
+SHARED_BOOST:BOOL=OFF
 ```
 
 ### Armnn64 without Pyarmnn
@@ -432,6 +499,9 @@ make -j 8
 ### Build problems
 caffe is missing for pyarmnn
 [Onnx build commands](https://developer.arm.com/solutions/machine-learning-on-arm/developer-material/how-to-guides/configuring-the-arm-nn-sdk-build-environment-for-onnx/single-page)
+
+### PyArmnn issues and references
+[Github issue with sample code](https://github.com/ARM-software/armnn/issues/468) might want to check out the results and use the code as future reference later.
 
 ## Deployment
 To use Armnn you need to copy the compiled libraries onto your device. If you enabled ssh earlier in the guide, you can use a file transfer protocol of your choosing. Otherwise a fat32 partitioned usb drive is also an option.
