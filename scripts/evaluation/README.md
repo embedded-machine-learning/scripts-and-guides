@@ -10,7 +10,7 @@ and modified from other sources, the licence information of the other sources is
 ## Tools
 File: obj_visualize_compare_bbox.py
 Usage: Select two or three images with their bounding boxes in PASCAL VOC XML format and visualize then within one image.
-Example as Windows script: 
+Example as Windows batch script: 
 ```
 python obj_visualize_compare_bbox.py --labelmap="samples/annotations/label_map.pbtxt" ^
 --output_dir="samples/results" ^
@@ -26,6 +26,18 @@ Result for comparing three different images.
   <img src="./samples/results/bbox_0_10_20.jpg">
 </div>
 
+
+File: visualize_object_detection_images_opencv.py
+Usage: Select two images with their bounding boxes in PASCAL VOC XML format and visualize then within one image.
+It uses OpenCV for the visualization of the bounding boxes.
+Example as Windows batch script: 
+```
+python visualize_object_detection_images_opencv.py ^
+--image_path1="samples/images/0.jpg" --annotation_dir1="samples/annotations/xml" ^
+--image_path2="samples/images/30.jpg" --annotation_dir2="samples/annotations/xml" ^
+--output_dir="samples/results" ^
+--line_thickness=2
+```
 
 ## Issues
 Should any issues arise during the completion of the guide or any errors noted, please let us know by filing an issue and help us keep up the quality.
