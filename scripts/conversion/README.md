@@ -9,6 +9,7 @@ Tensorflow object detection api 2.0 is necessary
 
 ## VOC to Coco
 Source: [https://github.com/yukkyo/voc2coco](https://github.com/yukkyo/voc2coco)
+
 Script: `convert_voc_to_coco.py` 
 
 Example: 
@@ -18,6 +19,7 @@ python convert_voc_to_coco.py --ann_dir samples/annotations/xml --ann_ids sample
 
 ## Coco to VOC
 Source: [https://gist.github.com/jinyu121](https://gist.github.com/jinyu121/a222492405890ce912e95d8fb5367977)
+
 Script: `convert_coco_to_voc.py` 
 
 Example: 
@@ -27,6 +29,7 @@ python convert_coco_to_voc.py --annotation_file="samples/annotations/cvml_xml/an
 
 ## CVML to Coco
 Source: [CVML Annotation — What it is and How to Convert it?](https://towardsai.net/p/deep-learning/cvml-annotation%e2%80%8a-%e2%80%8awhat-it-is-and-how-to-convert-it)
+
 Script: `convert_cvml_to_coco.py` 
 
 Example: 
@@ -34,9 +37,11 @@ Example:
 python convert_cvml_to_coco.py --annotation_file="samples/annotations/cvml_xml/cvml_Milan-PETS09-S2L1.xml" --image_dir="samples/cvml_images" --label_name="predestrian"
 ```
 
-## Coco zo TFRecords
+## Coco to TFRecords
 Source: [Tensorflow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/dataset_tools/create_coco_tf_record.py)
+
 Script original: `convert_coco_to_tfrecord.py`
+
 Script modified: `convert_coco_to_tfrecord_mod.py`
 
 Examples:
@@ -46,7 +51,9 @@ python convert_coco_to_tfrecord_mod.py --logtostderr --image_dir="samples/images
 
 ## VOC to TFRecords
 Source: [Tensorflow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection/dataset_tools)
+
 Script original: 
+
 Script modified: `convert_voc_to_tfrecord_mod.py`
 
 Examples:
@@ -56,6 +63,7 @@ python convert_voc_to_tfrecord_mod.py -x "samples/annotations/xml" -i "samples/i
 
 ## TF2 Keras to TF1 Frozen
 Source:
+
 Script: `convert_tf2keras_to_tf1frozen.py`
 
 Examples:
@@ -65,4 +73,4 @@ Source: [Darknet](https://github.com/ysh329/darknet2caffe)
 
 # Issues
 If there are any issues or suggestions for improvements, please add an issue to github's bug tracking system or please send a mail 
-to [Alexander Wendt](alexander.wendt@tuwien.ac.at)
+to [Alexander Wendt](mailto:alexander.wendt@tuwien.ac.at)
