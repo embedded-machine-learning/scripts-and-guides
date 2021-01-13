@@ -1,0 +1,54 @@
+<annotation>
+	<filename>frame_0002.jpg</filename>
+	<folder>VOCCOCO</folder>
+	<segmented>0</segmented>
+	<owner>
+		<name>unknown</name>
+	</owner>
+	<source>
+		<database>The COCO 2017 database</database>
+		<annotation>COCO 2017</annotation>
+		<image>unknown</image>
+	</source>
+	<size>
+		<width>768</width>
+		<height>576</height>
+		<depth>3</depth>
+	</size>
+	<object>
+		<name>predestrian</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>495</xmin>
+			<ymin>159</ymin>
+			<xmax>526</xmax>
+			<ymax>234</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>predestrian</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>268</xmin>
+			<ymin>216</ymin>
+			<xmax>301</xmax>
+			<ymax>305</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>predestrian</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>619</xmin>
+			<ymin>242</ymin>
+			<xmax>661</xmax>
+			<ymax>324</ymax>
+		</bndbox>
+	</object>
+</annotation>
