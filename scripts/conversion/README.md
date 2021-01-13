@@ -1,7 +1,8 @@
 # Converters
 The following converters are used to convert between machine learning data formats for models and datasets. Their purpose is to make the life easier for developers by providing
 complete converters. However, the converters might be adapted for other purposes. All converters are either written by the devlopers of the repository or parts are used from
-other open source converters. Within each converter file, each source has been provided.
+other open source converters. Within each converter file, each source has been provided. For each converter, the goal is also to provide sample data as part of the converter 
+documentation.
 
 ## Pre-requisites
 Tensorflow object detection api 2.0 is necessary
