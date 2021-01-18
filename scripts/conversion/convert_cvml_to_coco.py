@@ -125,6 +125,7 @@ def convert_cvml_csv(annotation_file: str, image_dict: dict, label_name: str, im
             #Adapt height and width for each file individually
             image_width = image_dict[file_name]['width']
             image_height = image_dict[file_name]['height']
+            print("Processing ", file_name)
 
             label_string = ""
             if type(frame["objectlist"]) == collections.OrderedDict:
@@ -149,14 +150,7 @@ def convert_cvml_csv(annotation_file: str, image_dict: dict, label_name: str, im
                         )
 
                 else:
-                    x1 = int(np.round(max(
-                        0,
-                        float(
-                            frame["objectlist"]["object"]["box"]["@xc"]
-                            - float(frame["objectlist"]["object"]["box"]["@w"])
-                        )
-                        / 2,
-                    )))
+                    x1 = int(np.round(max(0, float(frame["objectlist"]["object"]["box"]["@xc"]) - float(frame["objectlist"]["object"]["box"]["@w"])/2,)))
                     y1 = int(np.round(max(
                         0,
                         float(frame["objectlist"]["object"]["box"]["@yc"])
