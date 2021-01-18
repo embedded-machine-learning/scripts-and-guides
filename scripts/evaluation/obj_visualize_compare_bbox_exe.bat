@@ -1,4 +1,5 @@
-python obj_visualize_compare_bbox.py --labelmap="samples/annotations/label_map.pbtxt" ^
+python obj_visualize_compare_bbox.py ^
+--labelmap="samples/annotations/label_map.pbtxt" ^
 --output_dir="samples/results" ^
 --image_path1="samples/images/0.jpg" --annotation_dir1="samples/annotations/xml" --title1="Image 1" ^
 --image_path2="samples/images/10.jpg" --annotation_dir2="samples/annotations/xml" --title2="Image 2" ^

@@ -85,7 +85,7 @@ matplotlib.use('TkAgg')
 parser = argparse.ArgumentParser(description='Google Tensorflow Detection API 2.0 Inferrer')
 parser.add_argument('--labelmap', default='annotations/label_map.pbtxt',
                     help='Labelmap path', required=False)
-parser.add_argument('--output_dir', default="result",
+parser.add_argument('--output_dir', default="samples/result",
                     help='Result directory', required=False)
 
 parser.add_argument("--image_path1", type=str, default="images/0.jpg", help='Path to image, usually ground truth',
@@ -106,7 +106,7 @@ parser.add_argument("--title1", type=str, default="Image1", help='Title of image
 parser.add_argument("--title2", type=str, default="Image2", help='Title of image 2', required=False)
 parser.add_argument("--title3", type=str, default="Image3", help='Title of image 3', required=False)
 
-parser.add_argument("--use_three_images", action='store_true',
+parser.add_argument("--use_three_images", action='store_true', default=False,
                     help="If set, three images will be used, instead of two")
 
 args = parser.parse_args()
@@ -402,32 +402,35 @@ def extract_info_from_annotations(annotation, category_index):
 
     return boxes, classes, scores
 
-def main():
+def visualize_images(image_path1, image_path2, image_path3,
+                     annotation_dir1, annotation_dir2, annotation_dir3,
+                     title1, title2, title3,
+                     labelmap, output_dir, use_three_images):
     '''Main method'''
 
     # Get all paths
-    image_path1 = args.image_path1
+    #image_path1 = args.image_path1
     if args.image_path2 == "None":
-        image_path2 = args.image_path1
-    else:
-        image_path2 = args.image_path2
+        image_path2 = image_path1
+    #else:
+    #    image_path2 = image_path2
 
-    if args.image_path3 == "None":
-        image_path3 = args.image_path1
-    else:
-        image_path3 = args.image_path3
+    if image_path3 == "None":
+        image_path3 = image_path1
+    #else:
+    #    image_path3 = image_path3
 
-    annotation_dir1 = args.annotation_dir1
-    if args.annotation_dir2 == "None":
-        annotation_dir2 = args.annotation_dir1
-    else:
-        annotation_dir2 = args.annotation_dir2
-    if args.annotation_dir3 == "None":
-        annotation_dir3 = args.annotation_dir1
-    else:
-        annotation_dir3 = args.annotation_dir3
+    #annotation_dir1 = args.annotation_dir1
+    if annotation_dir2 == "None":
+        annotation_dir2 = annotation_dir1
+    #else:
+    #annotation_dir2 = annotation_dir2
+    if annotation_dir3 == "None":
+        annotation_dir3 = annotation_dir1
+    #else:
+    #annotation_dir3 = annotation_dir3
 
-    output_dir = args.output_dir
+    #output_dir = args.output_dir
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         print("Created result directory: ", output_dir)
@@ -437,31 +440,35 @@ def main():
     image_name1 = os.path.splitext(image_filename1)[0]
     image_filename2 = os.path.basename(image_path2)
     image_name2 = os.path.splitext(image_filename2)[0]
-    if args.use_three_images:
+    if use_three_images:
         image_filename3 = os.path.basename(image_path3)
         image_name3 = os.path.splitext(image_filename3)[0]
 
     # Load label path
-    category_index = load_labelmap(os.path.abspath(args.labelmap))
+    category_index = load_labelmap(os.path.abspath(labelmap))
 
     # Generate the images with bounding boxes
     image1 = visualize_image_with_boundingbox(annotation_dir1, category_index, image_name1, image_path1)
     image2 = visualize_image_with_boundingbox(annotation_dir2, category_index, image_name2, image_path2)
-    if args.use_three_images:
+    if use_three_images:
         image3 = visualize_image_with_boundingbox(annotation_dir3, category_index, image_name3, image_path3)
-        fig = plot_three_images(image1, image2, image3)
+        fig = plot_three_images(image1, image2, image3, title1, title2, title3)
         out_name = "bbox_" + image_name1 + "_" + image_name2 + "_" + image_name3 + ".jpg"
     else:
-        fig = plot_two_images(image1, image2)
+        fig = plot_two_images(image1, image2, title1, title2)
         out_name = "bbox_" + image_name1 + "_" + image_name2 + ".jpg"
 
     plt.savefig(os.path.join(output_dir, out_name))
+    print("Saved output image to ", os.path.join(output_dir, out_name))
 
     #plt.show()
 
 if __name__ == "__main__":
     #if not args.pb and not args.xml:
     #    sys.exit("Please pass either a frozen pb or IR xml/bin model")
-    main()
+    visualize_images(args.image_path1, args.image_path2, args.image_path3,
+                     args.annotation_dir1, args.annotation_dir2, args.annotation_dir3,
+                     args.title1, args.title2, args.title3,
+                     args.labelmap, args.output_dir, args.use_three_images)
 
     print("=== Program end ===")
