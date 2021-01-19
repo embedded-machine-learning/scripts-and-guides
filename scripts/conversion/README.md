@@ -37,6 +37,23 @@ Example:
 python convert_cvml_to_coco.py --annotation_file="samples/annotations/cvml_xml/cvml_Milan-PETS09-S2L1.xml" --image_dir="samples/cvml_images" --label_name="predestrian"
 ```
 
+## 3DMOT2015 Yololike format to Coco
+Source: Inspired from [here](https://github.com/Taeyoung96/Yolo-to-COCO-format-converter/blob/master/main.py)
+
+Script: `convert_3DMOT2015_yololike_to_coco.py`
+
+Notice: The format from which is connected looks like the yolo format, but is not the same. This format was used in MOT Challenge 2015. However. This script can 
+easily be transformed into a yolo converter.
+
+Example: 
+```shell
+python C:\Projekte\21_SoC_EML\public_content\scripts-and-guides\scripts\conversion\convert_3DMOT2015_yololike_to_coco.py ^
+--annotation_file="samples/annotations/3DMOT2015_yololike_ground_truth.txt" ^
+--image_dir="samples/yolo_images" ^
+--label_name="pedestrian" ^
+--image_name_prefix=""
+```
+
 ## Coco to TFRecords
 Source: [Tensorflow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/dataset_tools/create_coco_tf_record.py)
 
