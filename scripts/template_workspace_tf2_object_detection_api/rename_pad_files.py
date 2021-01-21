@@ -68,11 +68,13 @@ def renameFiles(path):
     '''
 
     for filename in os.listdir(path):
+        # :-4 remove extension of file and split for _
         if len(filename[:-4].split('_'))<2:
             prefix=""
             num=filename[:-4].split('_')[-1]
         else:
-            prefix, num = filename[:-4].split('_')
+            num = filename[:-4].split('_')[-1]
+            prefix = filename[:-4].split('_')[-2]
         file_type = filename.split('.')
         num = num.zfill(4)
 
