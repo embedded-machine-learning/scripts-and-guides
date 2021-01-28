@@ -1,0 +1,26 @@
+# Converters #
+
+## VOC to Coco ##
+Source: https://github.com/yukkyo/voc2coco
+Script original: voc2coco.py 
+
+Example: 
+python voc2coco.py --ann_dir annotations/xmls --ann_ids annotations/train.txt --labels annotations/labels.txt --output annotations/coco_train_annotations.json --ext xml
+
+## Coco zo TFRecords ##
+Source: https://github.com/tensorflow/models/blob/master/research/object_detection/dataset_tools/create_coco_tf_record.py
+Script original: create_coco_tf_record.py
+Script modified: create_coco_tf_record_mod.py
+
+Examples:
+python create_coco_tf_record_mod.py --logtostderr --image_dir="images/train" --annotations_file="annotations/coco_train_annotations.json" --output_path="prepared-records/train_coco.record" --number_shards=9
+python create_coco_tf_record_mod.py --logtostderr --image_dir="images/test" --annotations_file="annotations/coco_test_annotations.json" --output_path="prepared-records/test_coco.record" --number_shards=9
+
+## VOC to TFRecords ##
+Source:
+Script original:
+Script modified: 021_create_voc_tf_record_mod.py
+
+Examples:
+python 021_create_voc_tf_record_mod.py -x "annotations/xmls" -i "images/train" -l "annotations/sw_label_map.pbtxt" -o "jobs/star_wars_dataset/train.record" -n 10
+python 021_create_voc_tf_record_mod.py -x "annotations/xmls" -i "images/test" -l "annotations/sw_label_map.pbtxt" -o "jobs/star_wars_dataset/test.record" -n 10

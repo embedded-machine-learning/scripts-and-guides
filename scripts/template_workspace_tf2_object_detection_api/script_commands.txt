@@ -1,0 +1,76 @@
+#====================================#
+# Validate and clean dataset
+#====================================#
+python 010_clean_images.py -i "images"
+python 011_check_duplicate_images.py --train_imgs_dir "images"
+
+#====================================#
+#Prepare dataset for training
+#====================================#
+#Convert to coco dataset format
+python 020_partition_dataset.py -i "images" --xmlDir "annotations/xmls" --file_id_dir "annotations" -r 0.10 --remove_source
+#python 020_partition_dataset.py -i "images" --xmlDir "annotations/xmls" --file_id_dir "annotations" -r 0.10
+
+python 021_generate_tfrecord_mod.py -x "annotations/xmls" -i "images/train" -l "annotations/sw_label_map.pbtxt" -o "jobs/star_wars_dataset/train.record" -n 10
+python 021_generate_tfrecord_mod.py -x "annotations/xmls" -i "images/test" -l "annotations/sw_label_map.pbtxt" -o "jobs/star_wars_dataset/test.record" -n 10
+
+#====================================#
+#Train model
+#====================================#
+$model_name = "ssd_mobilenet_v2_300x300_coco17_starwars"
+set modelname=ssd_mobilenet_v2_300x300_coco17_starwars
+
+python 030_model_main_tf2.py --pipeline_config_path="jobs/ssd_mobilenet_v2_300x300_coco17_starwars.config" --model_dir="models/ssd_mobilenet_v2_300x300_coco17_starwars"
+## Evaluate during training (in another window or in background)
+python 030_model_main_tf2.py --pipeline_config_path="jobs/ssd_mobilenet_v2_300x300_coco17_starwars.config" --model_dir="models/ssd_mobilenet_v2_300x300_coco17_starwars" --checkpoint_dir="models/ssd_mobilenet_v2_300x300_coco17_starwars"
+
+#====================================#
+#Evaluate trained model
+#====================================#
+python 040_evaluate_final_performance.py --pipeline_config_path="jobs/ssd_mobilenet_v2_300x300_coco17_starwars.config" --model_dir="models/ssd_mobilenet_v2_300x300_coco17_starwars" --checkpoint_dir="models/ssd_mobilenet_v2_300x300_coco17_starwars"
+python 041_read_tf_summary.py --checkpoint_dir="models/ssd_mobilenet_v2_300x300_coco17_starwars" --out_dir="result/metrics"
+
+#====================================#
+#Export inference graph
+#====================================#
+python 050_exporter_main_v2.py --input_type="image_tensor" --pipeline_config_path="jobs/ssd_mobilenet_v2_300x300_coco17_starwars.config" --trained_checkpoint_dir="models/ssd_mobilenet_v2_300x300_coco17_starwars" --output_directory="exported-models/ssd_mobilenet_v2_300x300_coco17_starwars"
+
+#====================================#
+#Infer new images
+#====================================#
+python 060_inference_from_saved_model_tf2.py -p "exported-models/ssd_mobilenet_v2_300x300_coco17_starwars/saved_model/" -i "images/inference" -l "annotations/sw_label_map.pbtxt" --output_dir="result" -r True 
+
+#====================================#
+#Zip Training Folder Content
+#====================================#
+python zip_tool.py --items="prepared-records pre-trained-models annotations 030_model_main_tf2.py 040_evaluate_final_performance.py 041_read_tf_summary.py 050_exporter_main_v2.py" --out="prepared_training_data.zip"
+
+#====================================#
+#Zip Training jobs Content
+#====================================#
+python zip_tool.py --items="jobs" --out="prepared_training_jobs.zip"
+
+#====================================#
+#Zip Results Content
+#====================================#
+python zip_tool.py --items="result exported-models" --out="prepared_results.zip"
+
+
+
+
+#====================================#
+#Extra
+#====================================#
+python export_inference_graph.py --input_type=image_tensor --pipeline_config_path="jobs/ssd_mobilenet_v2_320x320_coco17_tpu-8/ssd_mobilenet_v2_320x320_coco17_tpu-8_starwars.config" --trained_checkpoint_prefix="jobs/my_ssd_mobilenet_v2_320x320_coco17_tpu-8_starwars_2/ckpt-25" --output_directory="exported-models/starwars"
+#Put in queue
+ts -L AW_MobileNetV2_SSD_Starwars /home/wendt/object_detection/jobs/train_model_mobilenetv2ssd_starwars.sh
+
+#====================================#
+#Conversion
+#====================================#
+#VOC to Coco
+python voc2coco.py --ann_dir annotations/xmls --ann_ids annotations/train.txt --labels annotations/labels.txt --output annotations/coco_train_annotations.json --ext xml
+
+#Coco to TFRecords
+python create_coco_tf_record_modaw.py --logtostderr --image_dir="images/train" --annotations_file="annotations/coco_train_annotations.json" --output_path="prepared-records/train_coco.record" --number_shards=9
+python create_coco_tf_record_modaw.py --logtostderr --image_dir="images/test" --annotations_file="annotations/coco_test_annotations.json" --output_path="prepared-records/test_coco.record" --number_shards=9
