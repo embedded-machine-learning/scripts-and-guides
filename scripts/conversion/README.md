@@ -1,3 +1,6 @@
+<div align="center">
+  <img src="../../_img/eml_logo_and_text.png">
+</div>
 # Converters
 The following converters are used to convert between machine learning data formats for models and datasets. Their purpose is to make the life easier for developers by providing
 complete converters. However, the converters might be adapted for other purposes. All converters are either written by the devlopers of the repository or parts are used from

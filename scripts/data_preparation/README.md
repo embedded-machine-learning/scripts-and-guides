@@ -1,3 +1,6 @@
+<div align="center">
+  <img src="../../_img/eml_logo_and_text.png">
+</div>
 # Data Processing Tools
 The following data processing tools are used to rename files, check duplicates, partition datasets.
 

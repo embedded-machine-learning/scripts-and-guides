@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./images/eml_logo_and_text.png">
+  <img src="../_img/eml_logo_and_text.png">
 </div>
 
 # How to use the Tflite-Interpreter on a fresh Raspberry OS install.

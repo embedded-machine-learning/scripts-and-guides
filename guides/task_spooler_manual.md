@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./images/eml_logo_and_text.png">
+  <img src="../_img/eml_logo_and_text.png">
 </div>
 
 # Task Spooler Manual for EDA-Server
