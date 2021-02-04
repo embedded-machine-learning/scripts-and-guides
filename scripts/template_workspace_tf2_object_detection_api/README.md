@@ -1,4 +1,4 @@
-#Template Folder Structure and Scripts for Tensor Flow Object Detection API
+# Template Folder Structure and Scripts for Tensor Flow Object Detection API
 Their purpose is to make the life easier for developers by providing complete converters. However, the converters might be adapted for other purposes.
 
 ## Sources
