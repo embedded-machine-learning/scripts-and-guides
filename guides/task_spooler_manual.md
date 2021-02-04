@@ -31,10 +31,13 @@ Standardpfad oder in einem Userpfad PATH-OUTPUTFILE.out ist nur ein
 generischer Platzhalter bitte euren Pfad einfügen.
 
 ```
-1. export TS_SOCKET="/srv/cdl-eml/Socket/NN-Training.socket"
-2. chmod 777 /srv/cdl-eml/Socket/NN-Training.socket
-3. export TS_TMPDIR="/srv/cdl-eml/Output/" (Standardpfad)
-4. export TS_TMPDIR="/srv/cdl-eml/PATH-OUTPUTFILE.out" (Userpfad optional)
+1a. export TS_SOCKET="/srv/ts_socket/CPU.socket"
+1b. export TS_SOCKET="/srv/ts_socket/GPU.socket"
+2. tsp
+3a. chmod 777 /srv/ts_socket/CPU.socket
+3b.chmod 777 /srv/ts_socket/GPU.socket
+4a. export TS_TMPDIR="/srv/ts_socket/Output/" (Standardpfad)
+4b. export TS_TMPDIR="/PATH-OUTPUTFILE.out" (Userpfad optional)
 
 ```
 
@@ -85,14 +88,15 @@ scp Benutzer@Host:Verzeichnis/Quelldatei.bsp Zieldatei.bsp
 
 ## Beispiel:
 
-Unter /srv/cdl-eml/Testrun befindet sich ein Beispielscript (Workscript.sh)
+Unter /srv/ts_socket/Testrun befindet sich ein Beispielscript (Workscript.sh)
 
 ```
 ssh USERNAME@eda01.ict.tuwien.ac.at
-export TS_SOCKET="/srv/cdl-eml/Socket/NN-Training.socket"
-export TS_TMPDIR="/srv/cdl-eml/Output/"
+export TS_SOCKET="/srv/ts_socket/CPU.socket"
+export TS_TMPDIR="/srv/ts_socket/Output/"
 tsp
-tsp -L "1" /srv/cdl-eml/Testrun/Workscript.sh
+chmod 777 /srv/ts_socket/CPU.socket
+tsp -L "USERNAME" /srv/ts_socket/Testrun/Workscript.sh
 
 ```
 
