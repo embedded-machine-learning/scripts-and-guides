@@ -1,5 +1,7 @@
 #!/bin/sh
 
+NAME=wendt
+
 echo "Setup task spooler socket."
 export TS_SOCKET=/srv/cdl-eml/Socket/NN-Training.socket
 chmod 777 /srv/cdl-eml/Socket/NN-Training.socket
