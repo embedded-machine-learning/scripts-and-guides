@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./images/eml_logo_and_text.png">
+  <img src="../../_img/eml_logo_and_text.png">
 </div>
 
 # Template Folder Structure and Scripts for Tensor Flow Object Detection API
