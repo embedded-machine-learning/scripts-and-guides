@@ -27,7 +27,7 @@ for d in guides/*.md; do
     for d2 in ${d}/*.md; do
         name=$(basename ${d2%.md})
         printf "* [" >> README.md
-        grep -m 1 "#" guides/${dirname} | tr '\n' '\0' | tr '#' '\0'>> README.md
+        grep -m 1 "#" guides/${dirname} | tr -d '\n' | tr -d '#'>> README.md
         printf "](./guides/${dirname})\n" >> README.md
 
     done
@@ -46,7 +46,7 @@ for d in scripts/*/; do
     for d2 in ${d}/*.md; do
         name=$(basename ${d2%.md})
         printf "* [" >> README.md
-        grep -m 1 "#" scripts/${dirname}/README.md | tr '\n' '\0' | tr '#' '\0'>> README.md
+        grep -m 1 "#" scripts/${dirname}/README.md | tr -d '\n' | tr -d '#'>> README.md
         printf "](./scripts/${dirname}/README.md)\n" >> README.md
         #printf "* [${name//_/ }](./scripts/${dirname}/${name}.md/)\n" >> README.md
 
