@@ -18,7 +18,7 @@ python -c "import tensorflow as tf;print(tf.reduce_sum(tf.random.normal([1000, 1
 echo # Install protobuf
 PROTOC_ZIP=protoc-3.14.0-linux-x86_64.zip
 curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP
-unzip -o $PROTOC_ZIP -d Protobuf
+unzip -o $PROTOC_ZIP -d protobuf
 rm -f $PROTOC_ZIP
 
 echo # Clone tensorflow repository

@@ -1,12 +1,10 @@
 #!/bin/sh
 
+#Constants
 NAME=wendt
 
 echo "Setup task spooler socket."
-export TS_SOCKET=/srv/cdl-eml/Socket/NN-Training.socket
-chmod 777 /srv/cdl-eml/Socket/NN-Training.socket
-export TS_TMPDIR=/home/$NAME/logs
-echo task spooler output directory: /home/$NAME/logs
+. ~/init_eda_ts.sh
 
 DATASETFOLDER=eda01_validation_tf2_star_wars
 
