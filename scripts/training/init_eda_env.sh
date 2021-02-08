@@ -2,9 +2,6 @@
 
 echo "Start script with . /[PATH_TO_SCRIPT], not with ./"
 
-NAME=wendt
-
-echo "=== Setup environment for TF2 Object Detection API ==="
 #echo "Setup task spooler socket for GPU."
 
 #export TS_SOCKET="/srv/ts_socket/GPU.socket"
@@ -12,16 +9,13 @@ echo "=== Setup environment for TF2 Object Detection API ==="
 #export TS_TMPDIR=/home/$NAME/logs
 #echo task spooler output directory: /home/$NAME/logs
 
-echo "Activate python environment and add python path variables"
-source /home/$NAME/tf2odapi/tf24/bin/activate
+echo "Activate TF2 Object Detection API Python Environment"
 
-echo "Add Object detection API to python path"
-cd /home/$NAME/tf2odapi/models/research
+TF2ROOT=`pwd`
+source ~/tf2odapi/tf24/bin/activate
+cd ~/object_detection/models/research/
 export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
-echo Pythonpath $PYTHONPATH
+echo "New python path $PYTHONPATH"
+cd $TF2ROOT
 
-echo "Go to start directory"
-echo "/home/$NAME"
-cd /home/$NAME
-
-echo "File End"
+echo "Activation complete"

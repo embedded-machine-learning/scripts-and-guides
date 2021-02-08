@@ -2,15 +2,15 @@
 
 echo "Start script with . /[PATH_TO_SCRIPT], not with ./"
 
-NAME=wendt
-
 echo "=== Init task spooler ==="
 echo "Setup task spooler socket for GPU."
 
 export TS_SOCKET="/srv/ts_socket/GPU.socket"
 chmod 777 /srv/ts_socket/GPU.socket
-export TS_TMPDIR=/home/$NAME/logs
-echo task spooler output directory: /home/$NAME/logs
+export TS_TMPDIR=~/logs
+echo task spooler output directory: ~/logs
+
+echo "Task spooler initialized $TS_SOCKET"
 
 #echo "Activate python environment and add python path variables"
 #source /home/$NAME/tf2odapi/tf24/bin/activate
