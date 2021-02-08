@@ -86,10 +86,11 @@ Empfangen:
 scp Benutzer@Host:Verzeichnis/Quelldatei.bsp Zieldatei.bsp
 ```
 
-## Beispiel:
+## Beispiele:
 
 Unter /srv/ts_socket/Testrun befindet sich ein Beispielscript (Workscript.sh)
 
+Beispielscript 1
 ```
 ssh USERNAME@eda01.ict.tuwien.ac.at
 export TS_SOCKET="/srv/ts_socket/CPU.socket"
@@ -97,6 +98,24 @@ export TS_TMPDIR="/srv/ts_socket/Output/"
 tsp
 chmod 777 /srv/ts_socket/CPU.socket
 tsp -L "USERNAME" /srv/ts_socket/Testrun/Workscript.sh
+
+```
+
+Beispielscript 2
+```
+#!/bin/bash
+
+echo "Start script with . /[PATH_TO_SCRIPT], not with ./"
+
+NAME=XXX
+
+echo "=== Init task spooler ==="
+echo "Setup task spooler socket for GPU."
+
+export TS_SOCKET="/srv/ts_socket/GPU.socket"
+chmod 777 /srv/ts_socket/GPU.socket
+export TS_TMPDIR=/home/$NAME/logs
+echo task spooler output directory: /home/$NAME/logs
 
 ```
 
