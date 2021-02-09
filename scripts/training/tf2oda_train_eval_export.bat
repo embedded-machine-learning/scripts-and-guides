@@ -56,7 +56,7 @@ python %SCRIPTPREFIX%\tf2oda_export_savedmodel.py ^
 --trained_checkpoint_dir="%BASEPATH%/models/%MODELNAME%" ^
 --output_directory="exported-models/%MODELNAME%"
 
-::echo "Training of %MODELNAME% finished" | mail -s "Training of %MODELNAME% finished" %USEREMAIL%
+::echo "Stop Training of %MODELNAME%" | mail -s "Training of %MODELNAME% finished" %USEREMAIL%
 
 echo #======================================================#
 echo # Training, evaluation and export of the model completed

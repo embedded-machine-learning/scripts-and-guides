@@ -11,17 +11,3 @@ export TS_TMPDIR=~/logs
 echo task spooler output directory: ~/logs
 
 echo "Task spooler initialized $TS_SOCKET"
-
-#echo "Activate python environment and add python path variables"
-#source /home/$NAME/tf2odapi/tf24/bin/activate
-
-#echo "Add Object detection API to python path"
-#cd /home/$NAME/tf2odapi/models/research
-#export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
-#echo $PYTHONPATH
-
-#echo "Go to start directory"
-#echo "/home/$NAME"
-#cd /home/$NAME
-
-#echo "File End"

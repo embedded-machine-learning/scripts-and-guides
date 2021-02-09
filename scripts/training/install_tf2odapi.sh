@@ -34,6 +34,7 @@ echo # Prepare TF2 Proto Files
 ../../protobuf/bin/protoc object_detection/protos/*.proto --python_out=.
 
 echo # Test installation
+# If all tests are OK or skipped, then the installation was successful
 python object_detection/builders/model_builder_tf2_test.py
 cd $TF2ROOT
 

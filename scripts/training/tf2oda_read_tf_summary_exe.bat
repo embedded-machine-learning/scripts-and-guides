@@ -28,7 +28,7 @@ echo Read TF Summary from Tensorboard file
 
 python %SCRIPTPREFIX%\tf2oda_read_tf_summary.py ^
 --checkpoint_dir="%BASEPATH%/models/%MODELNAME%" ^
---out_dir="result/%MODELNAME%/metrics"
+--out_dir="results/%MODELNAME%/metrics"
 
 ::echo "Training of %MODELNAME% finished" | mail -s "Training of %MODELNAME% finished" %USEREMAIL%
 

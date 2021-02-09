@@ -53,6 +53,17 @@ python %SCRIPTPREFIX%\tf2oda_evaluate_ckpt_performance.py ^
 --checkpoint_dir="%BASEPATH%/models/%MODELNAME%"
 ```
 
+#### Issues that can occur
+
+Problem: Interrupted model is trained again and the tranining just stops after initializing without any error
+
+Answer: Delete the model folder because the training wants to continue from a faulty checkpoint
+
+Problem: After interrupting training, the memory is still full and CuDNN causes internal errors. 
+
+Answer: Log out and Log in again to free the memory.
+
+
 ### Extract Metrics From Tensorboard to CSV File
 Exports the metrics from tensorboard to a CSV file.
 
