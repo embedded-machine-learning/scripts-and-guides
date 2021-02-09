@@ -1,7 +1,3 @@
-<div align="center">
-  <img src="../../_img/eml_logo_and_text.png">
-</div>
-
 # Evaluation Tools
 
 The evaluation tools contain useful tools for evaluating the performance of inference. As the scripts were usually not written from scratch, but copied 
@@ -67,3 +63,7 @@ python %SCRIPTPREFIX%\tf2oda_inference_from_saved_model.py ^
 
 ## Issues
 Should any issues arise during the completion of the guide or any errors noted, please let us know by filing an issue and help us keep up the quality.
+
+<div align="center">
+  <img src="../../_img/eml_logo_and_text.png", width="500">
+</div>
