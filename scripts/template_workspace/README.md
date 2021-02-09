@@ -2,13 +2,14 @@
   <img src="../../_img/eml_logo_and_text.png">
 </div>
 
-# Template Folder Structure and Scripts for Tensor Flow Object Detection API
-Their purpose is to make the life easier for developers by providing complete converters. However, the converters might be adapted for other purposes.
+# Template Folder Structure for Tensor Flow
+Template folder structure based on Tensorflow Object Detection API recommended folder structure.
 
-## Sources
-Source of star wars images: [Star Wars Image Set](https://averdones.github.io/tensorflow-object-detection-star-wars/)
-
-## Rename Image Files
+## How to use it
+1. Copy the whole folder structure to your project location.
+2. Add images, annotations and pretrained models.
+3. Copy the scripts and not the .py files to the folders.
+4. Adapt the scripts to use the python files directly from the main repository.
 
 
 
