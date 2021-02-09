@@ -17,5 +17,11 @@ We collect scripts and guides that help us in our everyday work to setup softwar
 ### Scripts
 * [ Converters](./scripts/conversion/README.md)
 * [ Data Processing Tools](./scripts/data_preparation/README.md)
-* [ Evaluation Tools](./scripts/evaluation/README.md)
-* [ Template Folder Structure and Scripts for Tensor Flow Object Detection API](./scripts/template_workspace_tf2_object_detection_api/README.md)
+* [ Inference Evaluation Tools](./scripts/inference_evaluation/README.md)
+* [ Template Folder Structure for Tensor Flow](./scripts/template_workspace/README.md)
+* [ Training Tools](./scripts/training/README.md)
+* [ Hardware Modules](./scripts/hardwaremodules/)
+
+<div align="center">
+  <img src="../../_img/eml_logo_and_text.png", width="500">
+</div>
