@@ -1,6 +1,3 @@
-<div align="center">
-  <img src="../../_img/eml_logo_and_text.png">
-</div>
 # Data Processing Tools
 The following data processing tools are used to rename files, check duplicates, partition datasets.
 
@@ -111,3 +108,7 @@ python rename_pad_files.py ^
 # Issues
 If there are any issues or suggestions for improvements, please add an issue to github's bug tracking system or please send a mail 
 to [Alexander Wendt](mailto:alexander.wendt@tuwien.ac.at)
+
+<div align="center">
+  <img src="../../_img/eml_logo_and_text.png", width="500">
+</div>

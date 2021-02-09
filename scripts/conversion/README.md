@@ -1,6 +1,3 @@
-<div align="center">
-  <img src="../../_img/eml_logo_and_text.png">
-</div>
 # Converters
 The following converters are used to convert between machine learning data formats for models and datasets. Their purpose is to make the life easier for developers by providing
 complete converters. However, the converters might be adapted for other purposes. All converters are either written by the devlopers of the repository or parts are used from
@@ -94,3 +91,7 @@ Source: [Darknet](https://github.com/ysh329/darknet2caffe)
 # Issues
 If there are any issues or suggestions for improvements, please add an issue to github's bug tracking system or please send a mail 
 to [Alexander Wendt](mailto:alexander.wendt@tuwien.ac.at)
+
+<div align="center">
+  <img src="../../_img/eml_logo_and_text.png", width="500">
+</div>

@@ -113,3 +113,7 @@ python %SCRIPTPREFIX%\zip_tool.py ^
 # Issues
 If there are any issues or suggestions for improvements, please add an issue to github's bug tracking system or please send a mail 
 to [Alexander Wendt](mailto:alexander.wendt@tuwien.ac.at)
+
+<div align="center">
+  <img src="../../_img/eml_logo_and_text.png", width="500">
+</div>
