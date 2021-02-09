@@ -61,7 +61,7 @@ Answer: Delete the model folder because the training wants to continue from a fa
 
 Problem: After interrupting training, the memory is still full and CuDNN causes internal errors. 
 
-Answer: Log out and Log in again to free the memory.
+Answer: Kill the task by first running nvidia-smi and then kill -9 [PID]
 
 
 ### Extract Metrics From Tensorboard to CSV File
