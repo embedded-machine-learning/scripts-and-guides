@@ -23,5 +23,5 @@ We collect scripts and guides that help us in our everyday work to setup softwar
 * [ Hardware Modules](./scripts/hardwaremodules/)
 
 <div align="center">
-  <img src="../../_img/eml_logo_and_text.png", width="500">
+  <img src="./_img/eml_logo_and_text.png", width="500">
 </div>
