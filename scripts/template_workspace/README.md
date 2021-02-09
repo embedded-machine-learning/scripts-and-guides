@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="../../_img/eml_logo_and_text.png", width:500px>
+  <img src="../../_img/eml_logo_and_text.png", width="200">
 </div>
 
 # Template Folder Structure for Tensor Flow
