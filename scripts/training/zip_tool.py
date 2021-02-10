@@ -30,6 +30,7 @@ def zipit(dir_list, zip_name):
     for dir in dir_list:
         zipdir(dir, zipf)
     zipf.close()
+    print("Saved zip file to ", zip_name)
 
 #def open_files(path):
 #    for filename in glob.glob(path):

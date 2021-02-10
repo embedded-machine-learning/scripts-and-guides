@@ -25,7 +25,7 @@ call conda activate %PYTHONENV%
 echo #======================================================#
 echo # Open Tensorboard for Training Data
 echo #======================================================# 
-start cmd /c "tensorboard --logdir models/%MODELNAME%/train"
+start cmd /c "tensorboard --logdir models/%MODELNAME%/train --port=6006 --bind_all" 
 
 timeout 20
 
