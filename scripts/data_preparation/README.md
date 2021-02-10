@@ -6,6 +6,27 @@ For each python script, there is a batch or sh script to demonstrate how it work
 ## Pre-requisites
 TBD
 
+## Script Setup
+In several scripts, there is a part for setting the constants and setting up the environment. 
+
+```shell
+echo #==============================================#
+echo # CDLEML Process TF2 Object Detection API
+echo #==============================================#
+
+:: Constant Definition
+set USERNAME=wendt
+set USEREMAIL=alexander.wendt@tuwien.ac.at
+set MODELNAME=tf2oda_ssdmobilenetv2_320_320_coco17_D100_pedestrian
+set PYTHONENV=tf24
+set BASEPATH=.
+set SCRIPTPREFIX=.\
+
+:: Environment preparation
+echo Activate environment %PYTHONENV%
+call conda activate %PYTHONENV%
+```
+
 ## Find Duplicate Images
 This scripts looks for duplicate images within a folder and if such an image is found, it is moved to a new folder with duplicates.
 
@@ -104,6 +125,22 @@ Example:
 python rename_pad_files.py ^
 --files_dir="samples/tmp"
 ```
+
+## Remove Invalid Bounding Boxes from Pascal VOC XML Files
+This script checks if the bounding boxes of an image are inside of the image. If not, the bounding box is removed. Such bounding boxes have to be removed, esle
+the training and validation does not work well.
+
+Source:
+
+Script: `remove_invalid_bounding_boxes_in_xml.py` 
+
+Example: 
+```shell
+python %SCRIPTPREFIX%/remove_invalid_bounding_boxes_in_xml.py ^
+--annotation_folder="annotations" ^
+--output_folder="annotations/cleaned"
+```
+
 
 # Issues
 If there are any issues or suggestions for improvements, please add an issue to github's bug tracking system or please send a mail 
