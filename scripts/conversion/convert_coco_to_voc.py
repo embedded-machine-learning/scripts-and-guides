@@ -176,12 +176,6 @@ def convert_coco_to_voc(coco_json_path, bbox_offset=0):
         print("OK")
 
 if __name__ == "__main__":
-    #if not args.pb and not args.xml:
-    #    sys.exit("Please pass either a frozen pb or IR xml/bin model")
-
-    # Script takes 2 arguments: Annotation file path, example frame path
-    #annotation_file_directory = sys.argv[1]
-    #example_frame_path = sys.argv[2]
 
     convert_coco_to_voc(args.annotation_file, args.bbox_offset)
 

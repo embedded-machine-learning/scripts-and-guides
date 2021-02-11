@@ -78,23 +78,26 @@ parser.add_argument("-ad", '--annotation_dir',
                     default=None,
                     help='Annotation directory with xml files of the same format as image files', required=False)
 parser.add_argument("-af", '--annotation_file',
-                    default="samples/annotations/Milan-PETS09-S2L1.xml",
+                    default="samples/annotations/cvml_xml/cvml_Milan-PETS09-S2L1.xml",
                     help='Annotation file.', required=False)
 parser.add_argument("-if", '--image_file',
                     default=None,
                     help='Image file path for a certain image file', required=False)
 parser.add_argument("-id", '--image_dir',
-                    default="samples/View_001",
+                    default="samples/cvml_images",
                     help='Image file directory', required=False)
 parser.add_argument("-label", '--label_name',
                     default="pedestrian",
                     help='Label of the set in a binary set. Default is pedestrian.', required=False)
-parser.add_argument("-del", '--delete_csv', default="True", help='Delete csv', required=False)
+parser.add_argument("-pre", '--image_name_prefix',
+                    default="frame_",
+                    help='Name prefix for images', required=False)
+parser.add_argument("-del", '--delete_csv', action='store_true', default=False, help='Delete csv', required=False)
 
 args = parser.parse_args()
 
 
-def convert_cvml_csv(annotation_file: str, image_dict: dict, label_name: str) -> str:
+def convert_cvml_csv(annotation_file: str, image_dict: dict, label_name: str, image_name_prefix: str) -> pd.DataFrame:
     '''
     Convert from CVML to csv
 
@@ -116,12 +119,13 @@ def convert_cvml_csv(annotation_file: str, image_dict: dict, label_name: str) ->
         #############################################################
         # Adapt the file name to the used
         #############################################################
-        file_name = "frame_" + "{:04d}".format(count) + ".jpg"
+        file_name = image_name_prefix + "{:04d}".format(count) + ".jpg"
 
         if file_name in image_dict:
             #Adapt height and width for each file individually
             image_width = image_dict[file_name]['width']
             image_height = image_dict[file_name]['height']
+            print("Processing ", file_name)
 
             label_string = ""
             if type(frame["objectlist"]) == collections.OrderedDict:
@@ -146,14 +150,7 @@ def convert_cvml_csv(annotation_file: str, image_dict: dict, label_name: str) ->
                         )
 
                 else:
-                    x1 = int(np.round(max(
-                        0,
-                        float(
-                            frame["objectlist"]["object"]["box"]["@xc"]
-                            - float(frame["objectlist"]["object"]["box"]["@w"])
-                        )
-                        / 2,
-                    )))
+                    x1 = int(np.round(max(0, float(frame["objectlist"]["object"]["box"]["@xc"]) - float(frame["objectlist"]["object"]["box"]["@w"])/2,)))
                     y1 = int(np.round(max(
                         0,
                         float(frame["objectlist"]["object"]["box"]["@yc"])
@@ -196,9 +193,11 @@ def convert_cvml_csv(annotation_file: str, image_dict: dict, label_name: str) ->
         print(warn_message)
 
     dataframe = pd.DataFrame(combined, columns=["ID", "Label"])
-    dataframe.to_csv(annotation_file + ".csv", index=False) #dataframe.to_csv(filename + ".csv", index=False)
+    #dataframe.to_csv(annotation_file + ".csv", index=False) #dataframe.to_csv(filename + ".csv", index=False)
 
-    return annotation_file + ".csv"
+    return dataframe
+
+    #return annotation_file + ".csv"
 
 
 def convert_csv_coco(transformed_csv_filename: str, image_dict: dict)-> str:
@@ -316,7 +315,8 @@ def convert_csv_coco(transformed_csv_filename: str, image_dict: dict)-> str:
 
     return output_annotation_file
 
-def cvml_to_coco(annotation_file, annotation_directory, image_file, image_dir, label_name, delete_csv=False):
+def cvml_to_coco(annotation_file, annotation_directory, image_file, image_dir, label_name,
+                 image_name_prefix, delete_csv=False):
     '''
     Convert CVML to Coco through a csv intermediate format
 
@@ -366,15 +366,19 @@ def cvml_to_coco(annotation_file, annotation_directory, image_file, image_dir, l
     #    annotation_file_directory, frame_width, frame_height, annotation_file_name
     #)
     #convert_cvml_csv(annotation_file_directory, frame_width, frame_height, annotation_file_name)
-    csv_filename = convert_cvml_csv(annotation_file, image_dict, label_name)
+    dataframe = convert_cvml_csv(annotation_file, image_dict, label_name, image_name_prefix)
+
+    dataframe.to_csv(annotation_file + ".csv", index=False)  # dataframe.to_csv(filename + ".csv", index=False)
 
     # Convert to json
     #csv_to_json.convert(annotation_file_name, frame_width, frame_height)
-    convert_csv_coco(csv_filename, image_dict)
+    convert_csv_coco(annotation_file + ".csv", image_dict)
+    print("Saved csv: ", annotation_file + ".csv")
 
     # Remove interim csv file
     if delete_csv:
-        os.remove(csv_filename)
+        os.remove(annotation_file + ".csv")
+        print("Deleted csv.")
 
 
 if __name__ == "__main__":
@@ -386,7 +390,7 @@ if __name__ == "__main__":
     #example_frame_path = sys.argv[2]
 
     cvml_to_coco(args.annotation_file, args.annotation_dir, args.image_file,
-                 args.image_dir, args.label_name, args.delete_csv)
+                 args.image_dir, args.label_name, args.image_name_prefix, args.delete_csv)
 
 
     print("=== Program end ===")
