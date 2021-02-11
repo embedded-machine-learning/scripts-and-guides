@@ -20,7 +20,7 @@ To install Flatbuffers on the host, you will need **sudo** permissions.
 
 Throughout this guide, the compilation runs on 8 cores (threads), this is signified by the argument
 ```
--j 8
+-j $(nproc) # uses all available threads for compilation
 ```
 in the compilation utilities. Change it to however many threads you want to run simultaneously. If run without the argument, the compilation utilities default to 1 thread, which usually takes quite a while to finish.
 
@@ -56,7 +56,7 @@ export LD_LIBRARY_PATH=$BASEDIR/protobuf-host/lib:$LD_LIBRARY_PATH
 
 In case you get an error about swig not being installed or being too old during this guide, consult [swig setup](http://www.linuxfromscratch.org/blfs/view/svn/general/swig.html) and follow the instructions.
 
-### Prepare directories and pull repositories
+# Prepare directories and pull repositories
 ```
 mkdir armnn-pi
 cd armnn-pi
@@ -93,7 +93,7 @@ if you're compiling for a 32 bit OS, use arch=armv7a
 if you're compiling for a 64 bit OS, use arch=armv8a
 
 ```
-scons -j 8 \
+scons -j $(nproc) \
 extra_cxx_flags="-fPIC" \
 Werror=0 debug=0 asserts=0 \
 neon=1 opencl=0 os=linux arch=armv7a examples=1
@@ -136,7 +136,7 @@ by copy pasting with \<Ctrl+C\>, \<Ctrl+Shift+V\> into the editor.
 Then save with \<Ctrl+X\>, \<Y\>, \<ENTER\>*
 
 ```
-b2 -j 8 \
+b2 -j $(nproc) \
 --build-dir=$BASEDIR/boost_1_64_0/build \
 toolset=gcc-arm \
 link=static \
@@ -154,7 +154,7 @@ cd $BASEDIR/protobuf
 git submodule update --init --recursive
 ./autogen.sh
 ./configure --prefix=$BASEDIR/protobuf-host
-make -j 8
+make -j $(nproc)
 make install
 make clean
 ```
@@ -178,7 +178,7 @@ for a 64 Bit OS use
 ./configure --prefix=$BASEDIR/protobuf-arm --host=arm-linux CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ --with-protoc=$BASEDIR/protobuf-host/bin/protoc
 ```
 ```
-make -j 8
+make -j $(nproc)
 make install
 ```
 
@@ -196,9 +196,9 @@ rm -rf build
 mkdir build
 cd build
 CXXFLAGS="-fPIC" cmake .. \
--DFLATBUFFERS_BUILD_FLATC=1 \
--DCMAKE_INSTALL_PREFIX:PATH=$BASEDIR/flatbuffers
-make -j 8 all
+-D FLATBUFFERS_BUILD_FLATC=1 \
+-D CMAKE_INSTALL_PREFIX:PATH=$BASEDIR/flatbuffers
+make -j $(nproc) all
 sudo make install
 ```
 
@@ -211,11 +211,11 @@ for a 32 Bit OS use
 mkdir build-arm32
 cd build-arm32
 CXXFLAGS="-fPIC" cmake .. \
--DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabihf-gcc \
--DCMAKE_CXX_COMPILER=/usr/bin/arm-linux-gnueabihf-g++ \
--DFLATBUFFERS_BUILD_FLATC=1 \
--DCMAKE_INSTALL_PREFIX:PATH=$BASEDIR/flatbuffers-arm32 \
--DFLATBUFFERS_BUILD_TESTS=0
+-D CMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabihf-gcc \
+-D CMAKE_CXX_COMPILER=/usr/bin/arm-linux-gnueabihf-g++ \
+-D FLATBUFFERS_BUILD_FLATC=1 \
+-D CMAKE_INSTALL_PREFIX:PATH=$BASEDIR/flatbuffers-arm32 \
+-D FLATBUFFERS_BUILD_TESTS=0
 ```
 
 for a 64 Bit OS use
@@ -223,14 +223,14 @@ for a 64 Bit OS use
 mkdir build-aarch64
 cd build-aarch64
 CXXFLAGS="-fPIC" cmake .. \
--DCMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc \
--DCMAKE_CXX_COMPILER=/usr/bin/aarch64-linux-gnu-g++ \
--DFLATBUFFERS_BUILD_FLATC=1 \
--DCMAKE_INSTALL_PREFIX:PATH=$BASEDIR/flatbuffers-aarch64 \
--DFLATBUFFERS_BUILD_TESTS=0
+-D CMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc \
+-D CMAKE_CXX_COMPILER=/usr/bin/aarch64-linux-gnu-g++ \
+-D FLATBUFFERS_BUILD_FLATC=1 \
+-D CMAKE_INSTALL_PREFIX:PATH=$BASEDIR/flatbuffers-aarch64 \
+-D FLATBUFFERS_BUILD_TESTS=0
 ```
 ```
-make -j 8 all
+make -j $(nproc) all
 make install
 ```
 
@@ -276,8 +276,8 @@ unzip 3.4.12.zip
 cd opencv-3.4.12/
 mkdir build
 cd build/
-cmake .. -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local ..
-make -j 8
+cmake .. -D  CMAKE_BUILD_TYPE=Release -D  CMAKE_INSTALL_PREFIX=/usr/local ..
+make -j $(nproc)
 sudo make install
 ```
 To test your OpenCV installation, enter the following command
@@ -295,32 +295,21 @@ cd $BASEDIR/caffe
 mkdir build
 cd build/
 ```
-### on work pc
-```
-cmake .. \
--DBOOST_ROOT=$BASEDIR/armnn-devenv/boost_arm64_install/ \
--DProtobuf_INCLUDE_DIR=$BASEDIR/armnn-devenv/google/x86_64_pb_install/include/ \
--DProtobuf_PROTOC_EXECUTABLE=$BASEDIR/armnn-devenv/google/x86_64_pb_install/bin/protoc \
--DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
--DPYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
--DPYTHON_EXECUTABLE=/usr/bin/python3 \
--DPROTOBUF_LIBRARY_DEBUG=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0 \
--DPROTOBUF_LIBRARY_RELEASE=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0
-```
 
-### on laptop
+### Cmake for Caffe
 ```
 cmake .. \
--DCPU_ONLY=ON \
--DBOOST_ROOT=$BASEDIR/boost \
--DProtobuf_INCLUDE_DIR=$BASEDIR/protobuf-host/include \
--DProtobuf_PROTOC_EXECUTABLE=$BASEDIR/protobuf-host/bin/protoc \
--DBOOST_ROOT=$BASEDIR/boost \
--DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
--DPYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
--DPYTHON_EXECUTABLE=/usr/bin/python3 \
--DPROTOBUF_LIBRARY_DEBUG=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
--DPROTOBUF_LIBRARY_RELEASE=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0
+-D CPU_ONLY=ON \
+-D BOOST_ROOT=$BASEDIR/boost \
+-D Protobuf_INCLUDE_DIR=$BASEDIR/protobuf-host/include \
+-D Protobuf_PROTOC_EXECUTABLE=$BASEDIR/protobuf-host/bin/protoc \
+-D BOOST_ROOT=$BASEDIR/boost \
+-D PROTOBUF_LIBRARY_DEBUG=$BASEDIR/protobuf-host/lib/libprotobuf.so.15.0.0 \
+-D BUILD_python=OFF \
+-D OpenCV_DIR=$BASEDIR/opencv-3.4.12/cmake
+#-D PYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
+#-D PYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
+#-D PYTHON_EXECUTABLE=/usr/bin/python3
 ```
 
 If you made a mistake or tried some flags which you want to reset, simply delete the CMakeCache by entering
@@ -348,26 +337,26 @@ cd build
 
 ```
 cmake .. \
--DCMAKE_LINKER=/usr/bin/arm-linux-gnueabihf-ld \
--DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabihf-gcc \
--DCMAKE_CXX_COMPILER=/usr/bin/arm-linux-gnueabihf-g++ \
--DCMAKE_C_COMPILER_FLAGS=-fPIC \
--DARMCOMPUTE_ROOT=$BASEDIR/ComputeLibrary \
--DARMCOMPUTE_BUILD_DIR=$BASEDIR/ComputeLibrary/build \
--DBOOST_ROOT=$BASEDIR/boost \
--DBUILD_TF_PARSER=1 \
--DTF_GENERATED_SOURCES=$BASEDIR/tensorflow-protobuf \
--DPROTOBUF_ROOT=$BASEDIR/protobuf-arm \
--DPROTOBUF_LIBRARY_DEBUG=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
--DPROTOBUF_LIBRARY_RELEASE=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
--DARMCOMPUTENEON=1 \
--DBUILD_TESTS=1 \
--DARMNNREF=1 \
--DBUILD_TF_LITE_PARSER=1 \
--DTF_LITE_GENERATED_PATH=$BASEDIR/tflite \
--DFLATBUFFERS_ROOT=$BASEDIR/flatbuffers-arm32 \
--DCMAKE_CXX_FLAGS=-mfpu=neon \
--DFLATC_DIR=$BASEDIR/flatbuffers-1.12.0/build
+-D CMAKE_LINKER=/usr/bin/arm-linux-gnueabihf-ld \
+-D CMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabihf-gcc \
+-D CMAKE_CXX_COMPILER=/usr/bin/arm-linux-gnueabihf-g++ \
+-D CMAKE_C_COMPILER_FLAGS=-fPIC \
+-D ARMCOMPUTE_ROOT=$BASEDIR/ComputeLibrary \
+-D ARMCOMPUTE_BUILD_DIR=$BASEDIR/ComputeLibrary/build \
+-D BOOST_ROOT=$BASEDIR/boost \
+-D BUILD_TF_PARSER=1 \
+-D TF_GENERATED_SOURCES=$BASEDIR/tensorflow-protobuf \
+-D PROTOBUF_ROOT=$BASEDIR/protobuf-arm \
+-D PROTOBUF_LIBRARY_DEBUG=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
+-D PROTOBUF_LIBRARY_RELEASE=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
+-D ARMCOMPUTENEON=1 \
+-D BUILD_TESTS=1 \
+-D ARMNNREF=1 \
+-D BUILD_TF_LITE_PARSER=1 \
+-D TF_LITE_GENERATED_PATH=$BASEDIR/tflite \
+-D FLATBUFFERS_ROOT=$BASEDIR/flatbuffers-arm32 \
+-D CMAKE_CXX_FLAGS=-mfpu=neon \
+-D FLATC_DIR=$BASEDIR/flatbuffers-1.12.0/build
 ```
 
 ### Armnn32 with Pyarmnn
@@ -375,33 +364,33 @@ This time, the (OPTIONAL) software packets will be linked in the arguments as an
 
 ```
 cmake .. \
--DCMAKE_LINKER=/usr/bin/arm-linux-gnueabihf-ld \
--DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabihf-gcc \
--DCMAKE_CXX_COMPILER=/usr/bin/arm-linux-gnueabihf-g++ \
--DCMAKE_C_COMPILER_FLAGS=-fPIC \
--DARMCOMPUTE_ROOT=$BASEDIR/ComputeLibrary \
--DARMCOMPUTE_BUILD_DIR=$BASEDIR/ComputeLibrary/build \
--DBOOST_ROOT=$BASEDIR/boost \
--DBUILD_TF_PARSER=1 \
--DTF_GENERATED_SOURCES=$BASEDIR/tensorflow-protobuf \
--DPROTOBUF_ROOT=$BASEDIR/protobuf-arm \
--DPROTOBUF_LIBRARY_DEBUG=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
--DPROTOBUF_LIBRARY_RELEASE=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
--DARMCOMPUTENEON=1 \
--DBUILD_TESTS=1 \
--DARMNNREF=1 \
--DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
--DPYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
--DBUILD_PYTHON_SRC=ON \
--DBUILD_PYTHON_WHL=ON \
--DBUILD_TF_LITE_PARSER=1 \
--DTF_LITE_GENERATED_PATH=$BASEDIR/tflite \
--DFLATBUFFERS_ROOT=$BASEDIR/flatbuffers-arm32 \
--DCMAKE_CXX_FLAGS=-mfpu=neon \
--DFLATC_DIR=$BASEDIR/flatbuffers-1.12.0/build \
--DBUILD_ONNX_PARSER=1 \
--DONNX_GENERATED_SOURCES=$BASEDIR/onnx \
--DBUILD_CAFFE_PARSER:BOOL=ON
+-D CMAKE_LINKER=/usr/bin/arm-linux-gnueabihf-ld \
+-D CMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabihf-gcc \
+-D CMAKE_CXX_COMPILER=/usr/bin/arm-linux-gnueabihf-g++ \
+-D CMAKE_C_COMPILER_FLAGS=-fPIC \
+-D ARMCOMPUTE_ROOT=$BASEDIR/ComputeLibrary \
+-D ARMCOMPUTE_BUILD_DIR=$BASEDIR/ComputeLibrary/build \
+-D BOOST_ROOT=$BASEDIR/boost \
+-D BUILD_TF_PARSER=1 \
+-D TF_GENERATED_SOURCES=$BASEDIR/tensorflow-protobuf \
+-D PROTOBUF_ROOT=$BASEDIR/protobuf-arm \
+-D PROTOBUF_LIBRARY_DEBUG=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
+-D PROTOBUF_LIBRARY_RELEASE=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
+-D ARMCOMPUTENEON=1 \
+-D BUILD_TESTS=1 \
+-D ARMNNREF=1 \
+-D PYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
+-D PYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
+-D BUILD_PYTHON_SRC=ON \
+-D BUILD_PYTHON_WHL=ON \
+-D BUILD_TF_LITE_PARSER=1 \
+-D TF_LITE_GENERATED_PATH=$BASEDIR/tflite \
+-D FLATBUFFERS_ROOT=$BASEDIR/flatbuffers-arm32 \
+-D CMAKE_CXX_FLAGS=-mfpu=neon \
+-D FLATC_DIR=$BASEDIR/flatbuffers-1.12.0/build \
+-D BUILD_ONNX_PARSER=1 \
+-D ONNX_GENERATED_SOURCES=$BASEDIR/onnx \
+-D BUILD_CAFFE_PARSER:BOOL=ON
 ```
 Might want to use following flags as well
 ```
@@ -423,25 +412,25 @@ SHARED_BOOST:BOOL=OFF
 
 ```
 cmake .. \
--DCMAKE_LINKER=/usr/bin/aarch64-linux-gnu-ld \
--DCMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc \
--DCMAKE_CXX_COMPILER=/usr/bin/aarch64-linux-gnu-g++ \
--DCMAKE_C_COMPILER_FLAGS=-fPIC \
--DARMCOMPUTE_ROOT=$BASEDIR/ComputeLibrary \
--DARMCOMPUTE_BUILD_DIR=$BASEDIR/ComputeLibrary/build \
--DBOOST_ROOT=$BASEDIR/boost \
--DBUILD_TF_PARSER=1 \
--DTF_GENERATED_SOURCES=$BASEDIR/tensorflow-protobuf \
--DPROTOBUF_ROOT=$BASEDIR/protobuf-arm \
--DPROTOBUF_LIBRARY_DEBUG=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
--DPROTOBUF_LIBRARY_RELEASE=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
--DARMCOMPUTENEON=1 \
--DBUILD_TESTS=1 \
--DARMNNREF=1 .. \
--DBUILD_TF_LITE_PARSER=1 \
--DTF_LITE_GENERATED_PATH=$BASEDIR/tflite \
--DFLATBUFFERS_ROOT=$BASEDIR/flatbuffers-aarch64 \
--DFLATC_DIR=$BASEDIR/flatbuffers-1.12.0/build
+-D CMAKE_LINKER=/usr/bin/aarch64-linux-gnu-ld \
+-D CMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc \
+-D CMAKE_CXX_COMPILER=/usr/bin/aarch64-linux-gnu-g++ \
+-D CMAKE_C_COMPILER_FLAGS=-fPIC \
+-D ARMCOMPUTE_ROOT=$BASEDIR/ComputeLibrary \
+-D ARMCOMPUTE_BUILD_DIR=$BASEDIR/ComputeLibrary/build \
+-D BOOST_ROOT=$BASEDIR/boost \
+-D BUILD_TF_PARSER=1 \
+-D TF_GENERATED_SOURCES=$BASEDIR/tensorflow-protobuf \
+-D PROTOBUF_ROOT=$BASEDIR/protobuf-arm \
+-D PROTOBUF_LIBRARY_DEBUG=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
+-D PROTOBUF_LIBRARY_RELEASE=$BASEDIR/protobuf-arm/lib/libprotobuf.so.15.0.0 \
+-D ARMCOMPUTENEON=1 \
+-D BUILD_TESTS=1 \
+-D ARMNNREF=1 .. \
+-D BUILD_TF_LITE_PARSER=1 \
+-D TF_LITE_GENERATED_PATH=$BASEDIR/tflite \
+-D FLATBUFFERS_ROOT=$BASEDIR/flatbuffers-aarch64 \
+-D FLATC_DIR=$BASEDIR/flatbuffers-1.12.0/build
 ```
 
 ### Armnn64 with Pyarmnn
@@ -457,43 +446,43 @@ cmake ..
 
 ```
 cmake .. \
--DCMAKE_LINKER=/usr/bin/aarch64-linux-gnu-ld \
--DCMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc \
--DCMAKE_CXX_COMPILER=/usr/bin/aarch64-linux-gnu-g++ \
--DCMAKE_C_COMPILER_FLAGS=-fPIC \
--DARMCOMPUTE_ROOT=$BASEDIR/ComputeLibrary \
--DARMCOMPUTE_BUILD_DIR=$BASEDIR/ComputeLibrary/build \
--DBOOST_ROOT=$BASEDIR/armnn-devenv/boost_arm64_install/ \
--DBUILD_TF_PARSER=1 \
--DTF_GENERATED_SOURCES=$BASEDIR/tensorflow-protobuf \
--DPROTOBUF_ROOT=$BASEDIR/armnn-devenv/google/x86_64_pb_install/ \
--DPROTOBUF_LIBRARY_DEBUG=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0 \
--DPROTOBUF_LIBRARY_RELEASE=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0 \
--DARMCOMPUTENEON=1 \
--DBUILD_TESTS=1 \
--DARMNNREF=1 \
--DFLATBUFFERS_ROOT=$BASEDIR/flatbuffers \
--DFLATC_DIR=$BASEDIR/flatbuffers/ \
--DFLATBUFFERS_LIBRARY=$BASEDIR/flatbuffers/build/libflatbuffers.a \
--DBUILD_TF_LITE_PARSER=1 \
--DTF_LITE_GENERATED_PATH=$BASEDIR/tensorflow/tensorflow/lite/schema/ \
--DBUILD_ONNX_PARSER=1 \
--DONNX_GENERATED_SOURCES=$BASEDIR/onnx \
--DBUILD_CAFFE_PARSER=0 \
--DBUILD_PYTHON_SRC=ON \
--DBUILD_PYTHON_WHL=ON \
--DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
--DPYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
+-D CMAKE_LINKER=/usr/bin/aarch64-linux-gnu-ld \
+-D CMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc \
+-D CMAKE_CXX_COMPILER=/usr/bin/aarch64-linux-gnu-g++ \
+-D CMAKE_C_COMPILER_FLAGS=-fPIC \
+-D ARMCOMPUTE_ROOT=$BASEDIR/ComputeLibrary \
+-D ARMCOMPUTE_BUILD_DIR=$BASEDIR/ComputeLibrary/build \
+-D BOOST_ROOT=$BASEDIR/armnn-devenv/boost_arm64_install/ \
+-D BUILD_TF_PARSER=1 \
+-D TF_GENERATED_SOURCES=$BASEDIR/tensorflow-protobuf \
+-D PROTOBUF_ROOT=$BASEDIR/armnn-devenv/google/x86_64_pb_install/ \
+-D PROTOBUF_LIBRARY_DEBUG=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0 \
+-D PROTOBUF_LIBRARY_RELEASE=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0 \
+-D ARMCOMPUTENEON=1 \
+-D BUILD_TESTS=1 \
+-D ARMNNREF=1 \
+-D FLATBUFFERS_ROOT=$BASEDIR/flatbuffers \
+-D FLATC_DIR=$BASEDIR/flatbuffers/ \
+-D FLATBUFFERS_LIBRARY=$BASEDIR/flatbuffers/build/libflatbuffers.a \
+-D BUILD_TF_LITE_PARSER=1 \
+-D TF_LITE_GENERATED_PATH=$BASEDIR/tensorflow/tensorflow/lite/schema/ \
+-D BUILD_ONNX_PARSER=1 \
+-D ONNX_GENERATED_SOURCES=$BASEDIR/onnx \
+-D BUILD_CAFFE_PARSER=0 \
+-D BUILD_PYTHON_SRC=ON \
+-D BUILD_PYTHON_WHL=ON \
+-D PYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
+-D PYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
 ```
 
 ```
--DCAFFE_GENERATED_SOURCES= # the location of the parent directory of caffe.pb.h and caffe.pb.cc
+-D CAFFE_GENERATED_SOURCES= # the location of the parent directory of caffe.pb.h and caffe.pb.cc
 ```
 <h4>Compilation</h4>
 After setting the options of cmake, all that's left is the compilation with
 
 ```
-make -j 8
+make -j $(nproc)
 ```
 
 ### Build problems
