@@ -229,8 +229,9 @@ def plot_two_images(image, image2, title1="Image1", title2="Image2"):
     ax = plt.subplot(121)
     ax.tick_params(labelbottom=False, labelleft=False)
     plt.title(title1, fontsize=40)
-    plt.imshow(image)
     plt.axis('off')
+    plt.imshow(image)
+
 
     ax = plt.subplot(122)
     ax.tick_params(labelbottom=False, labelleft=False)

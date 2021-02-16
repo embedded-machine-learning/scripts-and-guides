@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<annotations>
+  <filename>Abyssinian_179.jpg</filename>
+  <folder/>
+  <size>
+    <width>263</width>
+    <height>360</height>
+    <depth>3</depth>
+  </size>
+  <object>
+    <name>cat</name>
+    <pose>Unspecified</pose>
+    <truncated>0</truncated>
+    <difficult>0</difficult>
+    <score>0.9877045154571532</score>
+    <bndbox>
+      <xmin>73</xmin>
+      <ymin>19</ymin>
+      <xmax>183</xmax>
+      <ymax>128</ymax>
+    </bndbox>
+  </object>
+</annotations>

@@ -30,23 +30,12 @@ License_info:
 # from __future__ import print_function
 
 # Built-in/Generic Imports
-import glob
-import json
-import os
 import argparse
-import time
-import re
-import pickle
+
 
 # Libs
 from pycocotools.coco import COCO
-from tqdm import tqdm
-from xmltodict import unparse
-import xml.etree.ElementTree as ET
-import sys
 import numpy as np
-import pandas as pd
-from multiprocessing import Pool
 from pycocotools.cocoeval import COCOeval
 
 import matplotlib
@@ -55,18 +44,7 @@ import matplotlib
 # matplotlib.use('Agg') instead
 matplotlib.use('TkAgg')
 
-from six import BytesIO
-
-import matplotlib.pyplot as plt
-from PIL import Image, ImageDraw, ImageFont
-
-import tensorflow as tf
-from object_detection.utils import label_map_util
-from object_detection.utils import visualization_utils as viz_utils
-
 # Own modules
-import bbox_utils as bbox
-import image_utils as im
 
 __author__ = 'Alexander Wendt'
 __copyright__ = 'Copyright 2021, Christian Doppler Laboratory for ' \
@@ -78,10 +56,10 @@ __maintainer__ = 'Alexander Wendt'
 __email__ = 'alexander.wendt@tuwien.ac.at'
 __status__ = 'Experimental'
 
-parser = argparse.ArgumentParser(description='Google Tensorflow Detection API 2.0 Inferrer')
-parser.add_argument("-i", '--gt_path', default='gt.json',
+parser = argparse.ArgumentParser(description='Pycoco Tools Evaluator')
+parser.add_argument("-gt", '--groundtruth_path', default='gt.json',
                     help='Coco ground truth path', required=False)
-parser.add_argument("-i", '--det_path', default='det.json',
+parser.add_argument("-det", '--detection_path', default='det.json',
                     help='Coco detections path', required=False)
 args = parser.parse_args()
 
@@ -116,15 +94,8 @@ def evaluate_inference(coco_gt_file, coco_det_file):
     print(cocoEval.summarize())
 
 
-
-
-
-
-
-
-
 if __name__ == "__main__":
 
-    evaluate_inference(args.gt_path, args.det_path)
+    evaluate_inference(args.groundtruth_path, args.detection_path)
 
     print("=== Program end ===")

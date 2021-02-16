@@ -1,3 +1,4 @@
 /.idea
 /scripts/conversion/__pycache__
 /scripts/conversion/_old
+/scripts/inference_evaluation/__pycache__

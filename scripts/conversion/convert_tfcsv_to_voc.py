@@ -147,12 +147,12 @@ def create_object_annotation(root, voc_labels):
         ET.SubElement(obj, "pose").text = "Unspecified"
         ET.SubElement(obj, "truncated").text = str(0)
         ET.SubElement(obj, "difficult").text = str(0)
+        ET.SubElement(obj, "score").text = str(voc_label[5])
         bbox = ET.SubElement(obj, "bndbox")
         ET.SubElement(bbox, "xmin").text = str(voc_label[1])
         ET.SubElement(bbox, "ymin").text = str(voc_label[2])
         ET.SubElement(bbox, "xmax").text = str(voc_label[3])
         ET.SubElement(bbox, "ymax").text = str(voc_label[4])
-        ET.SubElement(obj, "scores").text = str(voc_label[5])
     return root
 
 def prettify(elem):
@@ -224,12 +224,14 @@ def convert_csv_to_voc(annotation_file, output_dir, labelmap_file):
 
     #for filename in os.listdir(ANNOTATIONS_DIR_PREFIX):
     #    if filename.endswith('txt'):
-    ann_df = pd.read_csv(annotation_file)
+    ann_df = pd.read_csv(annotation_file, sep=';')
     ann_df.set_index('filename', inplace=True)
     group = ann_df.groupby(ann_df.index)
     for key in group.groups.keys():
         print("Process ",key)
         df = ann_df.loc[key]
+        if isinstance(df, pd.Series):
+            df = pd.DataFrame([ann_df.loc[key]])
 
         generate_voc(df, label_map_dict_inverse, output_dir)
 

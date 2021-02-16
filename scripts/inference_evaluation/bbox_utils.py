@@ -110,6 +110,12 @@ def xml_to_csv(path, filter=None):
         tree = ET.parse(xml_file)
         root = tree.getroot()
         for member in root.findall('object'):
+            #Check if detection or ground truth
+            if isinstance(member.find("score"), ET.Element):
+                score = float(member.find("score").text)
+            else:
+                score = None
+
             value = (root.find('filename').text,
                      int(root.find('size')[0].text),
                      int(root.find('size')[1].text),
@@ -117,11 +123,12 @@ def xml_to_csv(path, filter=None):
                      int(member.find("bndbox")[0].text),
                      int(member.find("bndbox")[1].text),
                      int(member.find("bndbox")[2].text),
-                     int(member.find("bndbox")[3].text)
+                     int(member.find("bndbox")[3].text),
+                     score
                      )
             xml_list.append(value)
     column_name = ['filename', 'width', 'height',
-                   'class', 'xmin', 'ymin', 'xmax', 'ymax']
+                   'class', 'xmin', 'ymin', 'xmax', 'ymax', 'score']
     xml_df = pd.DataFrame(xml_list, columns=column_name)
     return xml_df
 
@@ -129,7 +136,11 @@ def extract_info_from_annotations(annotation, category_index):
 
     boxes = np.zeros([annotation.shape[0], 4])
     classes = np.zeros([annotation.shape[0]]).astype('int')
-    scores = np.zeros([annotation.shape[0]])
+
+    if 'score' in annotation.columns and annotation['score'][0] is not None:
+        scores = np.zeros([annotation.shape[0]])
+    else:
+        scores = None
 
     for i in range(annotation.shape[0]):
         boxes[i][0] = annotation['ymin'][i] / annotation['height'][i]
@@ -148,18 +159,18 @@ def extract_info_from_annotations(annotation, category_index):
         classes[i] = class_index
         print("Class index: ", class_index)
 
-        if 'scores' in annotation.columns:
-            scores[i] = annotation['scores'][i]
-        else:
-            scores[i] = 1.0
+        if 'score' in annotation.columns and annotation['score'][i] is not None:
+            scores[i] = annotation['score'][i]
+        #else:
+            #scores[i] = 1.0
 
     return boxes, classes, scores
 
-def visualize_image(image_name, image_np, scores, boxes, classes, category_index):
+def visualize_image(image_name, image_np, scores, boxes, classes, category_index, min_score=0.4):
     # Get objects
     #image_np, boxes, classes, scores = value
 
-    if (max(scores) >= 0.85):
+    if scores is None or (max(scores) >= min_score):
         print("Visualize image")
         print(image_name)
         # print(value)
@@ -179,20 +190,23 @@ def visualize_image(image_name, image_np, scores, boxes, classes, category_index
             category_index,
             use_normalized_coordinates=True,
             max_boxes_to_draw=200,
-            min_score_thresh=.40,
+            min_score_thresh=min_score,
+            line_thickness=2,
             agnostic_mode=False)
         # plt.show()
         # plt.subplot(5, 1, 1)
+    else:
+        image_np_with_detections = image_np
 
     return image_np_with_detections
 
-def visualize_image_with_boundingbox(annotation_dir, category_index, image_name, image_path):
+def visualize_image_with_boundingbox(annotation_dir, category_index, image_name, image_path, min_score=0.4):
     image_np = im.load_image_into_numpy_array(image_path)# load_image(image_path)
     filter = []
     filter.append(image_name)
     annotation_df = xml_to_csv(annotation_dir, filter)
     print("Annotation: ", annotation_df)
     boxes, classes, scores = extract_info_from_annotations(annotation_df, category_index)
-    fig1 = visualize_image(image_name, image_np, scores, boxes, classes, category_index)
+    fig1 = visualize_image(image_name, image_np, scores, boxes, classes, category_index, min_score)
 
     return fig1

@@ -93,9 +93,15 @@ parser.add_argument("-x", '--xml_dir', default=None,
                          'If run_detection is True, xml files are saved here. '
                          'If run detection is False, XML files are loaded from here. '
                          'If run_detection is True and value is None, no XMLs are saved.', required=False, type=str)
-parser.add_argument("-o", '--output_dir', default=None, help='Result directory for images. Default is None. '
+parser.add_argument("-vis", '--run_visualization', default=False,
+                    help='Run image visualization', required=False, type=bool)
+parser.add_argument("-o", '--output_dir', default=None, help='Result directory for images and detections. Default is None. '
                                                              'If the value is none, no images will be saved.',
                     required=False)
+parser.add_argument("-m", '--model_name', default="Model", type=str,
+                    help='Model name for collecting model data.', required=False)
+parser.add_argument("-hw", '--hardware_name', default="Hardware", type=str,
+                    help='Hardware name collecting statistical data.', required=False)
 
 args = parser.parse_args()
 
@@ -300,65 +306,87 @@ def convert_reduced_detections_to_df(image_filename, image_np, boxes, classes, s
     # return detections
 
 
-def convert_df_to_reduced_detections(df):
+# def convert_df_to_reduced_detections(df):
+#     '''
+#
+#
+#
+#     '''
+#
+# def visualize_image(image_filename, image_np, boxes, classes, scores, category_index, output_dir, min_score=0.5):
+#     '''
+#
+#     :param detection_array:
+#     :param category_index:
+#     :return:
+#     '''
+#
+#     image_dir = output_dir
+#     if os.path.isdir(image_dir) == False:
+#         os.makedirs(image_dir)
+#         print("Created directory {}".format(image_dir))
+#
+#     # print("Visualize images")
+#
+#     # for image_name, value in detection_array.items():
+#     # Get objects
+#     # image_np, boxes, classes, scores = value
+#
+#     if (max(scores) >= min_score):
+#         print(image_filename)
+#         # print(value)
+#         # print(classes)
+#         # print(scores)
+#         # print(boxes)
+#         # input()
+#
+#         plt.rcParams['figure.figsize'] = [42, 21]
+#         label_id_offset = 1
+#         image_np_with_detections = image_np.copy()
+#         viz_utils.visualize_boxes_and_labels_on_image_array(
+#             image_np_with_detections,
+#             boxes,
+#             classes,
+#             scores,
+#             category_index,
+#             use_normalized_coordinates=True,
+#             max_boxes_to_draw=200,
+#             min_score_thresh=min_score,
+#             agnostic_mode=False)
+#         # plt.show()
+#         # plt.subplot(5, 1, 1)
+#         plt.gcf()
+#         plt.imshow(image_np_with_detections)
+#
+#         new_image_path = os.path.join(image_dir, image_filename + "_det" + ".png")
+#         print("Save image {} to {}".format(image_filename, new_image_path))
+#         plt.savefig(new_image_path)
+
+def plot_image(image, title=None):
+    ax = plt.subplot(111)
+    ax.tick_params(labelbottom=False, labelleft=False)
+    if title:
+        plt.title(title, fontsize=40)
+    plt.imshow(image)
+
+    plt.axis('off')
+    plt.tight_layout()
+
+    return plt.gcf()
+
+def infer_images(model_path, image_dir, labelmap, output_dir, min_score, run_detection, run_visualization, model_name, hardware_name,
+                 xml_dir=None):
     '''
 
 
-
     '''
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
+        print("Created ", output_dir)
 
-def visualize_image(image_filename, image_np, boxes, classes, scores, category_index, output_dir, min_score=0.5):
-    '''
-
-    :param detection_array:
-    :param category_index:
-    :return:
-    '''
-
-    image_dir = output_dir
-    if os.path.isdir(image_dir) == False:
-        os.makedirs(image_dir)
-        print("Created directory {}".format(image_dir))
-
-    # print("Visualize images")
-
-    # for image_name, value in detection_array.items():
-    # Get objects
-    # image_np, boxes, classes, scores = value
-
-    if (max(scores) >= min_score):
-        print(image_filename)
-        # print(value)
-        # print(classes)
-        # print(scores)
-        # print(boxes)
-        # input()
-
-        plt.rcParams['figure.figsize'] = [42, 21]
-        label_id_offset = 1
-        image_np_with_detections = image_np.copy()
-        viz_utils.visualize_boxes_and_labels_on_image_array(
-            image_np_with_detections,
-            boxes,
-            classes,
-            scores,
-            category_index,
-            use_normalized_coordinates=True,
-            max_boxes_to_draw=200,
-            min_score_thresh=.40,
-            agnostic_mode=False)
-        # plt.show()
-        # plt.subplot(5, 1, 1)
-        plt.imshow(image_np_with_detections)
-
-        new_image_path = os.path.join(image_dir, image_filename + "_det" + ".png")
-        print("Save image {} to {}".format(image_filename, new_image_path))
-        plt.savefig(new_image_path)
-
-
-def infer_images(model_path, image_dir, labelmap, output_dir, min_score, run_detection, xml_dir=None):
-    start_time = time.time()
-    # model_name = model_path.split('/')[-3]
+    if not os.path.isdir(xml_dir):
+        os.makedirs(xml_dir)
+        print("Created ", xml_dir)
 
     # Load inference images
     print("Loading images from ", image_dir)
@@ -370,25 +398,26 @@ def infer_images(model_path, image_dir, labelmap, output_dir, min_score, run_det
 
     if run_detection:
         # Load model
-        print("Loading model...")
+        print("Loading model {} from {}".format(model_name, model_path))
         detector = load_model(model_path)
+        print("Inference with the model {} on hardware {} will be executed".format(model_name, hardware_name))
     else:
-        print("Load saved XML files from ealier inference from ", xml_dir)
-        data = pd.read_csv(os.path.join(xml_dir, "detections.csv")).set_index('filename')
+        # Load stored XML Files
+        print("Loading saved XML files from ealier inferences from ", xml_dir)
+        data = pd.read_csv(os.path.join(xml_dir, "detections.csv"), sep=';').set_index('filename')
 
-    latencies = []
-    column_name = ['filename', 'width', 'height', 'class', 'xmin', 'ymin', 'xmax', 'ymax', 'score']
-    detection_scores = pd.DataFrame(columns=column_name)
-
+    # Define scores and latencies
+    latencies = pd.DataFrame(columns=['Network', 'Hardware', 'Latency'])
+    detection_scores = pd.DataFrame(columns=['filename', 'width', 'height', 'class', 'xmin',
+                                             'ymin', 'xmax', 'ymax', 'score'])
+    # Process each image
     for image_name in image_list:
-        # pic_time = time.time()
-        # image_dict = create_single_imagedict(image_dir,image_name)
 
         if run_detection:
             image_filename, image_np, boxes, classes, scores, latency = \
                 detect_image(detector, os.path.join(image_dir, image_name), min_score)
 
-            latencies.append(latency)
+            latencies=latencies.append(pd.DataFrame([[model_name, hardware_name, latency]], columns=['Network', 'Hardware', 'Latency']))
             bbox_df = convert_reduced_detections_to_df(image_filename, image_np, boxes, classes, scores, min_score)
             detection_scores=detection_scores.append(bbox_df)
         else:
@@ -401,22 +430,34 @@ def infer_images(model_path, image_dir, labelmap, output_dir, min_score, run_det
 
 
         # If output directory is provided, visualize and save image
-        if output_dir:
-            visualize_image(image_filename, image_np, boxes, classes, scores, category_index, output_dir,
-                             min_score=min_score)
+        if run_visualization and output_dir:
+            image = bbox.visualize_image(image_name, image_np, scores, boxes, classes, category_index, min_score=min_score)
+
+            plt.gcf()
+            #plt.imshow(image_np_with_detections)
+            new_image_path = os.path.join(output_dir, os.path.splitext(image_filename)[0] + "_det" + ".png")
+            print("Save image {} to {}".format(image_filename, new_image_path))
+
+            fig = plot_image(image)
+            plt.savefig(new_image_path)
+            #visualize_image(image_filename, image_np, boxes, classes, scores, category_index, output_dir,
+            #                 min_score=min_score)
 
     #Save all detections
     if run_detection and xml_dir and detection_scores.shape[0] > 0:
-        detection_scores.to_csv(os.path.join(xml_dir, "detections.csv"), index=None)
+        #Save detections
+        detection_scores.to_csv(os.path.join(xml_dir, "detections.csv"), index=None, sep=';')
         print("Detections saved to ", os.path.join(xml_dir, "detections.csv"))
 
-    #Calculate mean inference time
-    if run_detection:
-        print("Mean inference time: ", np.array(latencies).mean())
+        #Save inferences
+        latencies_path = os.path.join(output_dir, model_name + "_" + hardware_name + "_latencies.csv")
+        latencies.to_csv(latencies_path, sep=';')
+        print("Mean inference time: ".format(latencies['Latency'].mean()))
+        print("Saved latency values to ", latencies_path)
 
 
 if __name__ == "__main__":
     infer_images(args.model_path, args.image_dir, args.labelmap, args.output_dir, args.min_score, args.run_detection,
-                 args.xml_dir)
+                 args.run_visualization, args.model_name, args.hardware_name, args.xml_dir)
 
     print("=== Program end ===")
