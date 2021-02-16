@@ -1,0 +1,5 @@
+Network;Latency;Throughput;Template_Column_Batch_Size; Template_column_quant_8]
+tf2oda_efficientdetd2_768_576_coco17_pedestrian;56.34;3.5;1;0
+tf2oda_efficientdetd2_768_576_coco17_pedestrian;66.34;2.2;4;0
+tf2oda_efficientdetd2_768_576_coco17_pedestrian;36.34;5.5;1;1
+tf2oda_efficientdetd2_640_480_coco17_pedestrian;43.20;9.9;1;0

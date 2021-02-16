@@ -5,7 +5,7 @@ echo #==============================================#
 :: Constant Definition
 set USERNAME=wendt
 set USEREMAIL=alexander.wendt@tuwien.ac.at
-set MODELNAME=tf2oda_ssdmobilenetv2_320_320_coco17_D100_pedestrian
+set MODELNAME=tf2oda_efficientdetd2_768_576_coco17_pedestrian_all
 set PYTHONENV=tf24
 set BASEPATH=.
 set SCRIPTPREFIX=..\..\scripts-and-guides\scripts
@@ -15,11 +15,10 @@ echo Activate environment %PYTHONENV%
 call conda activate %PYTHONENV%
 
 echo #======================================================#
-echo # Generate TF Records from images and XML as Pascal Voc
+echo # Convert TF CSV Format (similar to voc) to Pascal VOC XML
 echo #======================================================# 
 
-echo run script from ./samples/tmp
-
-python %SCRIPTPREFIX%\data_preparation\remove_invalid_bounding_boxes_in_xml.py ^
---annotation_folder="annotations/xmls" ^
---output_folder="annotations/xmls/cleaned"
+python %SCRIPTPREFIX%\conversion\convert_tfcsv_to_voc.py ^
+--annotation_file="results/tf2oda_efficientdetd2_768_576_coco17_pedestrian_all/detections.csv" ^
+--output_dir="results/tf2oda_efficientdetd2_768_576_coco17_pedestrian_all/xml" ^
+--labelmap_file="annotations/pedestrian_label_map.pbtxt"

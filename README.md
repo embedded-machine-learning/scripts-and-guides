@@ -22,6 +22,13 @@ We collect scripts and guides that help us in our everyday work to setup softwar
 * [ Training Tools](./scripts/training/README.md)
 * [ Hardware Modules](./scripts/hardwaremodules/)
 
+#### Usage of the Scripts Repository
+- Create a folder for this setup.
+- Clone the scripts and guides repository into that folder, i.e. \[basefolder\]/scripts-and-guides
+- Create a folder projects i.e. \[basefolder\]/projects
+- Create your on project from the templates in scripts-and-guides in the projects folder like \[basefolder\]/projects/my_eml_project
+- Copy all necessary scripts into the my_eml_project folder and adjust the paths. 
+
 <div align="center">
   <img src="./_img/eml_logo_and_text.png", width="500">
 </div>
