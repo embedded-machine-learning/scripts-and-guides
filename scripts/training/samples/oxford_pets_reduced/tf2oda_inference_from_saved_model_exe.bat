@@ -27,15 +27,16 @@ python %SCRIPTPREFIX%\inference_evaluation\tf2oda_inference_from_saved_model.py 
 --output_dir="results/%MODELNAME%/validation_for_inference" ^
 --xml_dir="results/%MODELNAME%/validation_for_inference" ^
 --run_detection True ^
---run_visualization True ^
+--latency_out="results/latency.csv" ^
 --min_score=0.5 ^
 --model_name=%MODELNAME% ^
---hardware_name="CPU_Intel_i5"
+--hardware_name="CPU_Intel_i5" ^
+--run_visualization True
 
 
-echo Convert TF CSV Format (similar to voc) to Pascal VOC XML
-python %SCRIPTPREFIX%\conversion\convert_tfcsv_to_voc.py ^
---annotation_file="results/%MODELNAME%/validation_for_inference/detections.csv" ^
---output_dir="results/%MODELNAME%/validation_for_inference/xmls" ^
---labelmap_file="annotations/%LABELMAP%"
+::echo Convert TF CSV Format (similar to voc) to Pascal VOC XML
+::python %SCRIPTPREFIX%\conversion\convert_tfcsv_to_voc.py ^
+::--annotation_file="results/%MODELNAME%/validation_for_inference/detections.csv" ^
+::--output_dir="results/%MODELNAME%/validation_for_inference/xmls" ^
+::--labelmap_file="annotations/%LABELMAP%"
 

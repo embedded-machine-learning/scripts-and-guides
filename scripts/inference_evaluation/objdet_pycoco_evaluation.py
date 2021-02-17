@@ -31,12 +31,14 @@ License_info:
 
 # Built-in/Generic Imports
 import argparse
-
+import os
+from datetime import datetime
 
 # Libs
 from pycocotools.coco import COCO
 import numpy as np
 from pycocotools.cocoeval import COCOeval
+import pandas as pd
 
 import matplotlib
 
@@ -57,14 +59,26 @@ __email__ = 'alexander.wendt@tuwien.ac.at'
 __status__ = 'Experimental'
 
 parser = argparse.ArgumentParser(description='Pycoco Tools Evaluator')
-parser.add_argument("-gt", '--groundtruth_path', default='gt.json',
+parser.add_argument("-gt", '--groundtruth_file', default='gt.json',
                     help='Coco ground truth path', required=False)
-parser.add_argument("-det", '--detection_path', default='det.json',
+parser.add_argument("-det", '--detection_file', default='det.json',
                     help='Coco detections path', required=False)
+parser.add_argument("-o", '--output_file', default=None,
+                    help='Save/appends results to an output file', required=False)
+parser.add_argument("-m", '--model_name', default='Default_Network',
+                    help='Add model name', required=False)
+parser.add_argument("-hw", '--hardware_name', default='Default_Hardware',
+                    help='Add hardware name', required=False)
 args = parser.parse_args()
 
 
-def evaluate_inference(coco_gt_file, coco_det_file):
+def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, hardware_name):
+    '''
+    Format the results: https://cocodataset.org/#format-results
+    Helping source: https://detectron2.readthedocs.io/en/latest/_modules/detectron2/evaluation/coco_evaluation.html
+
+    '''
+
     annType = ['segm', 'bbox', 'keypoints']
     annType = annType[1]  # specify type here 1: Bounding box
     prefix = 'person_keypoints' if annType == 'keypoints' else 'instances'
@@ -82,20 +96,53 @@ def evaluate_inference(coco_gt_file, coco_det_file):
     cocoDt = cocoGt.loadRes(coco_det_file)
 
     imgIds = sorted(cocoGt.getImgIds())
-    imgIds = imgIds[0:100]
-    imgId = imgIds[np.random.randint(100)]
+    #imgIds = imgIds[0:100]
+    #imgId = imgIds[np.random.randint(100)]
 
     # running evaluation
     cocoEval = COCOeval(cocoGt, cocoDt, annType)
     cocoEval.params.imgIds = imgIds
     cocoEval.evaluate()
     cocoEval.accumulate()
+    cocoEval.summarize()
 
-    print(cocoEval.summarize())
+    series_index = ['Date',
+                    'Network',
+                    'Hardware',
+                    'DetectionBoxes_Precision/mAP',
+                    'DetectionBoxes_Precision/mAP@.50IOU',
+                    'DetectionBoxes_Precision/mAP@.75IOU',
+                    'DetectionBoxes_Precision/mAP (small)',
+                    'DetectionBoxes_Precision/mAP (medium)',
+                    'DetectionBoxes_Precision/mAP (large)',
+                    'DetectionBoxes_Recall/AR@1',
+                    'DetectionBoxes_Recall/AR@10',
+                    'DetectionBoxes_Recall/AR@100',
+                    'DetectionBoxes_Recall/AR@100 (small)',
+                    'DetectionBoxes_Recall/AR@100 (medium)',
+                    'DetectionBoxes_Recall/AR@100 (large)']
+
+    content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), model_name, hardware_name]
+    content.extend(cocoEval.stats)
+
+    # Create DataFrame
+    df = pd.DataFrame([pd.Series(data=content, index=series_index, name="data")])
+    df.set_index('Date', inplace=True)
+
+    # Append dataframe wo csv if it already exists, else create new file
+    if os.path.isfile(output_file):
+        df.to_csv(output_file, mode='a', header=False, sep=';')
+        print("Appended evaluation to ", output_file)
+    else:
+        df.to_csv(output_file, mode='w', header=True, sep=';')
+        print("Created new measurement file ", output_file)
+
+    #print(cocoEval.summarize())
 
 
 if __name__ == "__main__":
 
-    evaluate_inference(args.groundtruth_path, args.detection_path)
+    evaluate_inference(args.groundtruth_file, args.detection_file, args.output_file,
+                       args.model_name, args.hardware_name)
 
     print("=== Program end ===")

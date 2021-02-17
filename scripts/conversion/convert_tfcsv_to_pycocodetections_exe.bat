@@ -2,6 +2,8 @@ echo #==============================================#
 echo # CDLEML Process TF2 Object Detection API
 echo #==============================================#
 
+echo run this files in the root of a project
+
 :: Constants Definition
 set USERNAME=wendt
 set USEREMAIL=alexander.wendt@tuwien.ac.at
@@ -19,12 +21,6 @@ echo #====================================#
 echo # Evaluate with Coco Metrics
 echo #====================================#
 
-python %SCRIPTPREFIX%\inference_evaluation\convert_tfcsv_to_pycocodetections.py ^
---groundtruth_path="annotations/coco_pets_validation_annotations.json"
---detection_path="results/%MODELNAME%/validation_for_inference/coco_pets_detection_annotations.json
-::--labelmap="samples/annotations/label_map.pbtxt" ^
-::--output_dir="samples/results" ^
-::--image_path1="samples/images/0.jpg" --annotation_dir1="samples/annotations/xml" --title1="Image 1" ^
-::--image_path2="samples/images/10.jpg" --annotation_dir2="samples/annotations/xml" --title2="Image 2" ^
-::--image_path3="samples/images/20.jpg" --annotation_dir3="samples/annotations/xml" --title3="Image 3" ^
-::--use_three_images
+python %SCRIPTPREFIX%\conversion\convert_tfcsv_to_pycocodetections.py ^
+--annotation_file="results/%MODELNAME%/validation_for_inference/detections.csv" ^
+--output_file="results/%MODELNAME%/validation_for_inference/coco_pets_detection_annotations.json

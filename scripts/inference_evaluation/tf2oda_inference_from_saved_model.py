@@ -65,6 +65,7 @@ from object_detection.utils import visualization_utils as viz_utils
 # Own modules
 import bbox_utils as bbox
 import image_utils as im
+from datetime import datetime
 
 __author__ = 'Alexander Wendt'
 __copyright__ = 'Copyright 2021, Christian Doppler Laboratory for ' \
@@ -95,9 +96,12 @@ parser.add_argument("-x", '--xml_dir', default=None,
                          'If run_detection is True and value is None, no XMLs are saved.', required=False, type=str)
 parser.add_argument("-vis", '--run_visualization', default=False,
                     help='Run image visualization', required=False, type=bool)
-parser.add_argument("-o", '--output_dir', default=None, help='Result directory for images and detections. Default is None. '
-                                                             'If the value is none, no images will be saved.',
+parser.add_argument("-o", '--output_dir', default="detection_images", help='Result directory for images. ',
                     required=False)
+parser.add_argument("-lat", '--latency_out', default="latency.csv", help='Output path for latencies file, which is '
+                                                                         'appended or created new. ',
+                    required=False)
+
 parser.add_argument("-m", '--model_name', default="Model", type=str,
                     help='Model name for collecting model data.', required=False)
 parser.add_argument("-hw", '--hardware_name', default="Hardware", type=str,
@@ -374,8 +378,8 @@ def plot_image(image, title=None):
 
     return plt.gcf()
 
-def infer_images(model_path, image_dir, labelmap, output_dir, min_score, run_detection, run_visualization, model_name, hardware_name,
-                 xml_dir=None):
+def infer_images(model_path, image_dir, labelmap, output_dir, min_score, run_detection, run_visualization, model_name,
+                 hardware_name, latency_out, xml_dir=None):
     '''
 
 
@@ -403,11 +407,12 @@ def infer_images(model_path, image_dir, labelmap, output_dir, min_score, run_det
         print("Inference with the model {} on hardware {} will be executed".format(model_name, hardware_name))
     else:
         # Load stored XML Files
-        print("Loading saved XML files from ealier inferences from ", xml_dir)
+        print("Loading saved Detections files from ealier inferences from ", xml_dir)
         data = pd.read_csv(os.path.join(xml_dir, "detections.csv"), sep=';').set_index('filename')
 
     # Define scores and latencies
-    latencies = pd.DataFrame(columns=['Network', 'Hardware', 'Latency'])
+    #latencies = pd.DataFrame(columns=['Network', 'Hardware', 'Latency'])
+    latencies = []
     detection_scores = pd.DataFrame(columns=['filename', 'width', 'height', 'class', 'xmin',
                                              'ymin', 'xmax', 'ymax', 'score'])
     # Process each image
@@ -417,7 +422,8 @@ def infer_images(model_path, image_dir, labelmap, output_dir, min_score, run_det
             image_filename, image_np, boxes, classes, scores, latency = \
                 detect_image(detector, os.path.join(image_dir, image_name), min_score)
 
-            latencies=latencies.append(pd.DataFrame([[model_name, hardware_name, latency]], columns=['Network', 'Hardware', 'Latency']))
+            latencies.append(latency)
+            #latencies=latencies.append(pd.DataFrame([[model_name, hardware_name, latency]], columns=['Network', 'Hardware', 'Latency']))
             bbox_df = convert_reduced_detections_to_df(image_filename, image_np, boxes, classes, scores, min_score)
             detection_scores=detection_scores.append(bbox_df)
         else:
@@ -440,24 +446,52 @@ def infer_images(model_path, image_dir, labelmap, output_dir, min_score, run_det
 
             fig = plot_image(image)
             plt.savefig(new_image_path)
-            #visualize_image(image_filename, image_np, boxes, classes, scores, category_index, output_dir,
-            #                 min_score=min_score)
 
     #Save all detections
     if run_detection and xml_dir and detection_scores.shape[0] > 0:
-        #Save detections
+        # Save detections
         detection_scores.to_csv(os.path.join(xml_dir, "detections.csv"), index=None, sep=';')
         print("Detections saved to ", os.path.join(xml_dir, "detections.csv"))
 
+        # Save latencies
+        # Calucluate mean latency
+        if len(latencies) > 1:
+            latencies.pop(0)
+            print("Removed the first inference time value as it usually includes a warm-up phase. Size of old list: {}. "
+                  "Size of new list: {}".format(len(latencies)+1, len(latencies)))
+
+        mean_latency = np.array(latencies).mean()
+        print("Mean inference time: ".format(mean_latency))
+
+        series_index = ['Date',
+                        'Network',
+                        'Hardware',
+                        'MeanLatency',
+                        'Latencies']
+
+        content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), model_name, hardware_name, mean_latency]
+        content.append(latencies)
+
+        # Create DataFrame
+        df = pd.DataFrame([pd.Series(data=content, index=series_index, name="data")])
+        df.set_index('Date', inplace=True)
+
+        # Append dataframe wo csv if it already exists, else create new file
+        if os.path.isfile(latency_out):
+            df.to_csv(latency_out, mode='a', header=False, sep=';')
+            print("Appended evaluation to ", latency_out)
+        else:
+            df.to_csv(latency_out, mode='w', header=True, sep=';')
+            print("Created new measurement file ", latency_out)
+
         #Save inferences
-        latencies_path = os.path.join(output_dir, model_name + "_" + hardware_name + "_latencies.csv")
-        latencies.to_csv(latencies_path, sep=';')
-        print("Mean inference time: ".format(latencies['Latency'].mean()))
-        print("Saved latency values to ", latencies_path)
+        #latencies_path = os.path.join(output_dir, "latencies.csv")
+        #latencies.to_csv(latency_out, sep=';')
+        print("Saved latency values to ", latency_out)
 
 
 if __name__ == "__main__":
     infer_images(args.model_path, args.image_dir, args.labelmap, args.output_dir, args.min_score, args.run_detection,
-                 args.run_visualization, args.model_name, args.hardware_name, args.xml_dir)
+                 args.run_visualization, args.model_name, args.hardware_name, args.latency_out, args.xml_dir)
 
     print("=== Program end ===")

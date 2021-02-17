@@ -60,6 +60,26 @@ python %SCRIPTPREFIX%\tf2oda_inference_from_saved_model.py ^
 --run_detection True 
 ```
 
+### Calculate Coco Metrics for Object Detection
+Coco metrics decoupled from Tensorboard to perform evaluation on networks.
+
+File: objdet_pycoco_evaluation.py
+
+Usage: Create a ground truth file in Coco JSON format. Perform detections with a model and convert the detections into Coco JSON detection format. 
+The result is saved or appended to the output file for further processing and visualization. To be able to sort the measurements, provide model_name 
+and hardware_name.
+
+Example as Windows batch script: 
+```
+python %SCRIPTPREFIX%\inference_evaluation\objdet_pycoco_evaluation.py ^
+--groundtruth_file="annotations/coco_pets_validation_annotations.json" ^
+--detection_file="results/%MODELNAME%/validation_for_inference/coco_pets_detection_annotations.json" ^
+--output_file="results/performance.csv" ^
+--model_name="SSD-MobileNet" ^
+--hardware_name="Intel_CPU_i5"
+```
+
+
 
 ## Issues
 Should any issues arise during the completion of the guide or any errors noted, please let us know by filing an issue and help us keep up the quality.

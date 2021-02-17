@@ -78,7 +78,7 @@ Examples:
 python convert_voc_to_tfrecord_mod.py -x "samples/annotations/xml" -i "samples/images" -l "samples/annotations/sw_label_map.pbtxt" -o "samples/prepared-records/train_voc.record" -n 2
 ```
 
-## TF2 CSV to PASCAL VOC
+## TF CSV to PASCAL VOC
 Tensorflow uses a csv format that looks like the yolo format for intermediate representations. This script converts from the intermediate format to Pascal VOC.
 
 Source: This script was inspired by [Shubham Gupta](https://gist.github.com/goodhamgupta/7ca514458d24af980669b8b1c8bcdafd)
@@ -91,6 +91,20 @@ python %SCRIPTPREFIX%\conversion\convert_tfcsv_to_voc.py ^
 --annotation_file="results/tf2oda_efficientdetd2_768_576_coco17_pedestrian_all/detections.csv" ^
 --output_dir="results/tf2oda_efficientdetd2_768_576_coco17_pedestrian_all/xml" ^
 --labelmap_file="annotations/pedestrian_label_map.pbtxt"
+```
+
+## TF CSV to COCO JSON Detections
+Convert Tensorflow CSV detection format to the Coco JSON detection format.
+
+Source: 
+
+Script: `convert_tfcsv_to_pycocodetections.py`
+
+Examples:
+```shell
+python %SCRIPTPREFIX%\conversion\convert_tfcsv_to_pycocodetections.py ^
+--annotation_file="results/%MODELNAME%/validation_for_inference/detections.csv" ^
+--output_file="results/%MODELNAME%/validation_for_inference/coco_pets_detection_annotations.json
 ```
 
 ## TF2 Keras to TF1 Frozen

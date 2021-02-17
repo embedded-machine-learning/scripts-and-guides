@@ -2,6 +2,8 @@ echo #==============================================#
 echo # CDLEML Process TF2 Object Detection API
 echo #==============================================#
 
+echo run this files in the root of a project
+
 :: Constants Definition
 set USERNAME=wendt
 set USEREMAIL=alexander.wendt@tuwien.ac.at
@@ -16,12 +18,9 @@ echo Activate environment %PYTHONENV%
 call conda activate %PYTHONENV%
 
 echo #====================================#
-echo # Evaluate with Coco Metrics
+echo # Convert to Pycoco Tools JSON Format
 echo #====================================#
 
-python %SCRIPTPREFIX%\inference_evaluation\objdet_pycoco_evaluation.py ^
---groundtruth_file="annotations/coco_pets_validation_annotations.json" ^
---detection_file="results/%MODELNAME%/validation_for_inference/coco_pets_detection_annotations.json" ^
---output_file="results/performance.csv" ^
---model_name="SSD-MobileNet" ^
---hardware_name="Intel_CPU_i5"
+python %SCRIPTPREFIX%\conversion\convert_tfcsv_to_pycocodetections.py ^
+--annotation_file="results/%MODELNAME%/validation_for_inference/detections.csv" ^
+--output_file="results/%MODELNAME%/validation_for_inference/coco_pets_detection_annotations.json
