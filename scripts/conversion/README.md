@@ -14,8 +14,20 @@ Script: `convert_voc_to_coco.py`
 
 Example: 
 ```shell
-python convert_voc_to_coco.py --ann_dir samples/annotations/xml --ann_ids samples/annotations/train.txt --labels samples/annotations/labels.txt --output samples/annotations/coco_train_annotations.json --ext xml
+python convert_voc_to_coco.py ^
+--ann_dir samples/annotations/xml ^
+--ann_ids samples/annotations/train.txt ^
+--labels samples/annotations/labels.txt ^
+--output samples/annotations/coco_train_annotations.json ^
+--ext xml
 ```
+
+Notes: 
+- ann_dir: XML directory
+- ann_ids: txt file with filenames without extensions. If this file is None, all files of ann_dir are used.
+- labels: labels file 
+- output: Output JSON
+- ext: File extension to filter
 
 ## Coco to VOC
 Source: [https://gist.github.com/jinyu121](https://gist.github.com/jinyu121/a222492405890ce912e95d8fb5367977)

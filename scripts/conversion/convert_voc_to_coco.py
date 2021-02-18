@@ -32,6 +32,7 @@ License_info:
 from __future__ import print_function
 
 # Built-in/Generic Imports
+import glob
 import os
 import json
 import re
@@ -54,6 +55,22 @@ __maintainer__ = 'Alexander Wendt'
 __email__ = 'alexander.wendt@tuwien.ac.at'
 __status__ = 'Experiental'
 
+parser = argparse.ArgumentParser(
+        description='This script support converting voc format xmls to coco format json')
+parser.add_argument('--ann_dir', type=str, default=None,
+                    help='path to annotation files directory. It is not need when use --ann_paths_list')
+parser.add_argument('--ann_ids', type=str, default=None,
+                    help='path to annotation files ids list. It is not need when use --ann_paths_list.'
+                         'If --ann_ids is not provided, all xmls in the --ann_dir will be used.')
+parser.add_argument('--ann_paths_list', type=str, default=None,
+                    help='path of annotation paths list. It is not need when use --ann_dir and --ann_ids')
+parser.add_argument('--labels', type=str, default=None,
+                    help='path to label list.')
+parser.add_argument('--output', type=str, default='output.json', help='path to output json file')
+parser.add_argument('--ext', type=str, default='', help='additional extension of annotation file')
+parser.add_argument('--extract_num_from_imgid', action="store_true",
+                    help='Extract image number from the image filename')
+args = parser.parse_args()
 
 def get_label2id(labels_path: str) -> Dict[str, int]:
     """id is 1 start"""
@@ -75,8 +92,12 @@ def get_annpaths(ann_dir_path: str = None,
 
     # If use annotaion ids list
     ext_with_dot = '.' + ext if ext != '' else ''
-    with open(ann_ids_path, 'r') as f:
-        ann_ids = f.read().split()
+    if ann_ids_path:
+        with open(ann_ids_path, 'r') as f:
+            ann_ids = f.read().split()
+    else:
+        # No txt wit file names provided, take everything from the folder
+        ann_ids = [os.path.splitext(os.path.basename(f))[-2] for f in glob.glob(os.path.join(ann_dir_path, '*.*'))]
     ann_paths = [os.path.join(ann_dir_path, aid+ext_with_dot) for aid in ann_ids]
     return ann_paths
 
@@ -166,22 +187,8 @@ def convert_xmls_to_cocojson(annotation_paths: List[str],
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='This script support converting voc format xmls to coco format json')
-    parser.add_argument('--ann_dir', type=str, default=None,
-                        help='path to annotation files directory. It is not need when use --ann_paths_list')
-    parser.add_argument('--ann_ids', type=str, default=None,
-                        help='path to annotation files ids list. It is not need when use --ann_paths_list')
-    parser.add_argument('--ann_paths_list', type=str, default=None,
-                        help='path of annotation paths list. It is not need when use --ann_dir and --ann_ids')
-    parser.add_argument('--labels', type=str, default=None,
-                        help='path to label list.')
-    parser.add_argument('--output', type=str, default='output.json', help='path to output json file')
-    parser.add_argument('--ext', type=str, default='', help='additional extension of annotation file')
-    parser.add_argument('--extract_num_from_imgid', action="store_true",
-                        help='Extract image number from the image filename')
-    args = parser.parse_args()
     label2id = get_label2id(labels_path=args.labels)
+
     ann_paths = get_annpaths(
         ann_dir_path=args.ann_dir,
         ann_ids_path=args.ann_ids,

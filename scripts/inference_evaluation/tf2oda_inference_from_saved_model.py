@@ -466,10 +466,11 @@ def infer_images(model_path, image_dir, labelmap, output_dir, min_score, run_det
         series_index = ['Date',
                         'Network',
                         'Hardware',
+                        'Batch',
                         'MeanLatency',
                         'Latencies']
 
-        content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), model_name, hardware_name, mean_latency]
+        content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), model_name, hardware_name, 1, mean_latency]
         content.append(latencies)
 
         # Create DataFrame
