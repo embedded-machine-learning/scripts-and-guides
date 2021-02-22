@@ -57,19 +57,6 @@ __status__ = 'Experimental'
 
 parser = argparse.ArgumentParser(
     description='Evaluation and Visualization')
-# parser.add_argument('--ann_dir', type=str, default=None,
-#                     help='path to annotation files directory. It is not need when use --ann_paths_list')
-# parser.add_argument('--ann_ids', type=str, default=None,
-#                     help='path to annotation files ids list. It is not need when use --ann_paths_list.'
-#                          'If --ann_ids is not provided, all xmls in the --ann_dir will be used.')
-# parser.add_argument('--ann_paths_list', type=str, default=None,
-#                     help='path of annotation paths list. It is not need when use --ann_dir and --ann_ids')
-# parser.add_argument('--labels', type=str, default=None,
-#                     help='path to label list.')
-# parser.add_argument('--output', type=str, default='output.json', help='path to output json file')
-# parser.add_argument('--ext', type=str, default='', help='additional extension of annotation file')
-# parser.add_argument('--extract_num_from_imgid', action="store_true",
-#                     help='Extract image number from the image filename')
 parser.add_argument("-lat", '--latency_file', default=None,
                     help='Directory with latency inputs', required=False)
 parser.add_argument("-per", '--performance_file', default=None,
@@ -201,7 +188,7 @@ def visualize_latency(df, output_dir):
     ax7.set_title('Latencies')
     ax7.boxplot(values, notch=True, flierprops=green_diamond)
     plt.xticks(ticks, labels)
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=90)
     plt.ylabel("Latency [ms]")
     plt.xlabel("Platforms and network sizes")
 
@@ -226,7 +213,7 @@ def visualize_latency(df, output_dir):
     fig1, ax1 = plt.subplots(figsize=(7,12))
     bp = ax1.violinplot(values, showmedians=True, showextrema=True)
     plt.xticks(ticks, labels)
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=90)
     plt.ylabel("Latency [ms]")
     plt.xlabel("Networks and platforms")
     plt.tight_layout()

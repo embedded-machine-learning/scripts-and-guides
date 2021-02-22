@@ -136,8 +136,8 @@ def get_coco_annotation_from_obj(obj, label2id):
     xmax = int(bndbox.findtext('xmax'))
     ymax = int(bndbox.findtext('ymax'))
     assert xmax > xmin and ymax > ymin, f"Box size error !: (xmin, ymin, xmax, ymax): {xmin, ymin, xmax, ymax}"
-    o_width = xmax - xmin
-    o_height = ymax - ymin
+    o_width = xmax - xmin - 1   #Subtracted -1 to be the same as roboflow's conversion
+    o_height = ymax - ymin - 1  #Subtracted -1 to be the same as roboflow's conversion
     ann = {
         'area': o_width * o_height,
         'iscrowd': 0,
@@ -181,9 +181,12 @@ def convert_xmls_to_cocojson(annotation_paths: List[str],
         category_info = {'supercategory': 'none', 'id': label_id, 'name': label}
         output_json_dict['categories'].append(category_info)
 
-    with open(output_jsonpath, 'w') as f:
-        output_json = json.dumps(output_json_dict)
-        f.write(output_json)
+    with open(output_jsonpath, 'w') as outfile:
+        json.dump(output_json_dict, outfile, indent=4)
+
+    #with open(output_jsonpath, 'w') as f:
+    #    output_json = json.dumps(output_json_dict, indent=4)
+    #    f.write(output_json)
 
 
 def main():

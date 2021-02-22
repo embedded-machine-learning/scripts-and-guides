@@ -125,19 +125,24 @@ def generate_detections(annotation_file, output_file):
         height = row['height']
         category_id = int(row['class'])
 
-        xmin = int(np.round(row['xmin'] * width)) - 1
+        # Round first at 2 decimals
+        xmin = float(row['xmin'] * width) - 1
+        #xmin = int(np.round(row['xmin'] * width)) - 1
         if xmin<0:
             warnings.warn("xmin < 0. Setting xmin=0")
             xmin=0
-        ymin = int(np.round(row['ymin'] * height)) - 1
+        ymin = float(row['ymin'] * height) - 1
+        #ymin = int(np.round(row['ymin'] * height)) - 1
         if ymin<0:
             warnings.warn("ymin < 0. Setting ymin=0")
             ymin=0
-        xmax = int(np.round(row['xmax'] * width))
+        xmax = float(row['xmax'] * width)
+        #xmax = int(np.round(row['xmax'] * width))
         if xmax>width:
             warnings.warn("xmax {} > {}. Setting xmax={}".format(xmax, width))
             xmax=width
-        ymax = int(np.round(row['ymax'] * height))
+        ymax = float(row['ymax'] * height)
+        #ymax = int(np.round(row['ymax'] * height))
         if ymax>height:
             warnings.warn("ymax {} > {}. Setting ymax={}".format(ymax, height))
             ymax=height
@@ -151,6 +156,10 @@ def generate_detections(annotation_file, output_file):
         detected_objects.append(object_dict)
 
     # Save as json
+    if not os.path.isdir(os.path.dirname(output_file)):
+        os.makedirs(os.path.dirname(output_file))
+        print("Created results dir ", os.path.dirname(output_file))
+
     with open(output_file, 'w') as outfile:
         json.dump(detected_objects, outfile, indent=4)
 
