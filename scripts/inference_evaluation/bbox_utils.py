@@ -171,7 +171,7 @@ def visualize_image(image_name, image_np, scores, boxes, classes, category_index
     #image_np, boxes, classes, scores = value
 
     if scores is None or (max(scores) >= min_score):
-        print("Visualize image")
+        #print("Visualize image")
         print(image_name)
         # print(value)
         # print(classes)

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Infer TF2 object detection models on images either directly from the model or by loading presaved xml files.
+Visualize detections made by tensorflow.
 
 License_info:
 # ==============================================================================
@@ -78,37 +78,36 @@ __email__ = 'alexander.wendt@tuwien.ac.at'
 __status__ = 'Experimental'
 
 parser = argparse.ArgumentParser(description='Google Tensorflow Detection API 2.0 Inferrer')
-parser.add_argument("-p", '--model_path', default='pre-trained-models/efficientdet_d5_coco17_tpu-32/saved_model/',
-                    help='Saved model path', required=False)
+# parser.add_argument("-p", '--model_path', default='pre-trained-models/efficientdet_d5_coco17_tpu-32/saved_model/',
+#                    help='Saved model path', required=False)
 parser.add_argument("-i", '--image_dir', default='images/inference',
-                    help='Saved model path', required=False)
+                    help='Image directory', required=False)
 parser.add_argument("-l", '--labelmap', default='annotations/mscoco_label_map.pbtxt.txt',
                     help='Labelmap path', required=False)
+parser.add_argument("-d", '--detections_file', default='detections.csv',
+                    help='TF2 Object Detection API saved inference file as csv.', required=False)
 parser.add_argument("-s", '--min_score', default=0.5, type=float,
                     help='Max score of detection box to save the image.', required=False)
-parser.add_argument("-out", '--detections_out', default='detections.csv',
-                    help='Labelmap path', required=False)
-#parser.add_argument("-r", '--run_detection', default=False,
+
+# parser.add_argument("-r", '--run_detection', default=False,
 #                    help='Run detection or load saved detection model', required=False, type=bool)
-#parser.add_argument("-x", '--xml_dir', default=None,
+# parser.add_argument("-x", '--xml_dir', default=None,
 #                    help='Source of XML files. '
 #                         'If run_detection is True, xml files are saved here. '
 #                         'If run detection is False, XML files are loaded from here. '
 #                         'If run_detection is True and value is None, no XMLs are saved.', required=False, type=str)
-#parser.add_argument("-vis", '--run_visualization', default=False,
+# parser.add_argument("-vis", '--run_visualization', default=False,
 #                    help='Run image visualization', required=False, type=bool)
-#parser.add_argument("-o", '--output_dir', default="detection_images", help='Result directory for images. ',
-#                    required=False)
-parser.add_argument("-lat", '--latency_out', default="latency.csv", help='Output path for latencies file, which is '
-                                                                         'appended or created new. ',
+parser.add_argument("-o", '--output_dir', default="detection_images", help='Result directory for images. ',
                     required=False)
+# parser.add_argument("-lat", '--latency_out', default="latency.csv", help='Output path for latencies file, which is '
+#                                                                         'appended or created new. ',
+#                    required=False)
 
-parser.add_argument("-ms", '--model_short_name', default=None, type=str,
-                    help='Model name for collecting model data.', required=False)
-parser.add_argument("-m", '--model_name', default="Model", type=str,
-                    help='Model name for collecting model data.', required=False)
-parser.add_argument("-hw", '--hardware_name', default="Hardware", type=str,
-                    help='Hardware name collecting statistical data.', required=False)
+# parser.add_argument("-m", '--model_name', default="Model", type=str,
+#                    help='Model name for collecting model data.', required=False)
+# parser.add_argument("-hw", '--hardware_name', default="Hardware", type=str,
+#                    help='Hardware name collecting statistical data.', required=False)
 
 args = parser.parse_args()
 
@@ -201,9 +200,10 @@ def convert_reduced_detections_to_df(image_filename, image_np, boxes, classes, s
             ymin, xmin, ymax, xmax = tuple(boxes[i].tolist())
             content = [image_filename, image_width, image_height,
                        classes[i], xmin, ymin, xmax, ymax, scores[i]]
-            xml_df=xml_df.append(pd.DataFrame([content], columns=column_name))
+            xml_df = xml_df.append(pd.DataFrame([content], columns=column_name))
 
     return xml_df
+
 
 def plot_image(image, title=None):
     ax = plt.subplot(111)
@@ -217,25 +217,15 @@ def plot_image(image, title=None):
 
     return plt.gcf()
 
-def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, min_score, model_name,
-                 hardware_name, model_short_name=None):
+
+def infer_images(detections_file, image_dir, labelmap, min_score, output_dir):
     '''
-    Load a saved model, infer and save detections
+
 
     '''
-    #Create output directories
-    if not os.path.isdir(os.path.dirname(detections_out)):
-        os.makedirs(os.path.dirname(detections_out))
-        print("Created ", os.path.dirname(detections_out))
-
-    if not os.path.isdir(os.path.dirname(latency_out)):
-        os.makedirs(os.path.dirname(latency_out))
-        print("Created ", os.path.dirname(latency_out))
-
-    #Enhance inputs
-    if model_short_name is None:
-        model_short_name=model_name
-        print("No short models name defined. Using the long name: ", model_name)
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
+        print("Created ", output_dir)
 
     # Load inference images
     print("Loading images from ", image_dir)
@@ -245,95 +235,71 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
     print("Loading labelmap from ", labelmap)
     category_index = label_map_util.create_category_index_from_labelmap(os.path.abspath(labelmap))
 
-    #if run_detection:
-    # Load model
-    print("Loading model {} from {}".format(model_name, model_path))
-    detector = load_model(model_path)
-    print("Inference with the model {} on hardware {} will be executed".format(model_name, hardware_name))
-    #else:
-    #    # Load stored XML Files
-    #    print("Loading saved Detections files from ealier inferences from ", xml_dir)
-    #    data = pd.read_csv(os.path.join(xml_dir, "detections.csv"), sep=';').set_index('filename')
+    # Load stored XML Files
+    print("Loading saved Detections files from ealier inferences from ", detections_file)
+    data = pd.read_csv(detections_file, sep=';').set_index('filename')
 
     # Define scores and latencies
-    #latencies = pd.DataFrame(columns=['Network', 'Hardware', 'Latency'])
-    latencies = []
-    detection_scores = pd.DataFrame(columns=['filename', 'width', 'height', 'class', 'xmin',
-                                             'ymin', 'xmax', 'ymax', 'score'])
+    # detection_scores = pd.DataFrame(columns=['filename', 'width', 'height', 'class', 'xmin',
+    #
+    # 'ymin', 'xmax', 'ymax', 'score'])
     # Process each image
     for image_name in image_list:
 
-        #if run_detection:
-        image_filename, image_np, boxes, classes, scores, latency = \
-            detect_image(detector, os.path.join(image_dir, image_name), min_score)
+        print("Load xml data for ", image_name)
+        if isinstance(data.loc[image_name], pd.Series):
+            subdata = pd.DataFrame([data.loc[image_name]])
+        else:
+            subdata = data.loc[image_name]
+        #classes = np.array(data.loc[image_name].shape[0])
+        boxes = np.zeros([subdata.shape[0], 4])
+        classes = np.zeros([subdata.shape[0]]).astype('int')
 
-        latencies.append(latency)
-        #latencies=latencies.append(pd.DataFrame([[model_name, hardware_name, latency]], columns=['Network', 'Hardware', 'Latency']))
-        bbox_df = convert_reduced_detections_to_df(image_filename, image_np, boxes, classes, scores, min_score)
-        detection_scores=detection_scores.append(bbox_df)
-        #else:
-        #    print("Load xml data for that image")
-        #    classes = np.array(data.loc[image_name]['class'])
-        #    scores = np.array(data.loc[image_name]['score'])
-        #    boxes = np.array(data.loc[image_name][['ymin', 'xmin', 'ymax', 'xmax']])
-        #    image_filename = image_name
-        #    image_np = im.load_image_into_numpy_array(os.path.join(image_dir, image_name))
+        if 'score' in subdata.columns and subdata['score'][0] is not None:
+            scores = np.zeros([subdata.shape[0]])
+        else:
+            scores = None
 
+        for i in range(subdata.shape[0]):
+            boxes[i][0] = subdata['ymin'][i]
+            boxes[i][1] = subdata['xmin'][i]
+            boxes[i][2] = subdata['ymax'][i]
+            boxes[i][3] = subdata['xmax'][i]
+
+            if 'score' in data.columns and subdata['score'][i] is not None:
+                scores[i] = subdata['score'][i]
+
+            #class_index = [category_index[j + 1].get('id') for j in range(len(category_index)) if
+            #               category_index[j + 1].get('name') == subdata['class'][i]][0]
+
+            classes[i] = subdata['class'][i]
+
+        #if classes.size == 1:  # If only one detection
+        #    classes = classes.reshape(-1)
+        #    np.vstack(classes, 1)
+        #scores = np.array(data.loc[image_name]['score'])
+        #if scores.size == 1:  # If only one detection
+        #    scores = scores.reshape(-1)
+        #    np.vstack(scores, 0)
+        #boxes = np.array(data.loc[image_name][['ymin', 'xmin', 'ymax', 'xmax']])
+        #if boxes.size==4:
+        #    boxes = boxes.reshape(1, -1)
+        #    np.vstack(boxes, [0, 0, 0, 0])
+        image_filename = image_name
+        image_np = im.load_image_into_numpy_array(os.path.join(image_dir, image_name))
 
         # If output directory is provided, visualize and save image
-        #if run_visualization and output_dir:
-        #    image = bbox.visualize_image(image_name, image_np, scores, boxes, classes, category_index, min_score=min_score)
-        #
-        #    plt.gcf()
-        #    #plt.imshow(image_np_with_detections)
-        #    new_image_path = os.path.join(output_dir, os.path.splitext(image_filename)[0] + "_det" + ".png")
-        #    print("Save image {} to {}".format(image_filename, new_image_path))
-        #
-        #    fig = plot_image(image)
-        #    plt.savefig(new_image_path)
+        image = bbox.visualize_image(image_name, image_np, scores, boxes, classes, category_index, min_score=min_score)
 
-    #Save all detections
-    #if run_detection and xml_dir and detection_scores.shape[0] > 0:
-    # Save detections
-    detection_scores.to_csv(detections_out, index=None, sep=';')
-    print("Detections saved to ", detections_out)
+        plt.gcf()
+        new_image_path = os.path.join(output_dir, os.path.splitext(image_filename)[0] + "_det" + ".png")
+        print("Save image {} to {}".format(image_filename, new_image_path))
 
-    # Save latencies
-    # Calucluate mean latency
-    if len(latencies) > 1:
-        latencies.pop(0)
-        print("Removed the first inference time value as it usually includes a warm-up phase. Size of old list: {}. "
-              "Size of new list: {}".format(len(latencies)+1, len(latencies)))
+        fig = plot_image(image)
+        plt.savefig(new_image_path)
 
-    mean_latency = np.array(latencies).mean()
-    print("Mean inference time: {}".format(mean_latency))
-
-    series_index = ['Date',
-                    'Model',
-                    'Model_Short',
-                    'Hardware',
-                    'Batch',
-                    'Mean_Latency',
-                    'Latencies']
-
-    content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), model_name, model_short_name, hardware_name, 1, mean_latency, latencies]
-
-    # Create DataFrame
-    df = pd.DataFrame([pd.Series(data=content, index=series_index, name="data")])
-    df.set_index('Date', inplace=True)
-
-    # Append dataframe wo csv if it already exists, else create new file
-    if os.path.isfile(latency_out):
-        df.to_csv(latency_out, mode='a', header=False, sep=';')
-        print("Appended evaluation to ", latency_out)
-    else:
-        df.to_csv(latency_out, mode='w', header=True, sep=';')
-        print("Created new measurement file ", latency_out)
-
-    #print("Saved latency values to ", latency_out)
 
 if __name__ == "__main__":
-    infer_images(args.model_path, args.image_dir, args.labelmap, args.latency_out, args.detections_out, args.min_score,
-                 args.model_name, args.hardware_name, model_short_name=args.model_short_name)
+    infer_images(args.detections_file, args.image_dir, args.labelmap, args.min_score, args.output_dir)
 
     print("=== Program end ===")

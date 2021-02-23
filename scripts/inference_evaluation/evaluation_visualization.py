@@ -169,19 +169,6 @@ def visualize_latency(df, output_dir):
         ticks.append(i)
         i = i + 1
 
-    # for network in unique_networks:
-    #     for device in unique_devices:
-    #         print("Processing {} on {}".format(network, device))
-    #         col = ast.literal_eval(df[(df['Network'] == network) & (df['Hardware'] == device)]['Latencies'][0])
-    #         # col = df[(df['network'] == network) & (df['hardware'] == device)]['latency'].values
-    #         # col.astype(np.float)
-    #         # col.shape = (-1,1)
-    #         values.append(np.array(col)*1000)
-    #         # Add labels
-    #         labels.append(network + "_" + device)
-    #         ticks.append(i)
-    #         i = i + 1
-
     # Visualization
     green_diamond = dict(markerfacecolor='g', marker='D')
     fig7, ax7 = plt.subplots(figsize=(7,12))
@@ -225,6 +212,86 @@ def visualize_latency(df, output_dir):
     plt.pause(0.1)
     plt.close()
 
+def visualize_performance(df, output_dir):
+    # Extract latency data for each network
+    unique_networks = df['Network'].unique()
+    unique_devices = df['Hardware'].unique()
+    values = list()
+    labels = list()
+    ticks = list()
+    i = 0
+
+    for index, row in df.iterrows():
+        network = row['Network']
+        device = row['Hardware']
+        print("Processing {} on {}".format(network, device))
+        #col = ast.literal_eval(row['DetectionBoxes_Precision/mAP'])
+        values.append(row['DetectionBoxes_Precision/mAP'])
+        # Add labels
+        labels.append(network + "_" + device)
+        ticks.append(i)
+        i = i + 1
+
+    # Visulization
+    fig1, ax1 = plt.subplots(figsize=(7, 12))
+    ax1.set_title('Performance')
+    plt.xticks(ticks, labels)
+    plt.xticks(rotation=90)
+    plt.ylabel('DetectionBoxes_Precision/mAP')
+    plt.xlabel("Platforms and network sizes")
+    ax1.bar(labels, values)
+    plt.tight_layout()
+
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
+    plt.savefig(os.path.join(output_dir, 'mAP_barplot'))
+    plt.show(block=False)
+    plt.pause(0.1)
+    plt.close()
+
+    # # Visualization
+    # green_diamond = dict(markerfacecolor='g', marker='D')
+    # fig7, ax7 = plt.subplots(figsize=(7,12))
+    # ax7.set_title('Latencies')
+    # ax7.boxplot(values, notch=True, flierprops=green_diamond)
+    # plt.xticks(ticks, labels)
+    # plt.xticks(rotation=90)
+    # plt.ylabel("Latency [ms]")
+    # plt.xlabel("Platforms and network sizes")
+    # 
+    # plt.axhline(y=20, color='r', linestyle='-')
+    # 
+    # ax7.grid(axis='y')
+    # # props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    # # place a text box in upper left in axes coords
+    # # ax7.text(1, 100, "Test")
+    # anchored_text = AnchoredText("Inferences: {}".format(values[0].shape[0]), loc=2)
+    # ax7.add_artist(anchored_text)
+    # plt.tight_layout()
+    # 
+    # if not os.path.isdir(output_dir):
+    #     os.makedirs(output_dir)
+    # plt.savefig(os.path.join(output_dir, 'latency_boxplot'))
+    # plt.show(block=False)
+    # plt.pause(0.1)
+    # plt.close()
+    # 
+    # # Create the boxplot
+    # fig1, ax1 = plt.subplots(figsize=(7,12))
+    # bp = ax1.violinplot(values, showmedians=True, showextrema=True)
+    # plt.xticks(ticks, labels)
+    # plt.xticks(rotation=90)
+    # plt.ylabel("Latency [ms]")
+    # plt.xlabel("Networks and platforms")
+    # plt.tight_layout()
+    # 
+    # if not os.path.isdir(output_dir):
+    #     os.makedirs(output_dir)
+    # plt.savefig(os.path.join(output_dir, 'latency_violinplot'))
+    # plt.show(block=False)
+    # plt.pause(0.1)
+    # plt.close()
+
 
 def evaluate(latency_file, performance_file, output_dir):
     '''
@@ -237,6 +304,8 @@ def evaluate(latency_file, performance_file, output_dir):
 
     # Read all performance files
     performance = pd.read_csv(performance_file, sep=';')
+    visualize_performance(performance, output_dir)
+
 
 
 if __name__ == "__main__":

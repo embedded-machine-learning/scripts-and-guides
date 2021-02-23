@@ -19,18 +19,16 @@ echo Activate environment %PYTHONENV%
 call conda activate %PYTHONENV%
 
 echo #====================================#
-echo #Infer new images
+echo #Visualize Detections of Images
 echo #====================================#
 
-python %SCRIPTPREFIX%\inference_evaluation\tf2oda_inference_from_saved_model.py ^
---model_path="exported-models/%MODELNAME%/saved_model/" ^
+echo WARNING: Script does not work if only one detectionbox was found
+
+python %SCRIPTPREFIX%\inference_evaluation\visualize_tf2oda_csv_detections.py ^
 --image_dir="images/validation" ^
 --labelmap="annotations/%LABELMAP%" ^
---detections_out="results/%MODELNAME%/validation_for_inference/detections.csv" ^
---latency_out="results/latency.csv" ^
---min_score=0.0 ^
---model_name=%MODELNAME% ^
---model_short_name=%MODELNAMESHORT% ^
---hardware_name=%HARDWARENAME%
+--detections_files="results/%MODELNAME%/validation_for_inference/detections.csv" ^
+--min_score=0.5 ^
+--output_dir="results/%MODELNAME%/validation_for_inference"
 
 
