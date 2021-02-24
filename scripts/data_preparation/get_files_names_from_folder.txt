@@ -1,0 +1,10 @@
+echo #==============================================#
+echo # CDLEML Process TF2 Object Detection API
+echo #==============================================#
+
+set FILENAME=validation_files.txt
+
+echo #======================================================#
+echo # Get all files names from a folder and save the names without extension to a file
+echo #======================================================# 
+for %a in ("*.*") do @echo %~na >%FILENAME%

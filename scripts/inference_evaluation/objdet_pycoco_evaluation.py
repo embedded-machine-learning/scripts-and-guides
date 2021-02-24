@@ -67,17 +67,29 @@ parser.add_argument("-o", '--output_file', default=None,
                     help='Save/appends results to an output file', required=False)
 parser.add_argument("-m", '--model_name', default='Default_Network',
                     help='Add model name', required=False)
+parser.add_argument("-ms", '--model_short_name', default=None, type=str,
+                    help='Model name for collecting model data.', required=False)
 parser.add_argument("-hw", '--hardware_name', default='Default_Hardware',
                     help='Add hardware name', required=False)
 args = parser.parse_args()
 
 
-def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, hardware_name):
+def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, hardware_name, model_short_name=None):
     '''
     Format the results: https://cocodataset.org/#format-results
     Helping source: https://detectron2.readthedocs.io/en/latest/_modules/detectron2/evaluation/coco_evaluation.html
 
     '''
+
+    if not os.path.isdir(os.path.dirname(coco_det_file)):
+        os.makedirs(os.path.dirname(coco_det_file))
+        print("Created ", os.path.dirname(coco_det_file))
+
+    #Enhance inputs
+    if model_short_name is None:
+        model_short_name=model_name
+        print("No short models name defined. Using the long name: ", model_name)
+
 
     annType = ['segm', 'bbox', 'keypoints']
     annType = annType[1]  # specify type here 1: Bounding box
@@ -107,7 +119,8 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
     cocoEval.summarize()
 
     series_index = ['Date',
-                    'Network',
+                    'Model',
+                    'Model_Short',
                     'Hardware',
                     'DetectionBoxes_Precision/mAP',
                     'DetectionBoxes_Precision/mAP@.50IOU',
@@ -122,7 +135,7 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
                     'DetectionBoxes_Recall/AR@100 (medium)',
                     'DetectionBoxes_Recall/AR@100 (large)']
 
-    content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), model_name, hardware_name]
+    content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), model_name, model_short_name, hardware_name]
     content.extend(cocoEval.stats)
 
     # Create DataFrame
@@ -143,6 +156,6 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
 if __name__ == "__main__":
 
     evaluate_inference(args.groundtruth_file, args.detection_file, args.output_file,
-                       args.model_name, args.hardware_name)
+                       args.model_name, args.hardware_name, model_short_name=args.model_short_name)
 
     print("=== Program end ===")

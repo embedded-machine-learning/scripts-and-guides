@@ -7,13 +7,18 @@ set USERNAME=wendt
 set USEREMAIL=alexander.wendt@tuwien.ac.at
 set MODELNAME=ssd_mobilenet_v2_R300x300_D100_coco17_pets
 set PYTHONENV=tf24
-set BASEPATH=.
-set SCRIPTPREFIX=..\..\..
+set BASEPATH=..\samples\inference_evaluation
+::set BASEPATH=.\
+set SCRIPTPREFIX=..\..
+::set SCRIPTPREFIX=..\..\scripts-and-guides\scripts
 set LABELMAP=pets_label_map.pbtxt
 
 :: Environment preparation
 echo Activate environment %PYTHONENV%
 call conda activate %PYTHONENV%
+
+:: Basepath preparation
+cd %BASEPATH%
 
 echo #====================================#
 echo # Visualize Networks

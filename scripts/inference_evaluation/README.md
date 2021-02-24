@@ -4,6 +4,22 @@ The evaluation tools contain useful tools for evaluating the performance of infe
 and modified from other sources, the licence information of the other sources is kept within the script.
 
 ## Tools
+For the tool scripts, the following constants are defined. 
+```
+:: Constants Definition
+set USEREMAIL=alexander.wendt@tuwien.ac.at
+set MODELNAME=ssd_mobilenet_v2_R300x300_D100_coco17_pets
+set MODELNAMESHORT=MobNetV2_300x300_D100
+set HARDWARENAME=CPU_Intel_i5
+set PYTHONENV=tf24
+::set SCRIPTPREFIX=..\..\scripts-and-guides\scripts
+set SCRIPTPREFIX=..\..\..
+set LABELMAP=pets_label_map.pbtxt
+
+:: Environment preparation
+echo Activate environment %PYTHONENV%
+call conda activate %PYTHONENV%
+```
 
 ### Visualize Bounding Boxes with TensorFlow 2
 File: obj_visualize_compare_bbox.py
@@ -38,8 +54,9 @@ python visualize_object_detection_images_opencv.py ^
 ```
 
 ### Perform Inference TensorFlow 2 Saved Model
-Usage: Select two images with their bounding boxes in PASCAL VOC XML format and visualize then within one image.
-It uses OpenCV for the visualization of the bounding boxes.
+Usage: Load an exported TF2 model from --model_path and perform inference on images in --image_dir. Use a labelmap --label_map. The results are saved in a csv of TF2
+format with --detections_out. Define the min_score for the 100 boxes if you don't want to save everything. A latency evaluation is created --latency_out. For evaluation, provide
+the full model name, a short model name for the graphs and the hardware.
 
 Script: tf2oda_inference_from_saved_model.py
 
@@ -48,16 +65,33 @@ Source:
 Example as Windows batch script: 
 ```
 :: Constants Definition
-set MODELNAME=ssd_mobilenet_v2_R300x300_D100_coco17_starwars
-set SCRIPTPREFIX=.
+set USEREMAIL=alexander.wendt@tuwien.ac.at
+set MODELNAME=ssd_mobilenet_v2_R300x300_D100_coco17_pets
+set MODELNAMESHORT=MobNetV2_300x300_D100
+set HARDWARENAME=CPU_Intel_i5
+set PYTHONENV=tf24
+::set SCRIPTPREFIX=..\..\scripts-and-guides\scripts
+set SCRIPTPREFIX=..\..\..
+set LABELMAP=pets_label_map.pbtxt
 
+:: Environment preparation
+echo Activate environment %PYTHONENV%
+call conda activate %PYTHONENV%
 
-python %SCRIPTPREFIX%\tf2oda_inference_from_saved_model.py ^
---model_path "../training/samples/starwars_reduced/exported-models/%MODELNAME%/saved_model/" ^
---image_dir "../training/samples/starwars_reduced/images/test" ^
---labelmap "../training/samples/starwars_reduced/annotations/sw_label_map.pbtxt" ^
---output_dir="../training/samples/starwars_reduced/result/%MODELNAME%" ^
---run_detection True 
+echo #====================================#
+echo #Infer new images
+echo #====================================#
+
+python %SCRIPTPREFIX%\inference_evaluation\tf2oda_inference_from_saved_model.py ^
+--model_path="exported-models/%MODELNAME%/saved_model/" ^
+--image_dir="images/validation" ^
+--labelmap="annotations/%LABELMAP%" ^
+--detections_out="results/%MODELNAME%/validation_for_inference/detections.csv" ^
+--latency_out="results/latency.csv" ^
+--min_score=0.5 ^
+--model_name=%MODELNAME% ^
+--model_short_name=%MODELNAMESHORT% ^
+--hardware_name=%HARDWARENAME%
 ```
 
 ### Calculate Coco Metrics for Object Detection
@@ -66,8 +100,11 @@ Coco metrics decoupled from Tensorboard to perform evaluation on networks.
 File: objdet_pycoco_evaluation.py
 
 Usage: Create a ground truth file in Coco JSON format. Perform detections with a model and convert the detections into Coco JSON detection format. 
-The result is saved or appended to the output file for further processing and visualization. To be able to sort the measurements, provide model_name 
+The result is saved or appended to the output file --output_file for further processing and visualization. To be able to sort the measurements, provide model_name 
 and hardware_name.
+
+Notice: in the grounf truth JSON file, add only the annotations for which images are available. Else, these annotations are considered although they are not tested and
+it lowers the metric scores.
 
 Example as Windows batch script: 
 ```
@@ -79,6 +116,20 @@ python %SCRIPTPREFIX%\inference_evaluation\objdet_pycoco_evaluation.py ^
 --hardware_name="Intel_CPU_i5"
 ```
 
+### Visualize Evaluations from Latency and Performance Collection Files
+Usage: Provide
+
+Script: evaluation_visualization.py
+
+Source: 
+
+Example as Windows batch script: 
+```
+python %SCRIPTPREFIX%\inference_evaluation\evaluation_visualization.py ^
+--latency_file="results/latency.csv" ^
+--performance_file="results/performance.csv" ^
+--output_dir="results"
+```
 
 
 ## Issues

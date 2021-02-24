@@ -53,6 +53,7 @@ def iterate_dir(source, dest, ratio, copy_xml, xml_directory, remove_source):
     filtered_images = []
     # Select the inference images without xml
     for filename in images:
+        print("Processing ", filename)
         image_path = os.path.join(source, filename)
         #xml_filename = os.path.join(source, os.path.splitext(filename)[0]+'.xml')
         xml_filename = os.path.join(xml_source, os.path.splitext(filename)[0] + '.xml')
@@ -60,6 +61,12 @@ def iterate_dir(source, dest, ratio, copy_xml, xml_directory, remove_source):
         if not os.path.isfile(xml_filename):
             copyfile(image_path, os.path.join(inference_dir, filename))
             print("Added image {} to inference as no XML could be found.".format(filename))
+
+            if remove_source:
+                try:
+                    os.remove(image_path)
+                except OSError as e:  ## if failed, report it back to the user ##
+                    print("Error: %s - %s." % (e.filename, e.strerror))
         else:
             #Remove the copied image from the list as it does not have any xml
             filtered_images.append(filename) #images.remove(images[i])
