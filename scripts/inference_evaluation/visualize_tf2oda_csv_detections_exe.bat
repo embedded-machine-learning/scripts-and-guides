@@ -27,7 +27,7 @@ echo WARNING: Script does not work if only one detectionbox was found
 python %SCRIPTPREFIX%\inference_evaluation\visualize_tf2oda_csv_detections.py ^
 --image_dir="images/validation" ^
 --labelmap="annotations/%LABELMAP%" ^
---detections_files="results/%MODELNAME%/validation_for_inference/detections.csv" ^
+--detections_file="results/%MODELNAME%/validation_for_inference/detections.csv" ^
 --min_score=0.5 ^
 --output_dir="results/%MODELNAME%/validation_for_inference"
 

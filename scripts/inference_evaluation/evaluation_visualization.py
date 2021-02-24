@@ -310,7 +310,7 @@ def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency
     hardware_types = list(lat_perf_df.reset_index()['Hardware'].unique())
 
     performance_max = np.max(lat_perf_df[y_col].values)
-    latency_max = np.max(lat_perf_df['MeanLatency'].values * 1000)
+    latency_max = np.max(lat_perf_df['Mean_Latency'].values * 1000)
 
     fig, ax = plt.subplots(figsize=[10, 8])
     plt.title(title)
@@ -324,12 +324,12 @@ def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency
     texts = []
     for hw in hardware_types:
         hw_type_df = lat_perf_df.reset_index()[lat_perf_df.reset_index()['Hardware'] == hw]
-        latency_col.extend(hw_type_df['MeanLatency'].values * 1000)
+        latency_col.extend(hw_type_df['Mean_Latency'].values * 1000)
         performance_col.extend(hw_type_df[y_col].values)
-        ax.scatter(hw_type_df['MeanLatency'].values * 1000, hw_type_df[y_col].values,
+        ax.scatter(hw_type_df['Mean_Latency'].values * 1000, hw_type_df[y_col].values,
                    label=hw)
 
-        texts.extend([plt.text(hw_type_df['MeanLatency'].values[i] * 1000,
+        texts.extend([plt.text(hw_type_df['Mean_Latency'].values[i] * 1000,
                                hw_type_df[y_col].values[i],
                                hw_type_df.iloc[i]['Model_Short'])
                       for i in range(hw_type_df.shape[0])])
