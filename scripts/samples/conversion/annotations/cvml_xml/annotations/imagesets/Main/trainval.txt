@@ -1,5 +1,0 @@
-frame_0000
-frame_0001
-frame_0002
-frame_0003
-frame_0004
