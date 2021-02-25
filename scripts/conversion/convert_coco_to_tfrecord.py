@@ -1,3 +1,31 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Convert Coco to TFRecord.
+
+License_info:
+# ==============================================================================
+# ISC License (ISC)
+# Copyright 2020 Christian Doppler Laboratory for Embedded Machine Learning
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+# FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+# OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+# ==============================================================================
+
+# The following script uses several method fragments from tensorflow with small modifications for our purposes
+# Source: https://github.com/tensorflow/models/blob/master/research/object_detection/dataset_tools/create_coco_tf_record.py
+
+
 # Copyright 2017 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +40,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-r"""Convert raw COCO dataset to TFRecord for object_detection.
+
+Convert raw COCO dataset to TFRecord for object_detection.
 
 This tool supports data generation for object detection (boxes, masks),
 keypoint detection, and DensePose.
@@ -28,56 +57,75 @@ Example usage:
       --val_annotations_file="${VAL_ANNOTATIONS_FILE}" \
       --testdev_annotations_file="${TESTDEV_ANNOTATIONS_FILE}" \
       --output_dir="${OUTPUT_DIR}"
+
 """
+
+# Futures
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+# Built-in/Generic Imports
 import hashlib
 import io
 import json
 import logging
 import os
+
+# Libs
+from PIL import Image
 import contextlib2
 import numpy as np
 import PIL.Image
-
 from pycocotools import mask
 import tensorflow.compat.v1 as tf
 
+# Own modules
 from object_detection.dataset_tools import tf_record_creation_util
 from object_detection.utils import dataset_util
 from object_detection.utils import label_map_util
+
+__author__ = 'Julian Westra'
+__copyright__ = 'Copyright 2020, Christian Doppler Laboratory for ' \
+                'Embedded Machine Learning'
+__credits__ = ['Alexander Wendt', 'Rohit Verma']
+__license__ = 'ISC'
+__version__ = '0.2.0'
+__maintainer__ = 'Alexander Wendt'
+__email__ = 'alexander.wendt@tuwien.ac.at'
+__status__ = 'Experiental'
+
 
 flags = tf.app.flags
 tf.flags.DEFINE_boolean(
     'include_masks', False, 'Whether to include instance segmentations masks '
     '(PNG encoded) in the result. default: False.')
-tf.flags.DEFINE_string('train_image_dir', '', 'Training image directory.')
-tf.flags.DEFINE_string('val_image_dir', '', 'Validation image directory.')
-tf.flags.DEFINE_string('test_image_dir', '', 'Test image directory.')
-tf.flags.DEFINE_string('train_annotations_file', '',
-                       'Training annotations JSON file.')
-tf.flags.DEFINE_string('val_annotations_file', '',
-                       'Validation annotations JSON file.')
-tf.flags.DEFINE_string('testdev_annotations_file', '',
-                       'Test-dev annotations JSON file.')
-tf.flags.DEFINE_string('train_keypoint_annotations_file', '',
-                       'Training annotations JSON file.')
-tf.flags.DEFINE_string('val_keypoint_annotations_file', '',
-                       'Validation annotations JSON file.')
+tf.flags.DEFINE_string('image_dir', '', 'Image directory.')
+#tf.flags.DEFINE_string('val_image_dir', '', 'Validation image directory.')
+#tf.flags.DEFINE_string('test_image_dir', '', 'Test image directory.')
+tf.flags.DEFINE_string('annotations_file', '',
+                       'Annotations JSON file.')
+#tf.flags.DEFINE_string('val_annotations_file', '',
+#                       'Validation annotations JSON file.')
+#tf.flags.DEFINE_string('testdev_annotations_file', '',
+#                       'Test-dev annotations JSON file.')
+tf.flags.DEFINE_string('keypoint_annotations_file', '',
+                       'Annotations JSON file.')
+#tf.flags.DEFINE_string('val_keypoint_annotations_file', '',
+#                       'Validation annotations JSON file.')
 # DensePose is only available for coco 2014.
-tf.flags.DEFINE_string('train_densepose_annotations_file', '',
-                       'Training annotations JSON file for DensePose.')
-tf.flags.DEFINE_string('val_densepose_annotations_file', '',
-                       'Validation annotations JSON file for DensePose.')
-tf.flags.DEFINE_string('output_dir', '/tmp/', 'Output data directory.')
+tf.flags.DEFINE_string('densepose_annotations_file', '',
+                       'Annotations JSON file for DensePose.')
+#tf.flags.DEFINE_string('val_densepose_annotations_file', '',
+#                       'Validation annotations JSON file for DensePose.')
+tf.flags.DEFINE_string('output_path', 'coco_train.record', 'Output data path.')
 # Whether to only produce images/annotations on person class (for keypoint /
 # densepose task).
 tf.flags.DEFINE_boolean('remove_non_person_annotations', False, 'Whether to '
                         'remove all annotations for non-person objects.')
 tf.flags.DEFINE_boolean('remove_non_person_images', False, 'Whether to '
                         'remove all examples that do not contain a person.')
+tf.flags.DEFINE_integer('number_shards', 100, 'Number of shards.')
 
 FLAGS = flags.FLAGS
 
@@ -473,45 +521,45 @@ def _create_tf_record_from_coco_annotations(annotations_file, image_dir,
 
 
 def main(_):
-  assert FLAGS.train_image_dir, '`train_image_dir` missing.'
-  assert FLAGS.val_image_dir, '`val_image_dir` missing.'
-  assert FLAGS.test_image_dir, '`test_image_dir` missing.'
-  assert FLAGS.train_annotations_file, '`train_annotations_file` missing.'
-  assert FLAGS.val_annotations_file, '`val_annotations_file` missing.'
-  assert FLAGS.testdev_annotations_file, '`testdev_annotations_file` missing.'
+  assert FLAGS.image_dir, '`image_dir` missing.'
+  #assert FLAGS.val_image_dir, '`val_image_dir` missing.'
+  #assert FLAGS.test_image_dir, '`test_image_dir` missing.'
+  assert FLAGS.annotations_file, '`annotations_file` missing.'
+  #assert FLAGS.val_annotations_file, '`val_annotations_file` missing.'
+  #assert FLAGS.testdev_annotations_file, '`testdev_annotations_file` missing.'
 
-  if not tf.gfile.IsDirectory(FLAGS.output_dir):
-    tf.gfile.MakeDirs(FLAGS.output_dir)
-  train_output_path = os.path.join(FLAGS.output_dir, 'coco_train.record')
-  val_output_path = os.path.join(FLAGS.output_dir, 'coco_val.record')
-  testdev_output_path = os.path.join(FLAGS.output_dir, 'coco_testdev.record')
+  #if not tf.gfile.IsDirectory(FLAGS.output_dir):
+  #  tf.gfile.MakeDirs(FLAGS.output_dir)
+  train_output_path = FLAGS.output_path #os.path.join(FLAGS.output_dir, 'coco_train.record')
+  #val_output_path = os.path.join(FLAGS.output_dir, 'coco_val.record')
+  #testdev_output_path = os.path.join(FLAGS.output_dir, 'coco_testdev.record')
 
   _create_tf_record_from_coco_annotations(
-      FLAGS.train_annotations_file,
-      FLAGS.train_image_dir,
+      FLAGS.annotations_file,
+      FLAGS.image_dir,
       train_output_path,
       FLAGS.include_masks,
-      num_shards=100,
-      keypoint_annotations_file=FLAGS.train_keypoint_annotations_file,
-      densepose_annotations_file=FLAGS.train_densepose_annotations_file,
+      num_shards=FLAGS.number_shards,
+      keypoint_annotations_file=FLAGS.keypoint_annotations_file,
+      densepose_annotations_file=FLAGS.densepose_annotations_file,
       remove_non_person_annotations=FLAGS.remove_non_person_annotations,
       remove_non_person_images=FLAGS.remove_non_person_images)
-  _create_tf_record_from_coco_annotations(
-      FLAGS.val_annotations_file,
-      FLAGS.val_image_dir,
-      val_output_path,
-      FLAGS.include_masks,
-      num_shards=50,
-      keypoint_annotations_file=FLAGS.val_keypoint_annotations_file,
-      densepose_annotations_file=FLAGS.val_densepose_annotations_file,
-      remove_non_person_annotations=FLAGS.remove_non_person_annotations,
-      remove_non_person_images=FLAGS.remove_non_person_images)
-  _create_tf_record_from_coco_annotations(
-      FLAGS.testdev_annotations_file,
-      FLAGS.test_image_dir,
-      testdev_output_path,
-      FLAGS.include_masks,
-      num_shards=50)
+  #_create_tf_record_from_coco_annotations(
+  #    FLAGS.val_annotations_file,
+  #    FLAGS.val_image_dir,
+  #    val_output_path,
+  #    FLAGS.include_masks,
+  #    num_shards=50,
+  #    keypoint_annotations_file=FLAGS.val_keypoint_annotations_file,
+  #    densepose_annotations_file=FLAGS.val_densepose_annotations_file,
+  #    remove_non_person_annotations=FLAGS.remove_non_person_annotations,
+  #    remove_non_person_images=FLAGS.remove_non_person_images)
+  #_create_tf_record_from_coco_annotations(
+  #    FLAGS.testdev_annotations_file,
+  #    FLAGS.test_image_dir,
+  #    testdev_output_path,
+  #    FLAGS.include_masks,
+  #    num_shards=50)
 
 
 if __name__ == '__main__':

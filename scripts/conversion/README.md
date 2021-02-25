@@ -69,9 +69,7 @@ python C:\Projekte\21_SoC_EML\public_content\scripts-and-guides\scripts\conversi
 ## Coco to TFRecords
 Source: [Tensorflow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/dataset_tools/create_coco_tf_record.py)
 
-Script original: `convert_coco_to_tfrecord.py`
-
-Script modified: `convert_coco_to_tfrecord_mod.py`
+Script modified: `convert_coco_to_tfrecord.py`
 
 Examples:
 ```shell
