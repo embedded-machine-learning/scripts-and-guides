@@ -311,12 +311,36 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
     series_index = ['Date',
                     'Model',
                     'Model_Short',
+                    'Framework',
+                    'Network',
+                    'Resolution',
+                    'Dataset',
                     'Hardware',
-                    'Batch',
+                    'Hardware_Optimization',
+                    'Batch_Size',
+                    'Throughput'
                     'Mean_Latency',
                     'Latencies']
 
-    content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), model_name, model_short_name, hardware_name, 1, mean_latency, latencies]
+    framework = str(model_name).split('_')[0]
+    network = str(model_name).split('_')[1]
+    resolution = str(model_name).split('_')[2]
+    dataset = str(model_name).split('_')[3]
+
+
+    content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+               model_name,
+               model_short_name,
+               framework,
+               network,
+               resolution,
+               dataset,
+               hardware_name,
+               'None',
+               1,
+               1/mean_latency,
+               mean_latency,
+               latencies]
 
     # Create DataFrame
     df = pd.DataFrame([pd.Series(data=content, index=series_index, name="data")])
