@@ -104,3 +104,24 @@ def get_images_name(image_folder):
                    if re.search(r'([a-zA-Z0-9\s_\\.\-\(\):])+(.jpg|.jpeg|.png)$', f)]
 
     return image_names
+
+def show_save_figure(fig, output_dir=None, filename=None, show_image=True):
+    '''
+    Show and save an image
+
+    :param
+        output_dir: Directory to put image
+        filename: Filename to use. No file ending necessary. Png will be used. If None, then image is not saved.
+            If image filename and outputdir is is set, the image will be saved
+        show_image: Show image as non blocking. Default: True
+
+
+    '''
+    if filename:
+        if not os.path.isdir(output_dir):
+            os.makedirs(output_dir)
+        fig.savefig(os.path.join(output_dir, filename))
+    if show_image:
+        plt.show(block=False)
+        plt.pause(0.1)
+        plt.close()

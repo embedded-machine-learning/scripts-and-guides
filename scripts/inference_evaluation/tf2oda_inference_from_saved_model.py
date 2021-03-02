@@ -271,26 +271,6 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
         #latencies=latencies.append(pd.DataFrame([[model_name, hardware_name, latency]], columns=['Network', 'Hardware', 'Latency']))
         bbox_df = convert_reduced_detections_to_df(image_filename, image_np, boxes, classes, scores, min_score)
         detection_scores=detection_scores.append(bbox_df)
-        #else:
-        #    print("Load xml data for that image")
-        #    classes = np.array(data.loc[image_name]['class'])
-        #    scores = np.array(data.loc[image_name]['score'])
-        #    boxes = np.array(data.loc[image_name][['ymin', 'xmin', 'ymax', 'xmax']])
-        #    image_filename = image_name
-        #    image_np = im.load_image_into_numpy_array(os.path.join(image_dir, image_name))
-
-
-        # If output directory is provided, visualize and save image
-        #if run_visualization and output_dir:
-        #    image = bbox.visualize_image(image_name, image_np, scores, boxes, classes, category_index, min_score=min_score)
-        #
-        #    plt.gcf()
-        #    #plt.imshow(image_np_with_detections)
-        #    new_image_path = os.path.join(output_dir, os.path.splitext(image_filename)[0] + "_det" + ".png")
-        #    print("Save image {} to {}".format(image_filename, new_image_path))
-        #
-        #    fig = plot_image(image)
-        #    plt.savefig(new_image_path)
 
     #Save all detections
     #if run_detection and xml_dir and detection_scores.shape[0] > 0:
@@ -315,10 +295,11 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
                     'Network',
                     'Resolution',
                     'Dataset',
+                    'Custom_Parameters',
                     'Hardware',
                     'Hardware_Optimization',
                     'Batch_Size',
-                    'Throughput'
+                    'Throughput',
                     'Mean_Latency',
                     'Latencies']
 
@@ -326,7 +307,7 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
     network = str(model_name).split('_')[1]
     resolution = str(model_name).split('_')[2]
     dataset = str(model_name).split('_')[3]
-
+    custom_parameters = model_name.split("_", 4)[4]
 
     content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                model_name,
@@ -335,6 +316,7 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
                network,
                resolution,
                dataset,
+               custom_parameters, 
                hardware_name,
                'None',
                1,
