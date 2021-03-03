@@ -26,7 +26,7 @@ python %SCRIPTPREFIX%\inference_evaluation\tf2oda_inference_from_saved_model.py 
 --model_path="exported-models/%MODELNAME%/saved_model/" ^
 --image_dir="images/validation" ^
 --labelmap="annotations/%LABELMAP%" ^
---detections_out="results/%MODELNAME%/validation_for_inference/detections.csv" ^
+--detections_out="results/%MODELNAME%/%HARDWARENAME%/detections.csv" ^
 --latency_out="results/latency.csv" ^
 --min_score=0.5 ^
 --model_name=%MODELNAME% ^

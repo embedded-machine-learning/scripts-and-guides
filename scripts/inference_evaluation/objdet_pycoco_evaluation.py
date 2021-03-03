@@ -118,10 +118,19 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
     cocoEval.accumulate()
     cocoEval.summarize()
 
+    # Create df for file export
+    content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), model_name, model_short_name, hardware_name]
+
     series_index = ['Date',
                     'Model',
                     'Model_Short',
+                    'Framework',
+                    'Network',
+                    'Resolution',
+                    'Dataset',
+                    'Custom_Parameters',
                     'Hardware',
+                    'Hardware_Optimization',
                     'DetectionBoxes_Precision/mAP',
                     'DetectionBoxes_Precision/mAP@.50IOU',
                     'DetectionBoxes_Precision/mAP@.75IOU',
@@ -135,7 +144,24 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
                     'DetectionBoxes_Recall/AR@100 (medium)',
                     'DetectionBoxes_Recall/AR@100 (large)']
 
-    content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), model_name, model_short_name, hardware_name]
+    framework = str(model_name).split('_')[0]
+    network = str(model_name).split('_')[1]
+    resolution = str(model_name).split('_')[2]
+    dataset = str(model_name).split('_')[3]
+    custom_parameters = model_name.split("_", 4)[4]
+
+    content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+               model_name,
+               model_short_name,
+               framework,
+               network,
+               resolution,
+               dataset,
+               custom_parameters,
+               hardware_name,
+               'None'
+               ]
+
     content.extend(cocoEval.stats)
 
     # Create DataFrame
@@ -144,13 +170,18 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
 
     # Append dataframe wo csv if it already exists, else create new file
     if os.path.isfile(output_file):
-        df.to_csv(output_file, mode='a', header=False, sep=';')
+        old_df = pd.read_csv(output_file, sep=';')
+
+        merged_df = old_df.reset_index().merge(df.reset_index(), how="outer").set_index('Date').drop(
+            columns=['index'])  # pd.merge(old_df, df, how='outer')
+
+        merged_df.to_csv(output_file, mode='w', header=True, sep=';')
+        # df.to_csv(latency_out, mode='a', header=False, sep=';')
         print("Appended evaluation to ", output_file)
     else:
         df.to_csv(output_file, mode='w', header=True, sep=';')
         print("Created new measurement file ", output_file)
 
-    #print(cocoEval.summarize())
 
 
 if __name__ == "__main__":

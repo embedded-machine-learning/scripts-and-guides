@@ -316,13 +316,13 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
                network,
                resolution,
                dataset,
-               custom_parameters, 
+               custom_parameters,
                hardware_name,
                'None',
                1,
                1/mean_latency,
                mean_latency,
-               latencies]
+               str(latencies)]
 
     # Create DataFrame
     df = pd.DataFrame([pd.Series(data=content, index=series_index, name="data")])
@@ -330,7 +330,12 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
 
     # Append dataframe wo csv if it already exists, else create new file
     if os.path.isfile(latency_out):
-        df.to_csv(latency_out, mode='a', header=False, sep=';')
+        old_df = pd.read_csv(latency_out, sep=';')
+
+        merged_df = old_df.reset_index().merge(df.reset_index(), how="outer").set_index('Date').drop(columns=['index'])  #pd.merge(old_df, df, how='outer')
+
+        merged_df.to_csv(latency_out, mode='w', header=True, sep=';')
+        #df.to_csv(latency_out, mode='a', header=False, sep=';')
         print("Appended evaluation to ", latency_out)
     else:
         df.to_csv(latency_out, mode='w', header=True, sep=';')
