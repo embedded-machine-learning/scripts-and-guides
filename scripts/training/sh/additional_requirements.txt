@@ -1,0 +1,5 @@
+numpy
+tdqm
+xmltodict
+pandas
+matplotlib

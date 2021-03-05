@@ -51,7 +51,7 @@ import matplotlib
 
 # If you get _tkinter.TclError: no display name and no $DISPLAY environment variable use
 # matplotlib.use('Agg') instead
-matplotlib.use('TkAgg')
+#matplotlib.use('TkAgg')
 
 from six import BytesIO
 
