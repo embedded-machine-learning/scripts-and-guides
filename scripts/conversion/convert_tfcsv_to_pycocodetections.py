@@ -163,6 +163,8 @@ def generate_detections(annotation_file, output_file):
     with open(output_file, 'w') as outfile:
         json.dump(detected_objects, outfile, indent=4)
 
+    print("Saved coco detections to ", output_file)
+
 
 if __name__ == "__main__":
     generate_detections(args.annotation_file, args.output_file)

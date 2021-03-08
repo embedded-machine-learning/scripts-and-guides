@@ -129,6 +129,11 @@ def load_tf_saved_model(input_saved_model_dir):
 
 
 def convert_to_trt_graph_and_save(precision_mode, input_saved_model_dir, calibration_data, output_dir='./'):
+
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
+        print("Created ", output_dir)
+
     if precision_mode == 'FP32':
         precision_mode = trt.TrtPrecisionMode.FP32
         converted_saved__suffix = '_TRTFP32'

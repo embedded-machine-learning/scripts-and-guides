@@ -36,15 +36,12 @@ from datetime import datetime
 
 # Libs
 from pycocotools.coco import COCO
-import numpy as np
 from pycocotools.cocoeval import COCOeval
 import pandas as pd
 
-import matplotlib
-
 # If you get _tkinter.TclError: no display name and no $DISPLAY environment variable use
 # matplotlib.use('Agg') instead
-matplotlib.use('TkAgg')
+#matplotlib.use('TkAgg')
 
 # Own modules
 
