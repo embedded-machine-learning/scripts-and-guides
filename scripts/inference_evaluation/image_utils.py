@@ -47,23 +47,14 @@ from __future__ import print_function
 
 # Built-in/Generic Imports
 import os
-import time
 
 # Libs
-import argparse
 import numpy as np
-import glob
-import xml.etree.ElementTree as ET
-from multiprocessing import Pool
-import matplotlib
 from six import BytesIO
 import re
-import pandas as pd
 import matplotlib.pyplot as plt
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 import tensorflow as tf
-from object_detection.utils import label_map_util
-from object_detection.utils import visualization_utils as viz_utils
 import tkinter
 
 # Own modules

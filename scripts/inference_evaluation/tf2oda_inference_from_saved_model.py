@@ -30,38 +30,23 @@ License_info:
 # from __future__ import print_function
 
 # Built-in/Generic Imports
-import glob
-import json
 import os
 import argparse
 import time
-import re
-import pickle
 
 # Libs
-from tqdm import tqdm
-from xmltodict import unparse
-import xml.etree.ElementTree as ET
-import sys
 import numpy as np
 import pandas as pd
-from multiprocessing import Pool
-
-import matplotlib
 
 # If you get _tkinter.TclError: no display name and no $DISPLAY environment variable use
 # matplotlib.use('Agg') instead
 #matplotlib.use('TkAgg')
 
-from six import BytesIO
-
 import matplotlib.pyplot as plt
-from PIL import Image, ImageDraw, ImageFont
 
 import tensorflow as tf
 
 # Own modules
-import bbox_utils as bbox
 import image_utils as im
 from datetime import datetime
 
@@ -130,19 +115,19 @@ def load_model(model_path):
     return detect_fn
 
 
-def create_single_imagedict(source, image_name):
-    '''
-
-
-    :type
-
-    '''
-    image_dict = {}
-    image_path = os.path.join(source, image_name)
-    image_np = bbox.load_image_into_numpy_array(image_path)
-    input_tensor = np.expand_dims(image_np, 0)
-    image_dict[image_name] = (image_np, input_tensor)
-    return image_dict
+# def create_single_imagedict(source, image_name):
+#     '''
+#
+#
+#     :type
+#
+#     '''
+#     image_dict = {}
+#     image_path = os.path.join(source, image_name)
+#     image_np = bbox.load_image_into_numpy_array(image_path)
+#     input_tensor = np.expand_dims(image_np, 0)
+#     image_dict[image_name] = (image_np, input_tensor)
+#     return image_dict
 
 
 def detect_image(detect_fn, image_path):
