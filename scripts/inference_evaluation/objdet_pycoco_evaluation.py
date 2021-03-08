@@ -150,7 +150,10 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
     network = str(model_name).split('_')[1]
     resolution = str(model_name).split('_')[2]
     dataset = str(model_name).split('_')[3]
-    custom_parameters = model_name.split("_", 4)[4]
+    if (len(model_name.split("_", 4))>4):
+        custom_parameters = model_name.split("_", 4)[4]
+    else:
+        custom_parameters = ""
 
     content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                model_name,
