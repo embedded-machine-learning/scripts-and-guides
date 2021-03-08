@@ -59,8 +59,6 @@ import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
 
 import tensorflow as tf
-from object_detection.utils import label_map_util
-from object_detection.utils import visualization_utils as viz_utils
 
 # Own modules
 import bbox_utils as bbox
@@ -147,7 +145,7 @@ def create_single_imagedict(source, image_name):
     return image_dict
 
 
-def detect_image(detect_fn, image_path, min_score):
+def detect_image(detect_fn, image_path):
     '''
 
 
@@ -242,8 +240,8 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
     image_list = im.get_images_name(image_dir)
 
     # Load label path
-    print("Loading labelmap from ", labelmap)
-    category_index = label_map_util.create_category_index_from_labelmap(os.path.abspath(labelmap))
+    #print("Loading labelmap from ", labelmap)
+    #category_index = label_map_util.create_category_index_from_labelmap(os.path.abspath(labelmap))
 
     #if run_detection:
     # Load model
@@ -265,7 +263,7 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
 
         #if run_detection:
         image_filename, image_np, boxes, classes, scores, latency = \
-            detect_image(detector, os.path.join(image_dir, image_name), min_score)
+            detect_image(detector, os.path.join(image_dir, image_name))
 
         latencies.append(latency)
         #latencies=latencies.append(pd.DataFrame([[model_name, hardware_name, latency]], columns=['Network', 'Hardware', 'Latency']))
@@ -278,16 +276,40 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
     detection_scores.to_csv(detections_out, index=None, sep=';')
     print("Detections saved to ", detections_out)
 
-    # Save latencies
-    # Calucluate mean latency
     if len(latencies) > 1:
         latencies.pop(0)
         print("Removed the first inference time value as it usually includes a warm-up phase. Size of old list: {}. "
-              "Size of new list: {}".format(len(latencies)+1, len(latencies)))
+              "Size of new list: {}".format(len(latencies) + 1, len(latencies)))
 
+    batch_size=1
+    number_runs=len(latencies)
+
+    save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, model_name, model_short_name, latency_out)
+
+    #print("Saved latency values to ", latency_out)
+
+
+def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, model_name, model_short_name, latency_out):
+    '''
+    Save a list of latencies to csv file
+
+    :argument
+
+
+    :return
+        None
+
+    '''
+
+    # Calucluate mean latency
     mean_latency = np.array(latencies).mean()
-    print("Mean inference time: {}".format(mean_latency))
 
+    # Calulate throughput
+    #throughput = 1 / mean_latency
+    throughput = number_runs * batch_size / latencies.sum()
+
+    # Save latencies
+    print("Mean inference time: {}".format(mean_latency))
     series_index = ['Date',
                     'Model',
                     'Model_Short',
@@ -302,13 +324,11 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
                     'Throughput',
                     'Mean_Latency',
                     'Latencies']
-
     framework = str(model_name).split('_')[0]
     network = str(model_name).split('_')[1]
     resolution = str(model_name).split('_')[2]
     dataset = str(model_name).split('_')[3]
     custom_parameters = model_name.split("_", 4)[4]
-
     content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                model_name,
                model_short_name,
@@ -320,28 +340,25 @@ def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, m
                hardware_name,
                'None',
                1,
-               1/mean_latency,
+               throughput,
                mean_latency,
                str(latencies)]
-
     # Create DataFrame
     df = pd.DataFrame([pd.Series(data=content, index=series_index, name="data")])
     df.set_index('Date', inplace=True)
-
     # Append dataframe wo csv if it already exists, else create new file
     if os.path.isfile(latency_out):
         old_df = pd.read_csv(latency_out, sep=';')
 
-        merged_df = old_df.reset_index().merge(df.reset_index(), how="outer").set_index('Date').drop(columns=['index'])  #pd.merge(old_df, df, how='outer')
+        merged_df = old_df.reset_index().merge(df.reset_index(), how="outer").set_index('Date').drop(
+            columns=['index'])  # pd.merge(old_df, df, how='outer')
 
         merged_df.to_csv(latency_out, mode='w', header=True, sep=';')
-        #df.to_csv(latency_out, mode='a', header=False, sep=';')
+        # df.to_csv(latency_out, mode='a', header=False, sep=';')
         print("Appended evaluation to ", latency_out)
     else:
         df.to_csv(latency_out, mode='w', header=True, sep=';')
         print("Created new measurement file ", latency_out)
-
-    #print("Saved latency values to ", latency_out)
 
 if __name__ == "__main__":
     infer_images(args.model_path, args.image_dir, args.labelmap, args.latency_out, args.detections_out, args.min_score,
