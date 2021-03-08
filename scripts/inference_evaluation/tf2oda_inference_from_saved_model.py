@@ -71,17 +71,6 @@ parser.add_argument("-s", '--min_score', default=0.5, type=float,
                     help='Max score of detection box to save the image.', required=False)
 parser.add_argument("-out", '--detections_out', default='detections.csv',
                     help='Labelmap path', required=False)
-#parser.add_argument("-r", '--run_detection', default=False,
-#                    help='Run detection or load saved detection model', required=False, type=bool)
-#parser.add_argument("-x", '--xml_dir', default=None,
-#                    help='Source of XML files. '
-#                         'If run_detection is True, xml files are saved here. '
-#                         'If run detection is False, XML files are loaded from here. '
-#                         'If run_detection is True and value is None, no XMLs are saved.', required=False, type=str)
-#parser.add_argument("-vis", '--run_visualization', default=False,
-#                    help='Run image visualization', required=False, type=bool)
-#parser.add_argument("-o", '--output_dir', default="detection_images", help='Result directory for images. ',
-#                    required=False)
 parser.add_argument("-lat", '--latency_out', default="latency.csv", help='Output path for latencies file, which is '
                                                                          'appended or created new. ',
                     required=False)
