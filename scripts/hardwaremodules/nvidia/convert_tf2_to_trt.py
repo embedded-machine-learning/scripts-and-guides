@@ -49,7 +49,7 @@ from tensorflow.python.compiler.tensorrt import trt_convert as trt
 from tensorflow.python.saved_model import tag_constants
 from tensorflow.keras.preprocessing import image
 #from tensorflow.keras.applications.inception_v3 import InceptionV3
-#from tensorflow.keras.applications.inception_v3 import preprocess_input, decode_predictions
+from tensorflow.keras.applications.inception_v3 import preprocess_input, decode_predictions
 
 # Own modules
 
@@ -80,8 +80,11 @@ parser.add_argument('-p', '--precision', default='FP32',
 parser.add_argument('-e', '--dtype', default='float32',
                     help='Data type for the input from float32, float16 or uint8.', required=False)
 
-parser.add_argument('-d', '--data_dir', default='./data/',
+parser.add_argument('-d', '--data_dir', default='./images/validation',
                     help='Location of the dataset.', required=False)
+
+parser.add_argument('-out', '--output_dir', default='./exported-models-trt',
+                    help='Export location of converted models.', required=False)
 					
 					
 args, unknown = parser.parse_known_args()
@@ -104,7 +107,7 @@ def batch_input(batch_size, data_path, d_type, hw, is_keras=False):
     n = len(pics)
 
     for i in range(batch_size):
-        img_path = data_path + pics[i % n] #generating batches
+        img_path = os.path.join(data_path + pics[i % n]) #generating batches
         img = image.load_img(img_path, target_size=(hw[0], hw[1]))
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
@@ -125,7 +128,7 @@ def load_tf_saved_model(input_saved_model_dir):
     return saved_model_loaded
 
 
-def convert_to_trt_graph_and_save(precision_mode, input_saved_model_dir, calibration_data):
+def convert_to_trt_graph_and_save(precision_mode, input_saved_model_dir, calibration_data, output_dir='./'):
     if precision_mode == 'FP32':
         precision_mode = trt.TrtPrecisionMode.FP32
         converted_saved__suffix = '_TRTFP32'
@@ -148,7 +151,7 @@ def convert_to_trt_graph_and_save(precision_mode, input_saved_model_dir, calibra
 
     r = input_saved_model_dir.split('/')
     header = r[0]
-    output_saved_model_dir = header + converted_saved__suffix
+    output_saved_model_dir = os.join(output_dir, header + converted_saved__suffix)
 
     conversion_params = trt.DEFAULT_TRT_CONVERSION_PARAMS._replace(
         precision_mode=precision_mode,
@@ -179,8 +182,6 @@ def convert_to_trt_graph_and_save(precision_mode, input_saved_model_dir, calibra
     print('Complete')
 
 
-
-
 def main():
 
     #Image size
@@ -191,13 +192,11 @@ def main():
     batched_input = batch_input(args.batch_size, args.data_dir, args.dtype, images_size, is_keras=False)
     print("=== Batch input prepared ===")
 
-	
-	  #conversion
+	#conversion
     print("=== Convert input model to trt. Model={}, Precision={} ===".format(args.tensorflow_model, args.precision))
-    convert_to_trt_graph_and_save(args.precision, args.tensorflow_model, batched_input)
+    convert_to_trt_graph_and_save(args.precision, args.tensorflow_model, batched_input, args.output_dir)
     print("=== Conversion complete ===")
 	
-
 
 if __name__ == "__main__":
 

@@ -371,8 +371,8 @@ def main():
         infer = saved_model_loaded.signatures['serving_default']
         all_preds = predict_and_benchmark_throughput(batched_input, infer, args, N_warmup_run=50, N_run=1000)
         print("=== Inference complete ===")
-    if (args.visualize):
-        show_prediction(infer, args.image_size, args.image_predict)
+    #if (args.visualize):
+        #show_prediction(infer, args.image_size, args.image_predict)
 	
 
 
