@@ -107,7 +107,7 @@ def batch_input(batch_size, data_path, d_type, hw, is_keras=False):
     n = len(pics)
 
     for i in range(batch_size):
-        img_path = os.path.join(data_path + pics[i % n]) #generating batches
+        img_path = os.path.join(data_path, pics[i % n]) #generating batches
         img = image.load_img(img_path, target_size=(hw[0], hw[1]))
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
