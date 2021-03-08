@@ -280,7 +280,7 @@ def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, mod
 
     # Calulate throughput
     #throughput = 1 / mean_latency
-    throughput = number_runs * batch_size / latencies.sum()
+    throughput = number_runs * batch_size / np.array(latencies).sum()
 
     # Save latencies
     print("Mean inference time: {}".format(mean_latency))
