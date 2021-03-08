@@ -156,7 +156,7 @@ def convert_to_trt_graph_and_save(precision_mode, input_saved_model_dir, calibra
 
     r = input_saved_model_dir.split('/')
     header = r[0]
-    output_saved_model_dir = os.join(output_dir, header + converted_saved__suffix)
+    output_saved_model_dir = os.path.join(output_dir, header + converted_saved__suffix)
 
     conversion_params = trt.DEFAULT_TRT_CONVERSION_PARAMS._replace(
         precision_mode=precision_mode,
