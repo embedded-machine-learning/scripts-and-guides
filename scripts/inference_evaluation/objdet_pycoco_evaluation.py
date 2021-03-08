@@ -100,11 +100,13 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
     #dataDir = '../'
     #dataType = 'val2014'
     #annFile = '%s/annotations/%s_%s.json' % (dataDir, prefix, dataType)
+    print("Load ground truth file: ", coco_gt_file)
     cocoGt = COCO(coco_gt_file)
 
     # initialize COCO detections api
     #resFile = '%s/results/%s_%s_fake%s100_results.json'
     #resFile = resFile % (dataDir, prefix, dataType, annType)
+    print("Load detection file: ", coco_det_file)
     cocoDt = cocoGt.loadRes(coco_det_file)
 
     imgIds = sorted(cocoGt.getImgIds())

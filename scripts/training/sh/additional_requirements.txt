@@ -3,3 +3,5 @@ tdqm
 xmltodict
 pandas
 matplotlib
+pillow
+beautifulsoup4

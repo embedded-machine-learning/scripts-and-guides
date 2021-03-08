@@ -241,7 +241,7 @@ def visualize_performance_recall_optimum(latency, performance, output_dir):
     performance_reduced = performance_reduced[~performance_reduced.index.duplicated(keep='first')]
 
     lat_perf_df = pd.merge(latency_reduced, performance_reduced, how='inner', left_index=True, right_index=True)
-    lat_perf_df=lat_perf_df.reset_index()
+    lat_perf_df = lat_perf_df.reset_index()
 
     print("Available columns: ", lat_perf_df.columns)
     # Plot for all hardware
@@ -256,15 +256,17 @@ def visualize_performance_recall_optimum(latency, performance, output_dir):
     for hw in unique_hardware:
         sub_df=lat_perf_df[lat_perf_df['Hardware']==hw]
         plot_performance_latency(sub_df, output_dir, title='mAP vs Latency Zoom ' + hw,
-                                 y_col='DetectionBoxes_Precision/mAP')
-        plot_performance_latency(sub_df, output_dir, title='Recall vs Latency ' + hw,
-                                 y_col='DetectionBoxes_Precision/mAP')
+                                 y_col='DetectionBoxes_Precision/mAP',
+                                 plot_separation='Network_x')
+        plot_performance_latency(sub_df, output_dir, title='Recall vs Latency Zoom ' + hw,
+                                 y_col='DetectionBoxes_Precision/mAP',
+                                 plot_separation='Network_x')
 
 
 def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency', y_col='DetectionBoxes_Precision/mAP',
-                             ylim=None, xlim=None, latency_req=20):
+                             ylim=None, xlim=None, latency_req=20, plot_separation='Hardware'):
     # Get unique hardware
-    hardware_types = list(lat_perf_df['Hardware'].unique())
+    hardware_types = list(lat_perf_df[plot_separation].unique())
 
     performance_max = np.max(lat_perf_df[y_col].values)
     performance_min = np.min(lat_perf_df[y_col].values)
@@ -287,7 +289,7 @@ def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency
     performance_col = []
     texts = []
     for hw in hardware_types:
-        hw_type_df = lat_perf_df[lat_perf_df['Hardware'] == hw]
+        hw_type_df = lat_perf_df[lat_perf_df[plot_separation] == hw]
         latency_col.extend(hw_type_df['Mean_Latency'].values * 1000)
         performance_col.extend(hw_type_df[y_col].values)
         ax.scatter(hw_type_df['Mean_Latency'].values * 1000, hw_type_df[y_col].values,
