@@ -30,9 +30,11 @@ License_info:
 # from __future__ import print_function
 
 # Built-in/Generic Imports
+import json
 import os
 import argparse
 import time
+import warnings
 from datetime import datetime
 
 # Libs
@@ -80,7 +82,7 @@ parser.add_argument("-lat", '--latency_out', default="latency.csv", help='Output
 
 parser.add_argument('-b', '--batch_size', type=int, default=1,
                     help='Batch Size', required=False)
-parser.add_argument('-is', '--image_size', type=str, default='[300, 300]',
+parser.add_argument('-is', '--image_size', type=str, default=None,
                     help='List of two coordinates: [Height, Width]', required=False)
 
 parser.add_argument("-ms", '--model_short_name', default=None, type=str,
@@ -364,8 +366,38 @@ def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, mod
         df.to_csv(latency_out, mode='w', header=True, sep=';')
         print("Created new measurement file ", latency_out)
 
+def get_info_from_modelname(model_name, model_short_name=None):
+    '''
+
+    :argument
+
+    :return
+
+    '''
+    info = dict()
+
+    info['model_name'] = model_name
+    info['framework'] = str(model_name).split('_')[0]
+    info['network'] = str(model_name).split('_')[1]
+    info['resolution'] = list(map(int, (str(model_name).split('_')[2]).split('x')))
+    info['dataset'] = str(model_name).split('_')[3]
+    if (len(model_name.split("_", 4))>4):
+        info['custom_parameters'] = model_name.split("_", 4)[4]
+    else:
+        info['custom_parameters'] = ""
+
+    # Enhance inputs
+    if model_short_name is None:
+        info['model_short_name'] = model_name
+        print("No short models name defined. Using the long name: ", model_name)
+    else:
+        info['model_short_name'] = model_short_name
+
+    return info
+
+
 def infer_images(model_path, image_dir, latency_out, detections_out, min_score, model_name,
-                 hardware_name, model_short_name=None):
+                 hardware_name, model_short_name=None, batch_size=1, image_size=None):
     '''
     Load a saved model, infer and save detections
 
@@ -379,10 +411,21 @@ def infer_images(model_path, image_dir, latency_out, detections_out, min_score, 
         os.makedirs(os.path.dirname(latency_out))
         print("Created ", os.path.dirname(latency_out))
 
-    #Enhance inputs
-    if model_short_name is None:
-        model_short_name=model_name
-        print("No short models name defined. Using the long name: ", model_name)
+    # Get model infos
+    model_info = get_info_from_modelname(model_name, model_short_name)
+    print("Model information: ", model_info)
+    if image_size:
+        image_size = json.loads(image_size)
+        #image_size = list(map(int, image_size))
+        if (image_size[0] != model_info['resolution'][0]) or (image_size[1] != model_info['resolution'][1]):
+            warnings.warn("Provided input resolution differs from model resolution: "
+                          "Input={}, model={}".format(image_size, model_info['resolution']))
+        else:
+            print("Using image resolution {}".format(image_size))
+
+    else:
+        image_size = model_info['resolution']
+        print("In the batch processing, model resolution {} will be used".format(image_size))
 
     # Load inference images
     print("Loading images from ", image_dir)
@@ -395,7 +438,8 @@ def infer_images(model_path, image_dir, latency_out, detections_out, min_score, 
 
     print("Perform latency tests.")
     infer_latency(detector, image_dir, hardware_name, model_name, model_short_name, latency_out,
-                      N_warmup_run=50, N_run=1000, batch_size=1, d_type='uint8', image_size=[300, 300])
+                  N_warmup_run=50, N_run=1000, batch_size=batch_size, d_type='uint8',
+                  image_size=image_size)
 
     # Define scores and latencies
     latencies = []
@@ -436,6 +480,7 @@ def infer_images(model_path, image_dir, latency_out, detections_out, min_score, 
 
 if __name__ == "__main__":
     infer_images(args.model_path, args.image_dir, args.latency_out, args.detections_out, args.min_score,
-                 args.model_name, args.hardware_name, model_short_name=args.model_short_name)
+                 args.model_name, args.hardware_name, model_short_name=args.model_short_name,
+                 batch_size=args.batch_size, image_size=args.image_size)
 
     print("=== Program end ===")
