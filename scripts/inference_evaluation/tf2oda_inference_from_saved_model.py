@@ -169,12 +169,15 @@ def infer_latency(infer, image_dir, hardware_name, model_name, model_short_name,
         preds = labeling
         end_time = time.time()
 
-        elapsed_time = np.append(elapsed_time, end_time - start_time)
+        latency = end_time - start_time
+
+        elapsed_time.append(latency)
+        #elapsed_time = np.append(elapsed_time, end_time - start_time)
 
         # all_preds.append(preds)
 
         if i % 50 == 0:
-            print('Steps {}-{} average: {:4.1f}ms'.format(i, i + 50, (elapsed_time[-50:].mean()) * 1000))
+            print('Steps {}-{} average: {:4.1f}ms'.format(i, i + 50, (np.array(elapsed_time[-50:]).mean()) * 1000))
 
     # throughput = N_run * batch_size / elapsed_time.sum()
 
