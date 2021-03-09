@@ -77,13 +77,13 @@ parser.add_argument('-s', '--image_size', type=str, default='[299, 299]',
 parser.add_argument('-p', '--precision', default='FP32',
                     help='TensorRT precision mode: FP32, FP16 or INT8 and input data type.', required=False)
 
-parser.add_argument('-e', '--dtype', default='float32',
+parser.add_argument('-e', '--dtype', default='uint8',
                     help='Data type for the input from float32, float16 or uint8.', required=False)
 
 parser.add_argument('-d', '--data_dir', default='./images/validation',
                     help='Location of the dataset.', required=False)
 
-parser.add_argument('-out', '--output_dir', default='./exported-models-trt',
+parser.add_argument('-out', '--output_dir', default='./exported-models-trt/model_name_trt',
                     help='Export location of converted models.', required=False)
 					
 					
@@ -128,7 +128,7 @@ def load_tf_saved_model(input_saved_model_dir):
     return saved_model_loaded
 
 
-def convert_to_trt_graph_and_save(precision_mode, input_saved_model_dir, calibration_data, output_dir='./'):
+def convert_to_trt_graph_and_save(precision_mode, input_saved_model_dir, calibration_data, output_dir='./converted_model'):
 
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
@@ -154,9 +154,9 @@ def convert_to_trt_graph_and_save(precision_mode, input_saved_model_dir, calibra
     #final = input_saved_model_dir[len(r[0])+1:]
     #output_saved_model_dir = converted_saved__prefix + final 
 
-    r = input_saved_model_dir.split('/')
-    header = r[0]
-    output_saved_model_dir = os.path.join(output_dir, header + converted_saved__suffix)
+    #r = input_saved_model_dir.split('/')
+    #header = r[0]
+    #output_saved_model_dir = os.path.join(output_dir, header + converted_saved__suffix)
 
     conversion_params = trt.DEFAULT_TRT_CONVERSION_PARAMS._replace(
         precision_mode=precision_mode,
@@ -182,9 +182,9 @@ def convert_to_trt_graph_and_save(precision_mode, input_saved_model_dir, calibra
         end_time = time.time()
 
     print('Conversion took {:4.1f}s.'.format(end_time - start_time))
-    print(f'Saving converted model to {output_saved_model_dir}')
-    converter.save(output_saved_model_dir=output_saved_model_dir)
-    print('Complete')
+    print(f'Saving converted model to {output_dir}')
+    converter.save(output_saved_model_dir=output_dir)
+    print('Conversion Complete')
 
 
 def main():
