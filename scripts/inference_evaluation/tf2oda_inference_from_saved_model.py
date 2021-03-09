@@ -33,6 +33,7 @@ License_info:
 import os
 import argparse
 import time
+from datetime import datetime
 
 # Libs
 import numpy as np
@@ -46,9 +47,12 @@ import matplotlib.pyplot as plt
 
 import tensorflow as tf
 
+from tensorflow.keras.applications.inception_v3 import preprocess_input, decode_predictions
+from tensorflow.keras.preprocessing import image
+
 # Own modules
 import image_utils as im
-from datetime import datetime
+
 
 __author__ = 'Alexander Wendt'
 __copyright__ = 'Copyright 2021, Christian Doppler Laboratory for ' \
@@ -72,8 +76,12 @@ parser.add_argument("-s", '--min_score', default=0.5, type=float,
 parser.add_argument("-out", '--detections_out', default='detections.csv',
                     help='Labelmap path', required=False)
 parser.add_argument("-lat", '--latency_out', default="latency.csv", help='Output path for latencies file, which is '
-                                                                         'appended or created new. ',
-                    required=False)
+                                                                         'appended or created new. ',required=False)
+
+parser.add_argument('-b', '--batch_size', type=int, default=1,
+                    help='Batch Size', required=False)
+parser.add_argument('-is', '--image_size', type=str, default='[300, 300]',
+                    help='List of two coordinates: [Height, Width]', required=False)
 
 parser.add_argument("-ms", '--model_short_name', default=None, type=str,
                     help='Model name for collecting model data.', required=False)
@@ -83,6 +91,95 @@ parser.add_argument("-hw", '--hardware_name', default="Hardware", type=str,
                     help='Hardware name collecting statistical data.', required=False)
 
 args = parser.parse_args()
+print(args)
+
+
+def batch_input(batch_size, data_path, d_type, hw, is_keras=False):
+    '''
+    Create one representative batch out of the dataset
+
+
+    TODO: Use all images in the dataset to create a batch, not only the first image, i.e. create
+    TODO: a batch as in reality
+
+    '''
+
+    if d_type == 'float32':
+        datatype = np.float32
+    elif d_type == 'float16':
+        datatype = np.float16
+    elif d_type == 'uint8':
+        datatype = np.uint8
+    else:
+        raise ValueError("No valid data type provided: " + d_type + ". It has to be float32, float16 or uint8")
+
+    batched_input = np.zeros((batch_size, hw[0], hw[1], 3), dtype=datatype)
+
+    if os.path.isfile(data_path):
+        pics=data_path
+    else:
+        pics = os.listdir(data_path)
+    n = len(pics)
+
+    for i in range(batch_size):
+        if os.path.isfile(data_path):
+            img_path=data_path
+        else:
+            img_path = os.path.join(data_path, pics[i % n]) #generating batches
+        img = image.load_img(img_path, target_size=(hw[0], hw[1]))
+        x = image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+        if is_keras:
+            x = preprocess_input(x) #for models loaded from Keras applications
+        batched_input[i, :] = x
+
+    batched_input = tf.constant(batched_input)
+    return batched_input
+
+
+def infer_latency(infer, image_dir, hardware_name, model_name, model_short_name, latency_out,
+                  N_warmup_run=50, N_run=1000, batch_size=1, d_type='uint8', image_size=[300, 300]):
+    '''
+
+
+
+    '''
+
+    input = batch_input(batch_size, image_dir, d_type, image_size, is_keras=False)
+
+    elapsed_time = []
+    # all_preds = []
+    # boxes = []
+    # classes = []
+    # scores = []
+    #batch_size = batched_input.shape[0]
+
+    print("Running warm up runs...i.e. just running empty runs to load the model correctly")
+    for i in range(N_warmup_run):
+        labeling = infer(input)
+        # print("Inference {}/{}".format(i, N_warmup_run))
+        # preds = labeling['predictions'].numpy()
+        preds = labeling
+
+    print("Running real runs with one batch to create the images...")
+    for i in range(N_run):
+        start_time = time.time()
+        labeling = infer(input)
+        # preds = labeling['predictions'].numpy()
+        preds = labeling
+        end_time = time.time()
+
+        elapsed_time = np.append(elapsed_time, end_time - start_time)
+
+        # all_preds.append(preds)
+
+        if i % 50 == 0:
+            print('Steps {}-{} average: {:4.1f}ms'.format(i, i + 50, (elapsed_time[-50:].mean()) * 1000))
+
+    # throughput = N_run * batch_size / elapsed_time.sum()
+
+    # Create the latency.csv file
+    save_latencies_to_csv(elapsed_time, batch_size, N_run, hardware_name, model_name, model_short_name, latency_out)
 
 
 def load_model(model_path):
@@ -189,80 +286,6 @@ def plot_image(image, title=None):
 
     return plt.gcf()
 
-def infer_images(model_path, image_dir, labelmap, latency_out, detections_out, min_score, model_name,
-                 hardware_name, model_short_name=None):
-    '''
-    Load a saved model, infer and save detections
-
-    '''
-    #Create output directories
-    if not os.path.isdir(os.path.dirname(detections_out)):
-        os.makedirs(os.path.dirname(detections_out))
-        print("Created ", os.path.dirname(detections_out))
-
-    if not os.path.isdir(os.path.dirname(latency_out)):
-        os.makedirs(os.path.dirname(latency_out))
-        print("Created ", os.path.dirname(latency_out))
-
-    #Enhance inputs
-    if model_short_name is None:
-        model_short_name=model_name
-        print("No short models name defined. Using the long name: ", model_name)
-
-    # Load inference images
-    print("Loading images from ", image_dir)
-    image_list = im.get_images_name(image_dir)
-
-    # Load label path
-    #print("Loading labelmap from ", labelmap)
-    #category_index = label_map_util.create_category_index_from_labelmap(os.path.abspath(labelmap))
-
-    #if run_detection:
-    # Load model
-    print("Loading model {} from {}".format(model_name, model_path))
-    detector = load_model(model_path)
-    print("Inference with the model {} on hardware {} will be executed".format(model_name, hardware_name))
-    #else:
-    #    # Load stored XML Files
-    #    print("Loading saved Detections files from ealier inferences from ", xml_dir)
-    #    data = pd.read_csv(os.path.join(xml_dir, "detections.csv"), sep=';').set_index('filename')
-
-    # Define scores and latencies
-    #latencies = pd.DataFrame(columns=['Network', 'Hardware', 'Latency'])
-    latencies = []
-    detection_scores = pd.DataFrame(columns=['filename', 'width', 'height', 'class', 'xmin',
-                                             'ymin', 'xmax', 'ymax', 'score'])
-    # Process each image
-    for image_name in image_list:
-
-        #if run_detection:
-        image_filename, image_np, boxes, classes, scores, latency = \
-            detect_image(detector, os.path.join(image_dir, image_name))
-
-        latencies.append(latency)
-        #latencies=latencies.append(pd.DataFrame([[model_name, hardware_name, latency]], columns=['Network', 'Hardware', 'Latency']))
-        bbox_df = convert_reduced_detections_to_df(image_filename, image_np, boxes, classes, scores, min_score)
-        detection_scores=detection_scores.append(bbox_df)
-
-    #Save all detections
-    #if run_detection and xml_dir and detection_scores.shape[0] > 0:
-    # Save detections
-    detection_scores.to_csv(detections_out, index=None, sep=';')
-    print("Detections saved to ", detections_out)
-
-    if len(latencies) > 1:
-        latencies.pop(0)
-        print("Removed the first inference time value as it usually includes a warm-up phase. Size of old list: {}. "
-              "Size of new list: {}".format(len(latencies) + 1, len(latencies)))
-
-    batch_size=1
-    number_runs=len(latencies)
-
-    save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, model_name, model_short_name, latency_out)
-
-    #print("Saved latency values to ", latency_out)
-
-
 def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, model_name, model_short_name, latency_out):
     '''
     Save a list of latencies to csv file
@@ -338,8 +361,78 @@ def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, mod
         df.to_csv(latency_out, mode='w', header=True, sep=';')
         print("Created new measurement file ", latency_out)
 
+def infer_images(model_path, image_dir, latency_out, detections_out, min_score, model_name,
+                 hardware_name, model_short_name=None):
+    '''
+    Load a saved model, infer and save detections
+
+    '''
+    #Create output directories
+    if not os.path.isdir(os.path.dirname(detections_out)):
+        os.makedirs(os.path.dirname(detections_out))
+        print("Created ", os.path.dirname(detections_out))
+
+    if not os.path.isdir(os.path.dirname(latency_out)):
+        os.makedirs(os.path.dirname(latency_out))
+        print("Created ", os.path.dirname(latency_out))
+
+    #Enhance inputs
+    if model_short_name is None:
+        model_short_name=model_name
+        print("No short models name defined. Using the long name: ", model_name)
+
+    # Load inference images
+    print("Loading images from ", image_dir)
+    image_list = im.get_images_name(image_dir)
+
+    # Load model
+    print("Loading model {} from {}".format(model_name, model_path))
+    detector = load_model(model_path)
+    print("Inference with the model {} on hardware {} will be executed".format(model_name, hardware_name))
+
+    print("Perform latency tests.")
+    infer_latency(detector, image_dir, hardware_name, model_name, model_short_name, latency_out,
+                      N_warmup_run=50, N_run=1000, batch_size=1, d_type='uint8', image_size=[300, 300])
+
+    # Define scores and latencies
+    latencies = []
+    detection_scores = pd.DataFrame(columns=['filename', 'width', 'height', 'class', 'xmin',
+                                             'ymin', 'xmax', 'ymax', 'score'])
+    # Process each image
+    for image_name in image_list:
+
+        #if run_detection:
+        image_filename, image_np, boxes, classes, scores, latency = \
+            detect_image(detector, os.path.join(image_dir, image_name))
+
+        latencies.append(latency)
+        #latencies=latencies.append(pd.DataFrame([[model_name, hardware_name, latency]], columns=['Network', 'Hardware', 'Latency']))
+        bbox_df = convert_reduced_detections_to_df(image_filename, image_np, boxes, classes, scores, min_score)
+        detection_scores=detection_scores.append(bbox_df)
+
+    print("Mean latency without batch processing: {}".format(np.array(latencies[1:-1]).mean()))
+
+    #Save all detections
+    #if run_detection and xml_dir and detection_scores.shape[0] > 0:
+    # Save detections
+    detection_scores.to_csv(detections_out, index=None, sep=';')
+    print("Detections saved to ", detections_out)
+
+    #if len(latencies) > 1:
+    #    latencies.pop(0)
+    #    print("Removed the first inference time value as it usually includes a warm-up phase. Size of old list: {}. "
+    #          "Size of new list: {}".format(len(latencies) + 1, len(latencies)))
+
+    #batch_size=1
+    #number_runs=len(latencies)
+
+    #save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, model_name, model_short_name, latency_out)
+
+    #print("Saved latency values to ", latency_out)
+
+
 if __name__ == "__main__":
-    infer_images(args.model_path, args.image_dir, args.labelmap, args.latency_out, args.detections_out, args.min_score,
+    infer_images(args.model_path, args.image_dir, args.latency_out, args.detections_out, args.min_score,
                  args.model_name, args.hardware_name, model_short_name=args.model_short_name)
 
     print("=== Program end ===")
