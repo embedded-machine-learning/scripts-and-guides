@@ -40,10 +40,6 @@ from pycocotools.cocoeval import COCOeval
 import pandas as pd
 import numpy as np
 
-# If you get _tkinter.TclError: no display name and no $DISPLAY environment variable use
-# matplotlib.use('Agg') instead
-#matplotlib.use('TkAgg')
-
 # Own modules
 
 __author__ = 'Alexander Wendt'
