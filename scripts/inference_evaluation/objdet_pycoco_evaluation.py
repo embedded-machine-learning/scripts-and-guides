@@ -38,6 +38,7 @@ from datetime import datetime
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 import pandas as pd
+import numpy as np
 
 # If you get _tkinter.TclError: no display name and no $DISPLAY environment variable use
 # matplotlib.use('Agg') instead
@@ -173,6 +174,8 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
     # Append dataframe wo csv if it already exists, else create new file
     if os.path.isfile(output_file):
         old_df = pd.read_csv(output_file, sep=';')
+        old_df['Custom_Parameters'] = old_df['Custom_Parameters'].replace(np.nan, '', regex=True)
+        #old_df['Custom_Parameters'] = old_df['Custom_Parameters'].astype(str)
 
         merged_df = old_df.reset_index().merge(df.reset_index(), how="outer").set_index('Date').drop(
             columns=['index'])  # pd.merge(old_df, df, how='outer')
