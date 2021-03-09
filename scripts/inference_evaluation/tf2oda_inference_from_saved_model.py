@@ -303,6 +303,9 @@ def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, mod
 
     '''
 
+    # Get model info
+    model_info = get_info_from_modelname(model_name, model_short_name)
+
     # Calucluate mean latency
     mean_latency = np.array(latencies).mean()
 
@@ -326,22 +329,22 @@ def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, mod
                     'Throughput',
                     'Mean_Latency',
                     'Latencies']
-    framework = str(model_name).split('_')[0]
-    network = str(model_name).split('_')[1]
-    resolution = str(model_name).split('_')[2]
-    dataset = str(model_name).split('_')[3]
-    if (len(model_name.split("_", 4))>4):
-        custom_parameters = model_name.split("_", 4)[4]
-    else:
-        custom_parameters = ""
+    #framework = str(model_name).split('_')[0]
+    #network = str(model_name).split('_')[1]
+    #resolution = str(model_name).split('_')[2]
+    #dataset = str(model_name).split('_')[3]
+    #if (len(model_name.split("_", 4))>4):
+    #    custom_parameters = model_name.split("_", 4)[4]
+    #else:
+    #    custom_parameters = ""
     content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-               model_name,
-               model_short_name,
-               framework,
-               network,
-               resolution,
-               dataset,
-               custom_parameters,
+               model_info['model_name'],
+               model_info['model_short_name'],
+               model_info['framework'],
+               model_info['network'],
+               str(model_info['resolution']),
+               model_info['dataset'],
+               model_info['custom_parameters'],
                hardware_name,
                'None',
                1,
@@ -355,6 +358,7 @@ def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, mod
     if os.path.isfile(latency_out):
         old_df = pd.read_csv(latency_out, sep=';')
         old_df['Custom_Parameters'] = old_df['Custom_Parameters'].replace(np.nan, '', regex=True)
+        old_df['Model_Short'] = old_df['Model_Short'].replace(np.nan, '', regex=True)
 
         merged_df = old_df.reset_index().merge(df.reset_index(), how="outer").set_index('Date').drop(
             columns=['index'])  # pd.merge(old_df, df, how='outer')
@@ -437,7 +441,7 @@ def infer_images(model_path, image_dir, latency_out, detections_out, min_score, 
     print("Inference with the model {} on hardware {} will be executed".format(model_name, hardware_name))
 
     print("Perform latency tests.")
-    infer_latency(detector, image_dir, hardware_name, model_name, model_short_name, latency_out,
+    infer_latency(detector, image_dir, hardware_name, model_name, model_info['model_short_name'], latency_out,
                   N_warmup_run=50, N_run=1000, batch_size=batch_size, d_type='uint8',
                   image_size=image_size)
 
