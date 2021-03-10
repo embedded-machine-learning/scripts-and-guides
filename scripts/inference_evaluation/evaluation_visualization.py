@@ -120,7 +120,7 @@ def plot_violin_plot(values, labels, output_dir, title='Latency', xlabel="Models
 
     '''
     # Create the Violinplot
-    fig1, ax1 = plt.subplots(figsize=(7, 12))
+    fig1, ax1 = plt.subplots(figsize=(5, 8))
     bp = ax1.violinplot(values, showmedians=True, showextrema=True)
     ax1.set_title(title)
 
@@ -130,8 +130,11 @@ def plot_violin_plot(values, labels, output_dir, title='Latency', xlabel="Models
     plt.xticks(rotation=90)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
+    anchored_text = AnchoredText("Inferences: {}".format(values[0].shape[0]), loc=2)
+    ax1.add_artist(anchored_text)
+    ax1.grid(axis='y')
     plt.tight_layout()
-    im.show_save_figure(fig1, output_dir, title.replace(' ', '_') + '_violinplot', show_image=True)
+    im.show_save_figure(fig1, output_dir, title.replace(' ', '_') + '_violinplot', show_image=False)
 
 
 def plot_boxplot(values, labels, output_dir=None, title='Latencies', xlabel="Models and platforms", ylabel="Latency [ms]"):
@@ -148,7 +151,7 @@ def plot_boxplot(values, labels, output_dir=None, title='Latencies', xlabel="Mod
     '''
     # Visualization
     green_diamond = dict(markerfacecolor='g', marker='D')
-    fig7, ax7 = plt.subplots(figsize=(7, 12))
+    fig7, ax7 = plt.subplots(figsize=(5, 8))
 
     ax7.set_title(title)
 
@@ -161,14 +164,15 @@ def plot_boxplot(values, labels, output_dir=None, title='Latencies', xlabel="Mod
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     #plt.axhline(y=20, color='r', linestyle='-')
-    ax7.grid(axis='y')
+    ax7.grid(axis='y', which='both')
+    ax7.minorticks_on()
     # props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
     # place a text box in upper left in axes coords
     # ax7.text(1, 100, "Test")
     anchored_text = AnchoredText("Inferences: {}".format(values[0].shape[0]), loc=2)
     ax7.add_artist(anchored_text)
     plt.tight_layout()
-    im.show_save_figure(fig7, output_dir, title.replace(' ', '_') + '_boxplot', show_image=True)
+    im.show_save_figure(fig7, output_dir, title.replace(' ', '_') + '_boxplot', show_image=False)
 
 
 def visualize_performance(df, output_dir):
@@ -227,7 +231,7 @@ def plot_bar(values, labels, output_dir, title='Performance mAP', xlabel="Models
     #for i, v in enumerate(values):
     #    ax1.text(v + 3, i + .25, "{:.2f}".format(v))
     plt.tight_layout()
-    im.show_save_figure(fig1, output_dir, title.replace(' ', '_') + '_barplot', show_image=True)
+    im.show_save_figure(fig1, output_dir, title.replace(' ', '_') + '_barplot', show_image=False)
 
 def visualize_performance_recall_optimum(latency, performance, output_dir):
     '''
@@ -317,7 +321,7 @@ def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency
                        # force_text=(0.01, 0.25), force_points=(0.01, 0.25),
                        )
 
-    im.show_save_figure(fig, output_dir, title.replace(' ', '_') + '_scatter', show_image=True)
+    im.show_save_figure(fig, output_dir, title.replace(' ', '_') + '_scatter', show_image=False)
 
 
 def evaluate(latency_file, performance_file, output_dir):
