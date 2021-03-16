@@ -109,8 +109,11 @@ parser.add_argument("--title3", type=str, default="Image3", help='Title of image
 
 parser.add_argument("--use_three_images", action='store_true', default=False,
                     help="If set, three images will be used, instead of two")
+parser.add_argument("--color_gt", action='store_true', default=False,
+                    help="Color ground truth and set confidence to 100%")
 
 args = parser.parse_args()
+print(args)
 
 
 def load_labelmap(path):
@@ -311,7 +314,7 @@ def plot_three_images(image, image2, image3, title1="Image1", title2="Image2", t
 def visualize_images(image_path1, image_path2, image_path3,
                      annotation_dir1, annotation_dir2, annotation_dir3,
                      title1, title2, title3,
-                     labelmap, output_dir, use_three_images):
+                     labelmap, output_dir, use_three_images, color_gt):
     '''Main method'''
 
     # Get all paths
@@ -354,10 +357,11 @@ def visualize_images(image_path1, image_path2, image_path3,
     category_index = load_labelmap(os.path.abspath(labelmap))
 
     # Generate the images with bounding boxes
-    image1 = bbox.visualize_image_with_boundingbox(annotation_dir1, category_index, image_name1, image_path1)
-    image2 = bbox.visualize_image_with_boundingbox(annotation_dir2, category_index, image_name2, image_path2)
+    image1 = bbox.visualize_image_with_boundingbox(annotation_dir1, category_index, image_name1, image_path1, color_gt=color_gt)
+    image2 = bbox.visualize_image_with_boundingbox(annotation_dir2, category_index, image_name2, image_path2, color_gt=color_gt)
     if use_three_images:
-        image3 = bbox.visualize_image_with_boundingbox(annotation_dir3, category_index, image_name3, image_path3)
+        image3 = bbox.visualize_image_with_boundingbox(annotation_dir3, category_index, image_name3, image_path3,
+                                                       color_gt=color_gt)
         fig = plot_three_images(image1, image2, image3, title1, title2, title3)
         out_name = "bbox_" + image_name1 + "_" + image_name2 + "_" + image_name3 + ".jpg"
     else:
@@ -375,6 +379,6 @@ if __name__ == "__main__":
     visualize_images(args.image_path1, args.image_path2, args.image_path3,
                      args.annotation_dir1, args.annotation_dir2, args.annotation_dir3,
                      args.title1, args.title2, args.title3,
-                     args.labelmap, args.output_dir, args.use_three_images)
+                     args.labelmap, args.output_dir, args.use_three_images, args.color_gt)
 
     print("=== Program end ===")

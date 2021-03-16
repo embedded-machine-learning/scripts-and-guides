@@ -132,13 +132,15 @@ def xml_to_csv(path, filter=None):
     xml_df = pd.DataFrame(xml_list, columns=column_name)
     return xml_df
 
-def extract_info_from_annotations(annotation, category_index):
+def extract_info_from_annotations(annotation, category_index, color_gt=False):
 
     boxes = np.zeros([annotation.shape[0], 4])
     classes = np.zeros([annotation.shape[0]]).astype('int')
 
     if 'score' in annotation.columns and annotation['score'][0] is not None:
         scores = np.zeros([annotation.shape[0]])
+    elif color_gt:
+        scores = np.ones([annotation.shape[0]])
     else:
         scores = None
 
@@ -161,8 +163,7 @@ def extract_info_from_annotations(annotation, category_index):
 
         if 'score' in annotation.columns and annotation['score'][i] is not None:
             scores[i] = annotation['score'][i]
-        #else:
-            #scores[i] = 1.0
+
 
     return boxes, classes, scores
 
@@ -178,6 +179,14 @@ def visualize_image(image_name, image_np, scores, boxes, classes, category_index
         # print(scores)
         # print(boxes)
         # input()
+        if image_np.shape[0] < 1000:
+            line_thickness = 2
+        elif image_np.shape[0] < 2000:
+            line_thickness = 4
+        else:
+            line_thickness = 8
+
+        print("Image width: {}->Setting line thinckness: {}".format(image_np.shape[0], line_thickness))
 
         plt.rcParams['figure.figsize'] = [42, 21]
         label_id_offset = 1
@@ -191,7 +200,7 @@ def visualize_image(image_name, image_np, scores, boxes, classes, category_index
             use_normalized_coordinates=True,
             max_boxes_to_draw=200,
             min_score_thresh=min_score,
-            line_thickness=2,
+            line_thickness=line_thickness,
             agnostic_mode=False)
         # plt.show()
         # plt.subplot(5, 1, 1)
@@ -200,13 +209,13 @@ def visualize_image(image_name, image_np, scores, boxes, classes, category_index
 
     return image_np_with_detections
 
-def visualize_image_with_boundingbox(annotation_dir, category_index, image_name, image_path, min_score=0.4):
+def visualize_image_with_boundingbox(annotation_dir, category_index, image_name, image_path, min_score=0.4, color_gt=False):
     image_np = im.load_image_into_numpy_array(image_path)# load_image(image_path)
     filter = []
     filter.append(image_name)
     annotation_df = xml_to_csv(annotation_dir, filter)
     print("Annotation: ", annotation_df)
-    boxes, classes, scores = extract_info_from_annotations(annotation_df, category_index)
+    boxes, classes, scores = extract_info_from_annotations(annotation_df, category_index, color_gt=color_gt)
     fig1 = visualize_image(image_name, image_np, scores, boxes, classes, category_index, min_score)
 
     return fig1

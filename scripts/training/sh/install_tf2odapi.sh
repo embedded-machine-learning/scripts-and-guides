@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# WARNING: Exeute this file with . and not with ./ to get the environment in the correct shell.
+echo WARNING: Exeute this file with . and not with ./ to get the environment in the correct shell.
 
 echo # Setup Tensorflow Object Detection API
 mkdir tf2odapi
@@ -41,6 +41,10 @@ python object_detection/builders/model_builder_tf2_test.py
 cd $TF2ROOT
 
 # Install libraries for inference and visualization
+echo install additional libraries
 pip install numpy tdqm xmltodict pandas matplotlib pillow beautifulsoup4
+
+echo clone scripts and guides repo for source of scripts
+git clone https://github.com/embedded-machine-learning/scripts-and-guides.git
 
 echo # Installation complete
