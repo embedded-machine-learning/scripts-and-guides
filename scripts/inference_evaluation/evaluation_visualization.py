@@ -323,6 +323,31 @@ def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency
 
     im.show_save_figure(fig, output_dir, title.replace(' ', '_') + '_scatter', show_image=False)
 
+def get_latency_deltas_for_hardware_optimizations(latency):
+    '''
+
+    :argument
+
+
+
+    '''
+
+    # For each model and hardware
+    latency['Hardware_Optimization']
+    #x= latency.set_index(['Framework', 'Network', 'Resolution', 'Dataset', 'Custom_Parameters', 'Hardware'])
+    x = latency.groupby(['Framework', 'Network', 'Resolution', 'Dataset', 'Custom_Parameters', 'Hardware'])
+    #x = latency.groupby(['Model'])
+
+    for name, group in x:
+        print(name)
+        print(group)
+
+
+
+    enhanced_latency = latency
+
+    return latency
+
 
 def evaluate(latency_file, performance_file, output_dir):
     '''
@@ -331,6 +356,10 @@ def evaluate(latency_file, performance_file, output_dir):
 
     # Read all latency files from that folder
     latency = pd.read_csv(latency_file, sep=';')
+
+    latency = get_latency_deltas_for_hardware_optimizations(latency)
+
+    # Visualize latency
     visualize_latency(latency, output_dir)
 
     # Read all performance files

@@ -3,7 +3,7 @@
 # Constant Definition
 USERNAME=wendt
 USEREMAIL=alexander.wendt@tuwien.ac.at
-MODELNAME=tf2oda_efficientdetd0_768x640_pedestrian
+MODELNAME=tf2oda_efficientdetd0_512x320_pedestrian_LR02
 PYTHONENV=tf24
 BASEPATH=.
 SCRIPTPREFIX=~/tf2odapi/scripts-and-guides/scripts/training

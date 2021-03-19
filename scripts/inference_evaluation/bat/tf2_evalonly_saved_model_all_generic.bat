@@ -104,6 +104,12 @@ python %SCRIPTPREFIX%\inference_evaluation\objdet_pycoco_evaluation.py ^
 --model_name=%MODELNAME% ^
 --hardware_name=%HARDWARENAME%
 
+echo #====================================#
+echo # Move executed models to exported inferred
+echo #====================================#
+md exported-models-inferred
+call move .\exported-models\%MODELNAME% exported-models-inferred
+
 goto :eof
 
 :end

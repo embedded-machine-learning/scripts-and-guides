@@ -11,6 +11,20 @@ get_model_name()
   echo Selected model: $MODELNAME
 }
 
+get_width_and_height()
+{
+  elements=(${MODELNAME//_/ })
+  #$(echo $MODELNAME | tr "_" "\n")
+  #echo $elements
+  resolution=${elements[2]}
+  res_split=(${resolution//x/ })
+  height=${res_split[0]}
+  width=${res_split[1]}
+
+  echo batch processing height=$height and width=$width
+
+}
+
 convert_to_trt()
 {
   python3 $SCRIPTPREFIX/hardwaremodules/nvidia/convert_tf2_to_trt.py \
@@ -57,19 +71,9 @@ get_model_name
 
 
 echo Apply to model $MODELNAME
-elements=(${MODELNAME//_/ })
-#$(echo $MODELNAME | tr "_" "\n")
-#echo $elements
-resolution=${elements[2]}
-res_split=(${resolution//x/ })
-height=${res_split[0]}
-width=${res_split[1]}
-
-echo $height and $width
+get_width_and_height
 
 #Get image resolution from model name
-
-
 
 alias python=python3
 
@@ -85,7 +89,7 @@ for PRECISION in $PRECISIONLIST
 do
   #echo "$f"
   #MODELNAME=`basename ${f%%.*}`
-  echo Use model precision $PRECISION
+  echo $PRECISION
   convert_to_trt
   
 done

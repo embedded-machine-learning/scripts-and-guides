@@ -5,12 +5,11 @@
 @echo #==============================================#
 @echo # CDLEML Process TF2 Object Detection API
 @echo #==============================================#
-@echo This script performs inference of all models of the exported-models folder and after inference, it moves the processed models to exported-models-inferred.
 
 :: Constant Definition
 set USEREMAIL=alexander.wendt@tuwien.ac.at
 ::set MODELNAME=tf2oda_efficientdetd2_768_576_coco17_pedestrian
-set HARDWARENAME=RTX2060AcerPred300
+set HARDWARENAME=Inteli7dp3510
 set PYTHONENV=tf24
 ::set SCRIPTPREFIX=..\..\..
 set SCRIPTPREFIX=..\..\scripts-and-guides\scripts
@@ -31,7 +30,7 @@ call conda activate %PYTHONENV%
 :: THISFILENAME=%~n0
 
 ::Use this method to use all folder names in the subfolder as models
-set MODELFOLDER=exported-models
+set MODELFOLDER=exported-models\_unfinished
 for /d %%D in (%MODELFOLDER%\*) do (
 	::For each folder name in exported models, 
 	set MODELNAME=%%~nxD
@@ -40,13 +39,13 @@ for /d %%D in (%MODELFOLDER%\*) do (
 
 :: Use this methods to iterate through a list MODELS
 ::SET MODELS=^
-::tf2oda_ssdmobilenetv2_576x256_pedestrian ^
-::tf2oda_efficientdet_640x480_pedestrian_D2
+::MODEL1 ^
+::MODELZ
 
 ::for %%x in (%MODELS%) do (
 ::		set MODELNAME=%%x
 ::		call :perform_inference
-::      )
+::       )
 
 
 goto :end
@@ -104,12 +103,6 @@ python %SCRIPTPREFIX%\inference_evaluation\objdet_pycoco_evaluation.py ^
 --output_file="results/performance_%HARDWARENAME%.csv" ^
 --model_name=%MODELNAME% ^
 --hardware_name=%HARDWARENAME%
-
-echo #====================================#
-echo # Move executed models to exported inferred
-echo #====================================#
-md exported-models-inferred
-call move .\exported-models\%MODELNAME% exported-models-inferred
 
 goto :eof
 

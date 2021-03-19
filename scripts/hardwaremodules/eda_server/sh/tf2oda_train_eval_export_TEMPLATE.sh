@@ -66,6 +66,12 @@ python $SCRIPTPREFIX/tf2oda_export_savedmodel.py \
 --trained_checkpoint_dir=$BASEPATH/models/$MODELNAME \
 --output_directory=exported-models/$MODELNAME
 
+echo #====================================#
+echo #Copy Exported Graph to Pickup folder
+echo #====================================#
+mkdir tmp
+cp -ar exported-models/$MODELNAME tmp
+
 echo "Stop Training of $MODELNAME on EDA02" | mail -s "Training of $MODELNAME finished" $USEREMAIL
 
 echo #======================================================#

@@ -41,6 +41,7 @@ import pandas as pd
 import numpy as np
 
 # Own modules
+import inference_utils as inf
 
 __author__ = 'Alexander Wendt'
 __copyright__ = 'Copyright 2021, Christian Doppler Laboratory for ' \
@@ -140,25 +141,27 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
                     'DetectionBoxes_Recall/AR@100 (medium)',
                     'DetectionBoxes_Recall/AR@100 (large)']
 
-    framework = str(model_name).split('_')[0]
-    network = str(model_name).split('_')[1]
-    resolution = str(model_name).split('_')[2]
-    dataset = str(model_name).split('_')[3]
-    if (len(model_name.split("_", 4))>4):
-        custom_parameters = model_name.split("_", 4)[4]
-    else:
-        custom_parameters = ""
+    model_info = inf.get_info_from_modelname(model_name, model_short_name)
+
+    #framework = str(model_name).split('_')[0]
+    #network = str(model_name).split('_')[1]
+    #resolution = str(model_name).split('_')[2]
+    #dataset = str(model_name).split('_')[3]
+    #if (len(model_name.split("_", 4))>4):
+    #    custom_parameters = model_name.split("_", 4)[4]
+    #else:
+    #    custom_parameters = ""
 
     content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                model_name,
                model_short_name,
-               framework,
-               network,
-               resolution,
-               dataset,
-               custom_parameters,
+               model_info['framework'],
+               model_info['network'],
+               str(model_info['resolution']),
+               model_info['dataset'],
+               str(model_info['custom_parameters']),
                hardware_name,
-               'None'
+               model_info['hardware_optimization']
                ]
 
     content.extend(cocoEval.stats)
