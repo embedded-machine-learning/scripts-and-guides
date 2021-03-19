@@ -364,6 +364,7 @@ def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, mod
         old_df = pd.read_csv(latency_out, sep=';')
         old_df['Custom_Parameters'] = old_df['Custom_Parameters'].replace(np.nan, '', regex=True)
         old_df['Model_Short'] = old_df['Model_Short'].replace(np.nan, '', regex=True)
+        old_df['hardware_optimization'] = old_df['hardware_optimization'].replace(np.nan, '', regex=True)
 
         merged_df = old_df.reset_index().merge(df.reset_index(), how="outer").set_index('Date').drop(
             columns=['index'])  # pd.merge(old_df, df, how='outer')

@@ -325,6 +325,7 @@ def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency
 
 def get_latency_deltas_for_hardware_optimizations(latency):
     '''
+    Calculate relative latencies
 
     :argument
 
@@ -333,21 +334,49 @@ def get_latency_deltas_for_hardware_optimizations(latency):
     '''
 
     # For each model and hardware
-    latency['Hardware_Optimization']
-    #x= latency.set_index(['Framework', 'Network', 'Resolution', 'Dataset', 'Custom_Parameters', 'Hardware'])
-    x = latency.groupby(['Framework', 'Network', 'Resolution', 'Dataset', 'Custom_Parameters', 'Hardware'])
-    #x = latency.groupby(['Model'])
+    enhanced_latency = latency.copy()
+    enhanced_latency['Relative_Latency'] = 0
+    x = enhanced_latency.groupby(['Framework', 'Network', 'Resolution', 'Dataset', 'Custom_Parameters', 'Hardware'])
 
     for name, group in x:
         print(name)
         print(group)
 
+        original_latency = group[pd.isnull(group['Hardware_Optimization'])]['Mean_Latency'].values[0]
 
+        for i, row in group.iterrows():
+            current_latency = row['Mean_Latency']
+            relative_latency = (current_latency-original_latency)/current_latency
 
-    enhanced_latency = latency
+            enhanced_latency.loc[(enhanced_latency['Framework'] == row['Framework']) &
+                        (enhanced_latency['Network'] == row['Network']) &
+                        (enhanced_latency['Resolution'] == row['Resolution']) &
+                        (enhanced_latency['Dataset'] == row['Dataset']) &
+                        (enhanced_latency['Custom_Parameters'] == row['Custom_Parameters']) &
+                        (enhanced_latency['Hardware'] == row['Hardware']) &
+                        (enhanced_latency['Hardware_Optimization'] == row['Hardware_Optimization']),
+                        'Relative_Latency'] = relative_latency
 
-    return latency
+    return enhanced_latency
 
+def visualize_relative_latencies(latencies, output_dir):
+    '''
+    Visualize relative latencies
+
+    '''
+
+    # Plot latency for all networks and hardware
+    #unique_networks = df['Network'].unique()
+    values = list()
+    labels = list()
+    for hw_name, hw_group in latencies.groupby['Hardware'].iterrows():
+        for name, group in hw_group.groupby['Hardware_Optimization'].iterrows():
+            group['Relative_Latency']
+            values.append(np.array(group['Relative_Latency']) * 1000)
+            labels.append(name)
+
+        #plot_boxplot(values, labels, output_dir, title="Latency All Hardware")
+        plot_violin_plot(values, labels, output_dir, title="Latency Delta for Hardware Optimization Method")
 
 def evaluate(latency_file, performance_file, output_dir):
     '''
@@ -356,8 +385,9 @@ def evaluate(latency_file, performance_file, output_dir):
 
     # Read all latency files from that folder
     latency = pd.read_csv(latency_file, sep=';')
+    relative_latencies = get_latency_deltas_for_hardware_optimizations(latency)
+    visualize_relative_latencies(relative_latencies, output_dir)
 
-    latency = get_latency_deltas_for_hardware_optimizations(latency)
 
     # Visualize latency
     visualize_latency(latency, output_dir)
