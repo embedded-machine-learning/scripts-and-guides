@@ -351,7 +351,7 @@ def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, mod
                model_info['dataset'],
                str(model_info['custom_parameters']),
                hardware_name,
-               model_info['hardware_optimization'],
+               str(model_info['hardware_optimization']),
                1,
                throughput,
                mean_latency,

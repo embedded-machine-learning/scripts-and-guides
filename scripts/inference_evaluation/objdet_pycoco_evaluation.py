@@ -161,7 +161,7 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
                model_info['dataset'],
                str(model_info['custom_parameters']),
                hardware_name,
-               model_info['hardware_optimization']
+               str(model_info['hardware_optimization'])
                ]
 
     content.extend(cocoEval.stats)
