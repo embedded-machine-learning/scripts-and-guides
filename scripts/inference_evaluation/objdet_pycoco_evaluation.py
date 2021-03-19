@@ -174,7 +174,9 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
     if os.path.isfile(output_file):
         old_df = pd.read_csv(output_file, sep=';')
         old_df['Custom_Parameters'] = old_df['Custom_Parameters'].replace(np.nan, '', regex=True)
+        old_df['Model_Short'] = old_df['Model_Short'].replace(np.nan, '', regex=True)
         #old_df['Custom_Parameters'] = old_df['Custom_Parameters'].astype(str)
+        old_df['Hardware_Optimization'] = old_df['Hardware_Optimization'].replace(np.nan, '', regex=True)
 
         merged_df = old_df.reset_index().merge(df.reset_index(), how="outer").set_index('Date').drop(
             columns=['index'])  # pd.merge(old_df, df, how='outer')
