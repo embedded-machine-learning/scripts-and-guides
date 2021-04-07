@@ -81,9 +81,9 @@ def get_info_from_modelname(model_name, model_short_name=None, model_optimizer_p
     info['dataset'] = str(model_name).split('_')[3]
     info['hardware_optimization'] = ""
     info['custom_parameters'] = ""
+    custom_list = []
     if len(model_name.split("_", 4)) > 4:
         rest_parameters = model_name.split("_", 4)[4]
-        custom_list = []
 
         for r in rest_parameters.split("_"):
             if str(r).startswith(model_optimizer_prefix):
@@ -95,7 +95,7 @@ def get_info_from_modelname(model_name, model_short_name=None, model_optimizer_p
                 #else:
                 #    info['custom_parameters'] = info['custom_parameters'] + "_" + r
 
-        info['custom_parameters'] = str(custom_list)
+    info['custom_parameters'] = str(custom_list)
 
     # Enhance inputs
     if model_short_name is None:
