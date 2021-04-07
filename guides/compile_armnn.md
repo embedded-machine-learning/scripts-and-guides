@@ -362,6 +362,8 @@ cmake .. \
 ### Armnn32 with Pyarmnn
 This time, the (OPTIONAL) software packets will be linked in the arguments as an addition to the flags from the compilation without Pyarmnn.
 
+#### THIS COMPILATION WITH PYARMNN IS NOT YET SUCCESSFUL
+
 ```
 cmake .. \
 -D CMAKE_LINKER=/usr/bin/arm-linux-gnueabihf-ld \
@@ -435,6 +437,8 @@ cmake .. \
 
 ### Armnn64 with Pyarmnn
 
+#### THIS COMPILATION WITH PYARMNN IS NOT YET SUCCESSFUL
+
 ```
 cmake ..
 # top text
@@ -442,42 +446,6 @@ cmake ..
 # bottom text
 ```
 
-### Armnn64 with Pyarmnn ONLY for my work PC DELETE THIS WHEN PUBLISHING
-
-```
-cmake .. \
--D CMAKE_LINKER=/usr/bin/aarch64-linux-gnu-ld \
--D CMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc \
--D CMAKE_CXX_COMPILER=/usr/bin/aarch64-linux-gnu-g++ \
--D CMAKE_C_COMPILER_FLAGS=-fPIC \
--D ARMCOMPUTE_ROOT=$BASEDIR/ComputeLibrary \
--D ARMCOMPUTE_BUILD_DIR=$BASEDIR/ComputeLibrary/build \
--D BOOST_ROOT=$BASEDIR/armnn-devenv/boost_arm64_install/ \
--D BUILD_TF_PARSER=1 \
--D TF_GENERATED_SOURCES=$BASEDIR/tensorflow-protobuf \
--D PROTOBUF_ROOT=$BASEDIR/armnn-devenv/google/x86_64_pb_install/ \
--D PROTOBUF_LIBRARY_DEBUG=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0 \
--D PROTOBUF_LIBRARY_RELEASE=$BASEDIR/armnn-devenv/google/arm64_pb_install/lib/libprotobuf.so.15.0.0 \
--D ARMCOMPUTENEON=1 \
--D BUILD_TESTS=1 \
--D ARMNNREF=1 \
--D FLATBUFFERS_ROOT=$BASEDIR/flatbuffers \
--D FLATC_DIR=$BASEDIR/flatbuffers/ \
--D FLATBUFFERS_LIBRARY=$BASEDIR/flatbuffers/build/libflatbuffers.a \
--D BUILD_TF_LITE_PARSER=1 \
--D TF_LITE_GENERATED_PATH=$BASEDIR/tensorflow/tensorflow/lite/schema/ \
--D BUILD_ONNX_PARSER=1 \
--D ONNX_GENERATED_SOURCES=$BASEDIR/onnx \
--D BUILD_CAFFE_PARSER=0 \
--D BUILD_PYTHON_SRC=ON \
--D BUILD_PYTHON_WHL=ON \
--D PYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
--D PYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
-```
-
-```
--D CAFFE_GENERATED_SOURCES= # the location of the parent directory of caffe.pb.h and caffe.pb.cc
-```
 <h4>Compilation</h4>
 After setting the options of cmake, all that's left is the compilation with
 
