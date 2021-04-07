@@ -1,0 +1,359 @@
+
+\documentclass[border=8pt, multi, tikz]{standalone} 
+\usepackage{import}
+\subimport{../layers/}{init}
+\usetikzlibrary{positioning}
+\usetikzlibrary{3d} %for including external image 
+
+\def\ConvColor{rgb:yellow,5;red,2.5;white,5}
+\def\ConvReluColor{rgb:yellow,5;red,5;white,5}
+\def\PoolColor{rgb:red,1;black,0.3}
+\def\UnpoolColor{rgb:blue,2;green,1;black,0.3}
+\def\FcColor{rgb:blue,5;red,2.5;white,5}
+\def\FcReluColor{rgb:blue,5;red,5;white,4}
+\def\SoftmaxColor{rgb:magenta,5;black,7}   
+\def\SumColor{rgb:blue,5;green,15}
+
+\newcommand{\copymidarrow}{\tikz \draw[-Stealth,line width=0.8mm,draw={rgb:blue,4;red,1;green,1;black,3}] (-0.3,0) -- ++(0.3,0);}
+
+\begin{document}
+\begin{tikzpicture}
+\tikzstyle{connection}=[ultra thick,every node/.style={sloped,allow upside down},draw=\edgecolor,opacity=0.7]
+\tikzstyle{copyconnection}=[ultra thick,every node/.style={sloped,allow upside down},draw={rgb:blue,4;red,1;green,1;black,3},opacity=0.7]
+
+\node[canvas is zy plane at x=0] (inputs) at (-6,0,0) {\includegraphics[width=8.2cm,height=8.2cm]{./examples/fcn8s/cats.jpg}};
+
+\pic[shift={(-4,0,0)}] at (0,0,0) 
+    {Box={
+        name=Extra,
+        caption=Extra,
+        fill=\UnpoolColor,
+        height=4,
+        width=20,
+        depth=4
+        }
+    };
+
+\pic[shift={(4,0,0)}] at (Extra-east) 
+    {Box={
+        name=Conv,
+        caption=Fused Conv Layer 0,
+        xlabel={{16, }},
+        ylabel=416,
+        zlabel=416,
+        fill=\ConvColor,
+        height=41,
+        width=4,
+        depth=41
+        }
+    };
+
+\pic[shift={ (0,0,0) }] at (Conv-east) 
+    {Box={
+        name=pool2,
+        caption=,
+        fill=\PoolColor,
+        opacity=0.5,
+        height=32,
+        width=1,
+        depth=32
+        }
+    };
+
+\draw [connection]  (Extra-east)    -- node {\midarrow} (Conv-west);
+
+\pic[shift={(4,0,0)}] at (pool2-east) 
+    {Box={
+        name=Conv_1,
+        caption=Fused Conv Layer 1,
+        xlabel={{32, }},
+        ylabel=208,
+        zlabel=208,
+        fill=\ConvColor,
+        height=34,
+        width=4,
+        depth=34
+        }
+    };
+
+\pic[shift={ (0,0,0) }] at (Conv_1-east) 
+    {Box={
+        name=pool2_1,
+        caption=,
+        fill=\PoolColor,
+        opacity=0.5,
+        height=27,
+        width=1,
+        depth=27
+        }
+    };
+
+\draw [connection]  (pool2-east)    -- node {\midarrow} (Conv_1-west);
+
+\pic[shift={(4,0,0)}] at (pool2_1-east) 
+    {Box={
+        name=Conv_2,
+        caption=Fused Conv Layer 2,
+        xlabel={{64, }},
+        ylabel=104,
+        zlabel=104,
+        fill=\ConvColor,
+        height=27,
+        width=4,
+        depth=27
+        }
+    };
+
+\pic[shift={ (0,0,0) }] at (Conv_2-east) 
+    {Box={
+        name=pool2_2,
+        caption= ,
+        fill=\PoolColor,
+        opacity=0.5,
+        height=23,
+        width=1,
+        depth=23
+        }
+    };
+
+\draw [connection]  (pool2_1-east)    -- node {\midarrow} (Conv_2-west);
+
+\pic[shift={(4,0,0)}] at (pool2_2-east) 
+    {Box={
+        name=Conv_3,
+        caption=Fused Conv Layer 3,
+        xlabel={{128, }},
+        ylabel=52,
+        zlabel=52,
+        fill=\ConvColor,
+        height=23,
+        width=4,
+        depth=23
+        }
+    };
+
+\pic[shift={ (0,0,0) }] at (Conv_3-east) 
+    {Box={
+        name=pool2_3,
+        caption= ,
+        fill=\PoolColor,
+        opacity=0.5,
+        height=19,
+        width=1,
+        depth=19
+        }
+    };
+
+\draw [connection]  (pool2_2-east)    -- node {\midarrow} (Conv_3-west);
+
+\pic[shift={(4,0,0)}] at (pool2_3-east) 
+    {Box={
+        name=Conv_4,
+        caption=Fused Conv Layer 4,
+        xlabel={{256, }},
+        ylabel=26,
+        zlabel=26,
+        fill=\ConvColor,
+        height=19,
+        width=4,
+        depth=19
+        }
+    };
+
+\pic[shift={ (0,0,0) }] at (Conv_4-east) 
+    {Box={
+        name=pool2_4,
+        caption= ,
+        fill=\PoolColor,
+        opacity=0.5,
+        height=17,
+        width=1,
+        depth=17
+        }
+    };
+
+\draw [connection]  (pool2_3-east)    -- node {\midarrow} (Conv_4-west);
+
+\pic[shift={(4,0,0)}] at (pool2_4-east) 
+    {Box={
+        name=Conv_5,
+        caption=Fused Conv Layer 5,
+        xlabel={{512, }},
+        ylabel=13,
+        zlabel=13,
+        fill=\ConvColor,
+        height=17,
+        width=4,
+        depth=17
+        }
+    };
+
+\pic[shift={ (0,0,0) }] at (Conv_5-east) 
+    {Box={
+        name=pool2_5,
+        caption= ,
+        fill=\PoolColor,
+        opacity=0.5,
+        height=15,
+        width=1,
+        depth=15
+        }
+    };
+
+\draw [connection]  (pool2_4-east)    -- node {\midarrow} (Conv_5-west);
+
+\pic[shift={(4,0,0)}] at (pool2_5-east) 
+    {Box={
+        name=Conv_6,
+        caption=Conv Layer 6,
+        xlabel={{1024, }},
+        ylabel=13,
+        zlabel=13,
+        fill=\ConvColor,
+        height=17,
+        width=4,
+        depth=17
+        }
+    };
+
+\draw [connection]  (pool2_5-east)    -- node {\midarrow} (Conv_6-west);
+
+\pic[shift={(4,0,0)}] at (Conv_6-east) 
+    {Box={
+        name=Conv_7,
+        caption=Conv Layer 7,
+        xlabel={{256, }},
+        ylabel=13,
+        zlabel=13,
+        fill=\ConvColor,
+        height=17,
+        width=4,
+        depth=17
+        }
+    };
+
+\draw [connection]  (Conv_6-east)    -- node {\midarrow} (Conv_7-west);
+
+\pic[shift={(4,0,0)}] at (Conv_7-east) 
+    {Box={
+        name=Conv_8,
+        caption=Conv Layer 8,
+        xlabel={{512, }},
+        ylabel=13,
+        zlabel=13,
+        fill=\ConvColor,
+        height=17,
+        width=4,
+        depth=17
+        }
+    };
+
+\draw [connection]  (Conv_7-east)    -- node {\midarrow} (Conv_8-west);
+
+\pic[shift={(4,0,0)}] at (Conv_8-east) 
+    {Box={
+        name=Conv_9,
+        caption=Conv Layer 9,
+        xlabel={{255, }},
+        ylabel=13,
+        zlabel=13,
+        fill=\ConvColor,
+        height=17,
+        width=4,
+        depth=17
+        }
+    };
+
+\draw [connection]  (Conv_8-east)    -- node {\midarrow} (Conv_9-west);
+
+\pic[shift={(4,0,0)}] at (Conv_9-east) 
+    {Box={
+        name=RegionYolo,
+        caption=RegionYolo,
+        fill=\SoftmaxColor,
+        height=8,
+        width=8,
+        depth=8
+        }
+    };
+
+\draw [connection]  (Conv_9-east)    -- node {\midarrow} (RegionYolo-west);
+
+\pic[shift={(4,-5,0)}] at (Conv_9-east) 
+    {Box={
+        name=Conv_10,
+        caption=Conv Layer 10,
+        xlabel={{256, }},
+        ylabel=13,
+        zlabel=13,
+        fill=\ConvColor,
+        height=17,
+        width=4,
+        depth=17
+        }
+    };
+
+\draw [connection]  (Conv_9-east)    -- node {\midarrow} (Conv_10-west);
+
+\pic[shift={(9,-5,0)}] at (Conv_9-east) 
+    {Box={
+        name=ResizeNearestNeighbor,
+        caption=Resize Nearest Neighbor,
+        fill=\SumColor,
+        height=15,
+        width=6,
+        depth=15
+        }
+    };
+
+\draw [connection]  (Conv_10-east)    -- node {\midarrow} (ResizeNearestNeighbor-west);
+
+\pic[shift={(4,0,0)}] at (ResizeNearestNeighbor-east) 
+    {Box={
+        name=Conv_11,
+        caption=Conv Layer 11,
+        xlabel={{256, }},
+        ylabel=13,
+        zlabel=13,
+        fill=\ConvColor,
+        height=17,
+        width=4,
+        depth=17
+        }
+    };
+
+\draw [connection]  (Conv_4-east)    -- node {\midarrow} (Conv_11-west);
+
+\draw [connection]  (ResizeNearestNeighbor-east)    -- node {\midarrow} (Conv_11-west);
+
+\pic[shift={(4,0,0)}] at (Conv_11-east) 
+    {Box={
+        name=Conv_12,
+        caption=Conv Layer 12,
+        xlabel={{255, }},
+        ylabel=13,
+        zlabel=13,
+        fill=\ConvColor,
+        height=17,
+        width=4,
+        depth=17
+        }
+    };
+
+\draw [connection]  (Conv_11-east)    -- node {\midarrow} (Conv_12-west);
+
+\pic[shift={(4,0,0)}] at (Conv_12-east) 
+    {Box={
+        name=RegionYolo2,
+        caption=RegionYolo2,
+        fill=\SoftmaxColor,
+        height=8,
+        width=8,
+        depth=8
+        }
+    };
+
+\draw [connection]  (Conv_12-east)    -- node {\midarrow} (RegionYolo2-west);
+
+\end{tikzpicture}
+\end{document}

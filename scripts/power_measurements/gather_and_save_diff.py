@@ -49,8 +49,6 @@ def main():
                         help='number of samples to gather', required=False)
     parser.add_argument("-s", '--samples_per_channel', default=500000, type=int,
                         help='number of samples per channel', required=False)
-    parser.add_argument("-g", '--grow_fact', default=0.1, type=float,
-                        help='factor to scale the graph', required=False)
     parser.add_argument("-sr", '--resistor', default=0.1, type=float,
                         help='value of the shunt resistor', required=False)
 
@@ -190,49 +188,42 @@ def main():
                         print('chan =',
                               i + low_channel, ': ',
                               '{:.6f} V'.format(data[index + i]))
-                    #print(np.asarray(data[0::2]) - np.asarray(data[1::2]))
 
                     if args.show:
                         # R_s = 0.1 ohm, I = U / R = data / 0.1 = data * 10
                         data_plt = np.asarray(data) / args.resistor
-                        #print(data_plt[0:1000])
-                        #sys.exit()
 
                         # scale the figure with data in the middle
-                        grow_fact = args.grow_fact
+                        grow_fact = 0.1
                         min_data, max_data = min(data_plt), max(data_plt)
 
                         if cnt % 5 == 0:
-                            ten_s_max = 0
-                            ten_s_min = 0
-
+                            ten_s_max = -1000000
+                            ten_s_min = 1000000
                         if max_data > ten_s_max:
-                            clear_eol()
                             ten_s_max = max_data
-                            print("new max : ", round(ten_s_max,4), " V")
                         if min_data < ten_s_min:
-                            clear_eol()
                             ten_s_min = min_data
-                            print("new min : ", round(ten_s_min, 4), " V")
 
                         plt_offset = (ten_s_max - ten_s_min) / 2
                         if plt_offset != 0:
-                            plt.ylim(ten_s_min - grow_fact*plt_offset, ten_s_max + grow_fact*plt_offset)
-                        #plt.ylim(-0.1, 0.2)
-                        #plt.autoscale(enable=False, axis=None, tight=None)
+                            print(ten_s_min, ten_s_max, plt_offset)
+                            plt.ylim(ten_s_min - plt_offset, ten_s_max + plt_offset)
+                        #plt.ylim(1.4, 2.4)
 
                         line1.set_xdata(np.arange(len(data_plt))*(1000/rate))
                         line1.set_ydata(data_plt)
+                        try:
+                            figure.canvas.draw()
+                            figure.canvas.flush_events()
+                        except:
+                            print("Exception in draw or flush_events methods. Exiting.")
+                            break
 
-                        figure.canvas.draw()
-
-                        figure.canvas.flush_events()
-
-                    if args.save and not data_already_saved and cnt == 10:
+                    if args.save and not data_already_saved and cnt == 1:
                         with open(os.path.join(data_dir, data_fname), "wb") as f:
                             np.save(f, np.asarray(data_plt))
 
-                    #sleep(0.1)
                 except (ValueError, NameError, SyntaxError):
                     break
         except KeyboardInterrupt:
