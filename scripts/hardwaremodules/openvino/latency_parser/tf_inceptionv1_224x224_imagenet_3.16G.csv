@@ -1,0 +1,27 @@
+Command line parameters;
+-d;MYRIAD
+--path_to_model;/home/matvey/projects/models/xilinx_models/xilinx_model_movid/tf_inceptionv1_224x224_imagenet_3.16G.xml
+-niter;10
+-pc;
+-report_type;average_counters
+-nireq;1
+--report_folder;reports
+-api;sync
+;
+Configuration setup;
+topology;deploy
+target device;MYRIAD
+API;sync
+precision;UNSPECIFIED
+batch size;1
+number of iterations;10
+number of parallel infer requests;1
+duration (ms);0
+;
+Execution results;
+read network time (ms);46.24
+load network time (ms);1830.16
+total execution time (ms);187.53
+total number of iterations;10
+latency (ms);18.7
+throughput;53.48
