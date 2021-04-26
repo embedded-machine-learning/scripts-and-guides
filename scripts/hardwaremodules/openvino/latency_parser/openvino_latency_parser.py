@@ -19,7 +19,7 @@ from datetime import datetime
 # keywords used in the Openvino reports
 # extract from info rep: name, hardware, batch, mode (sync,async), throughput, latency
 keywords = ["target device", "--path_to_model", "number of parallel infer requests",
-                        "API", "precision", "batch size", "latency (ms)", "throughput"]
+                        "API", "batch size", "latency (ms)", "throughput"]#, "precision"]
 # keywords used in the EML data structure
 latency_keywords = ["Date", "Model", "Model_Short",	"Framework", "Network", "Resolution", "Dataset", "Custom_Parameters",
                     "Hardware", "Hardware_Optimization", "Batch_Size", "Throughput", "Mean_Latency", "Latencies"]
@@ -82,27 +82,25 @@ def extract_information_inf_rep(report_data):
     for row in report_data:
         if row == []:
             continue  # if line is empty, skip row
+
         if len(row) > 0 and row[0] in keywords:
+            print(row)
             try:
-                #print(row[0], row[1])
                 if row[0] == "--path_to_model":
                     # augment the data - more information can be extracted from model file path
                     # e.g. /home/matvey/projects/models/xilinx_models/xilinx_model_movid/tf2oda_ssdmobilenetv2_300x300_pedestrian_D100_LR08.csv
                     extracted_inf["--path_to_model"] = row[1]
-                    if "/" in row[1]:
-
-                        if ".xml" in row[1]:
-                            whole_name = row[1].split("/")[-1].split(".xml")[0]
-                            extracted_inf["full_name"] = whole_name
-
-                            if "_" in whole_name:
+                    if "/" in extracted_inf["--path_to_model"]:
+                        if ".xml" in extracted_inf["--path_to_model"]:
+                            extracted_inf["full_name"] = extracted_inf["--path_to_model"].split("/")[-1].split(".xml")[0] # get full name from path to model
+                            if "_" in extracted_inf["full_name"]:
                                 try:
-                                    extracted_inf["short_name"] = whole_name.split("_")[1]
-                                    extracted_inf["framework"] = whole_name.split("_")[0]
-                                    extracted_inf["resolution"] = whole_name.split("_")[2]
-                                    extracted_inf["custom_params"] = whole_name.split("_")[4:]
+                                    extracted_inf["short_name"] = extracted_inf["full_name"].split("_")[1]
+                                    extracted_inf["framework"] = extracted_inf["full_name"].split("_")[0]
+                                    extracted_inf["resolution"] = extracted_inf["full_name"].split("_")[2]
+                                    extracted_inf["custom_params"] = extracted_inf["full_name"].split("_")[4:]
                                 except:
-                                    print("Could not split ", whole_name, " to extract data, because a '_' is missing. " \
+                                    print("Could not split ", extracted_inf["full_name"], " to extract data, because a '_' is missing. " \
                                                                           "is the format correct?")
                             else:
                                 extracted_inf["short_name"] = None
@@ -112,9 +110,13 @@ def extract_information_inf_rep(report_data):
                         else:
                             extracted_inf["full_name"] = None
                     else:
-                        print("No ’/’ in ", whole_name, ". Please check if parsed information is correct.")
+                        print("No ’/’ in ", extracted_inf["full_name"], ". Please check if parsed information is correct.")
                     continue
+                if row[0] == "target device" and row[1] == "MYRIAD":
+                    extracted_inf["precision"] = "FP16"
+
                 extracted_inf[row[0]] = row[1] # add data to dict
+                print("filling in",row[1])
             except:
                 continue # if row[0] not in keywords, skip row
 
