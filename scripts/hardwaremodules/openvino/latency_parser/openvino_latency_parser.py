@@ -7,6 +7,12 @@
 # Date Model Model_Short Framework Network Resolution Dataset Custom_Parameters Hardware Hardware_Optimization DetectionBoxes_Precision/mAP DetectionBoxes_Precision/mAP@.50IOU DetectionBoxes_Precision/mAP@.75IOU DetectionBoxes_Precision/mAP (small) DetectionBoxes_Precision/mAP (medium) DetectionBoxes_Precision/mAP (large) DetectionBoxes_Recall/AR@1 DetectionBoxes_Recall/AR@10 DetectionBoxes_Recall/AR@100 DetectionBoxes_Recall/AR@100 (small) DetectionBoxes_Recall/AR@100 (medium) DetectionBoxes_Recall/AR@100 (large)
 # Date Model Model_Short Framework Network Resolution Dataset Custom_Parameters Hardware Hardware_Optimization Batch_Size Throughput Mean_Latency Latencies
 
+# EXAMPLE USAGE - the following command extracts infos from reports and parses them into a new file
+# python3 openvino_latency_parser.py --avg_rep tf_inceptionv1_224x224_imagenet_3.16G_avg_cnt_rep.csv --inf_rep tf_inceptionv1_224x224_imagenet_3.16G.csv --save_new
+
+#EXAMPLE USAGE - the following command extracts infos from reports and appends them to a new line of the existing_file csv
+# python3 openvino_latency_parser.py --avg_rep tf_inceptionv1_224x224_imagenet_3.16G_avg_cnt_rep.csv --inf_rep tf_inceptionv1_224x224_imagenet_3.16G.csv --existing_file latency_tf_inceptionv1_224x224_imagenet_3.16G.csv
+
 import os, sys, csv, argparse
 from datetime import datetime
 
@@ -124,7 +130,7 @@ def reformat_inf(extracted_inf):
     new_frame.append(extracted_inf["short_name"])                   # Network
     new_frame.append(extracted_inf["resolution"])                   # Resolution
     new_frame.append(None)                                          # Dataset
-    new_frame.append((extracted_inf["number of parallel infer requests"], extracted_inf["API"], extracted_inf["precision"], extracted_inf["custom_params"])) # Custom_Parameters
+    new_frame.append(list((extracted_inf["number of parallel infer requests"], extracted_inf["API"], extracted_inf["precision"], extracted_inf["custom_params"]))) # Custom_Parameters
     new_frame.append(extracted_inf["target device"])                # Hardware
     new_frame.append(None)                                          # Hardware_Optimization
     new_frame.append(extracted_inf["batch size"])                   # Batch_Size
