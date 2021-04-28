@@ -1,2 +1,0 @@
-Date;Model;Model_Short;Framework;Network;Resolution;Dataset;Custom_Parameters;Hardware;Hardware_Optimization;Batch_Size;Throughput;Mean_Latency;Latencies
-2021-04-22 13:10:30;tf_inceptionv1_224x224_imagenet_3.16G;inceptionv1;tf;inceptionv1;224x224;;('1', 'sync', 'UNSPECIFIED', ['3.16G']);MYRIAD;;1;53.48;18.7;[None]
