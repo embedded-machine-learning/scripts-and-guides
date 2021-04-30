@@ -15,12 +15,7 @@ We collect scripts and guides that help us in our everyday work to setup softwar
 
 
 ### Scripts
-* [ Converters](./scripts/conversion/README.md)
-* [ Data Processing Tools](./scripts/data_preparation/README.md)
-* [ Inference Evaluation Tools](./scripts/inference_evaluation/README.md)
-* [ Template Folder Structure for Tensor Flow](./scripts/template_workspace/README.md)
-* [ Training Tools](./scripts/training/README.md)
-* [ Hardware Modules](./scripts/hardwaremodules/)
+* [ EML Toolbox](./scripts)
 
 #### Usage of the Scripts Repository
 - Create a folder for this setup.

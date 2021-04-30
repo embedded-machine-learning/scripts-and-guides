@@ -32,7 +32,7 @@ makes the process faster
 - Hardware configuration optimizers: For each hardware, there is the possibility to setup the hardware for minimum latency, minimum power or minimum energy consumption 
 
 <div align="center">
-  <img src="./_img/emltoolbox_architecture.png", width="500">
+  <img src="./_img/emltoolbox_architecture.png", width="650">
 </div>
 
 
@@ -40,14 +40,14 @@ makes the process faster
 The EML Toolbox is built around uniformity. 
 
 ### Folder Structure
-First, we use a uniform folder structure. The folder structure has the following structure, starting from some base folder:
-- ./eml_projects #Project folder for custom projects)
-		[YOUR PROJECT1]
-		[YOUR PROJECT2]
-- ./scripts-and-guides #Scripts and guides repository
-- ./models #Tesnorflow Object Detection API reporsitory, however optional
-- ./protobuf #Protobuf as part of the Tensorflow Object Detection API
-- ./tf24 #Tensorflow 2.4 python virtual environment
+First, we use a uniform folder structure. The folders has the following structure, starting from some base folder, .e.g $HOME:
+- ./eml_projects 		#Project folder for custom projects)
+	- [YOUR PROJECT1]
+	- [YOUR PROJECT2]
+- ./scripts-and-guides 	#Scripts and guides repository
+- ./models 				#Tesnorflow Object Detection API reporsitory, however optional
+- ./protobuf 			#Protobuf as part of the Tensorflow Object Detection API
+- ./tf24 				#Tensorflow 2.4 python virtual environment
 
 The same structure is used for training as well as inference.
 
@@ -67,10 +67,10 @@ EML Toolbox Scripts:
 * [ Converters](./conversion): Data conversion scripts from e.g. VOC->Coco
 * [ Data Processing Tools](./data_preparation): Renaming tools, partitioning of images into train-validation-test sets
 * [ Hardware Modules](./hardwaremodules): Inference scripts for each hardware
-..* [ eda_server](./hardwaremodules/eda_server): Training scripts for the EDA Servers or other servers
-..* [ NVIDIA Trt](./hardwaremodules/nvidia): Specific inference and model conversion scripts for the NVIDIA platform
-..* [ Intel OpenVino](./hardwaremodules/openvino): Specific inference and model conversion scripts for the Intel platform
-..* [ Hardware Module Interfaces](./hardwaremodules/interfaces): Interface definitions for the hardware to be able to connect to the EML Toolbox
+	* [ eda_server](./hardwaremodules/eda_server): Training scripts for the EDA Servers or other servers
+	* [ NVIDIA Trt](./hardwaremodules/nvidia): Specific inference and model conversion scripts for the NVIDIA platform
+	* [ Intel OpenVino](./hardwaremodules/openvino): Specific inference and model conversion scripts for the Intel platform
+	* [ Hardware Module Interfaces](./hardwaremodules/interfaces): Interface definitions for the hardware to be able to connect to the EML Toolbox
 * [ Inference Evaluation Tools](./inference_evaluation): General inference and model evaluation tools, e.g. TF2 inference engine
 * [ Power Measurements](./power_measurements): Power measurement scripts
 * [ Training Tools](./training): Tools for the use to train models on a server
@@ -107,7 +107,7 @@ Examples:
 - tf2oda_ssdmobilenetv2_320x320_pedestrian
 
 <div align="center">
-  <img src="./_img/uniform_naming_convention.png", width="200">
+  <img src="./_img/uniform_naming_convention.png", width="400">
 </div>
 
 ### Hardware Module Interfaces
