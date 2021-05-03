@@ -89,6 +89,8 @@ flags.DEFINE_string('save_folder', './tmp/', 'folder to save the resulting files
 flags.DEFINE_string('api', 'sync', 'synchronous or asynchronous mode [sync, async]')
 flags.DEFINE_string('niter', '100', 'number of iterations, useful in async mode')
 flags.DEFINE_string('hw', 'MYRIAD', 'MYRIAD/CPU')
+flags.DEFINE_string('batch_size', '1', 'Batch size')
+flags.DEFINE_string('nireq', '1', 'Number of parallel requests in async mode')
 flags.DEFINE_string('size', '[1,224,224,3]', '[1,224,224,3]')
 flags.DEFINE_string('openvino_path', '/opt/intel/openvino', 'OpenVino path')
 flags.DEFINE_string('output_dir', 'profiling_data', 'Report output directory')
@@ -114,28 +116,32 @@ def perform_inference(bench_app_file, is_linux, xml_path):
         report_dir += "_sync"
         niter_str = ""
     elif api == "async":
-        report_dir += "_async_" + str(niter)
+        report_dir += "_async_" #+ str(niter)
         niter_str = str(niter)
     if not os.path.isdir(report_dir):
         os.makedirs(report_dir)
     if is_linux:
         c_bench = ("python3 " + bench_app_file +
-                   " -m " + xml_path +
-                   " -d " + FLAGS.hw +
-                   # " -b 1 " +
-                   " -api " + FLAGS.api +
-                   # " --exec_graph_path " + os.path.join(graph_dir, "graph") +
-                   " -niter " + str(niter) +
-                   " --report_type average_counters" +
-                   " --report_folder " + report_dir)
+                   " --path_to_model " + xml_path)
+
     else:
         c_bench = ("python " + "\"" + bench_app_file + "\"" +
-                   " -m " + "\"" + xml_path + "\"" +
-                   " -d " + FLAGS.hw +
-                   # " -b 1 " +
+                   " --path_to_model " + "\"" + xml_path + "\"")
+                   # " -d " + FLAGS.hw +
+                   # " -b " + FLAGS.batch_size +
+                   # " -api " + FLAGS.api +
+                   # # " --exec_graph_path " + os.path.join(graph_dir, "graph") +
+                   # " -niter " + str(niter) +
+                   # " --report_type average_counters" +
+                   # " --report_folder " + report_dir)
+
+    c_bench = c_bench + (" -d " + FLAGS.hw +
+                   " -b " + FLAGS.batch_size +
                    " -api " + FLAGS.api +
                    # " --exec_graph_path " + os.path.join(graph_dir, "graph") +
                    " -niter " + str(niter) +
+                   " -pc " +
+                   " -nireq " + FLAGS.nireq +
                    " --report_type average_counters" +
                    " --report_folder " + report_dir)
     # c_bench = ("python3 " + bench_app_file +
