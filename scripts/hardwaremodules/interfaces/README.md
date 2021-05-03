@@ -56,7 +56,45 @@ The following column headers shall be used for performance of object detection e
 - DetectionBoxes_Recall/AR@100 (medium): Part of the standard Coco metric
 - DetectionBoxes_Recall/AR@100 (large): Part of the standard Coco metric
 
-Hint: In the programming of the interfaces, the id can be passed between the latency and the performance measurements via a temporary file identifier.tmp, which is deleted after the last usage in the execution script.
+Hint: In the programming of the interfaces, the id can be passed between the latency and the performance measurements via a temporary file e.g. identifier.tmp, which is deleted after the last usage in the execution script.
+
+To get to the performance interface, it is necessary to collect the detections from the inference engine. The easiest way is to convert the output of the inference engine to a 
+detections.csv file like [ hw_module_example_detections.csv](./hw_module_example_detections.csv). This is the format of tensorflow 2. It contains the following attributes:
+- filename
+- width
+- height 
+- class
+- xmin
+- ymin
+- xmax
+- ymax
+- score
+
+The detections file can then be converted to a performance file with the following commands using the scripts 
+[ convert_tfcsv_to_pycocodetections.py](../../conversion/convert_tfcsv_to_pycocodetections.py) and 
+[ objdet_pycoco_evaluation.py](../../inference_evaluation/objdet_pycoco_evaluation.py):
+```
+echo #====================================#
+echo # Convert to Pycoco Tools JSON Format
+echo #====================================#
+echo Convert TF CSV to Pycoco Tools csv
+python3 $SCRIPTPREFIX/conversion/convert_tfcsv_to_pycocodetections.py \
+--annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
+--output_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json"
+
+echo #====================================#
+echo # Evaluate with Coco Metrics
+echo #====================================#
+echo coco evaluation
+python3 $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
+--groundtruth_file="annotations/coco_pets_validation_annotations.json" \
+--detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
+--output_file="results/performance_$HARDWARENAME.csv" \
+--model_name=$MODELNAME \
+--hardware_name=$HARDWARENAME
+```
+
+So, for each hardware, it is actually enough to convert the output into detections.csv.
 
 ## Upcoming
 - Create a merge script that creates only one csv file entry from both
