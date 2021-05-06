@@ -4,13 +4,21 @@ import numpy as np
 from openvino.inference_engine import IECore
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='NCS2 settings test')
-    parser.add_argument("-m", '--model', default='./model.xml',
-                        help='model to test with', type=str, required=False)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="NCS2 settings test")
+    parser.add_argument(
+        "-m",
+        "--model",
+        default="./model.xml",
+        help="model to test with",
+        type=str,
+        required=False,
+    )
     args = parser.parse_args()
 
-    model_name = args.model.split("/")[-1:][0]  # extract model name from parsed model path
+    model_name = args.model.split("/")[-1:][
+        0
+    ]  # extract model name from parsed model path
 
     if not ".xml" in model_name:
         sys.exit("Invalid model xml given!")
@@ -46,12 +54,12 @@ if __name__ == '__main__':
 
     print("Starting inference")
     res = exec_net.infer(inputs={input_blob: net_in})
-    #print(res)
+    # print(res)
     print("\nType of result object", type(res))
 
     res_new = {}
-    for key,val in res.items():
-        res_new = {key : val.tolist()}
+    for key, val in res.items():
+        res_new = {key: val.tolist()}
 
     print("Saving results to file")
     with open("inf_res_" + model_name.split(".xml")[0] + ".json", "w") as f:
@@ -65,6 +73,6 @@ if __name__ == '__main__':
 
     res_load_back_new = {}
     for key, val in res_load_back.items():
-        #print(key + "\n")
-        #print(np.asarray(val))
-        res_load_back_new = {key: np.asarray(val)} # same structure as original result
+        # print(key + "\n")
+        # print(np.asarray(val))
+        res_load_back_new = {key: np.asarray(val)}  # same structure as original result
