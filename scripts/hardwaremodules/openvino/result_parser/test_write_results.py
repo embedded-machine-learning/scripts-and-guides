@@ -63,9 +63,6 @@ if __name__ == "__main__":
         image = image.transpose((2, 0, 1))
         images[i] = image
 
-    # generate random input for network
-    net_in = np.random.random(size=rand_size)
-
     print("Loading network")
     exec_net = ie.load_network(network=net, device_name="MYRIAD", num_requests=1)
 
