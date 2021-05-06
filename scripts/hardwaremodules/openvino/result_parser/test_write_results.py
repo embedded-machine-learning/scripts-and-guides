@@ -67,7 +67,7 @@ if __name__ == "__main__":
     exec_net = ie.load_network(network=net, device_name="MYRIAD", num_requests=1)
 
     print("Starting inference")
-    res = exec_net.infer(inputs={input_blob: net_in})
+    res = exec_net.infer(inputs={input_blob: images})
     # print(res)
     print("\nType of result object", type(res))
 
