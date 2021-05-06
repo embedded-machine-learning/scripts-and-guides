@@ -38,13 +38,7 @@ if __name__ == "__main__":
     net.input_info[input_blob].precision = "U8"
     net.batch_size = 1
 
-    n, c, h, w = 0, 0, 0, 0
-    if len(in_blob) == 4:
-        n, c, h, w = in_blob
-        rand_size = (n, c, h, w)
-    if len(in_blob) == 3:
-        c, h, w = in_blob
-        rand_size = (c, h, w)
+    n, c, h, w = net.inputs[input_blob].shape
 
     # generate random input for network
     net_in = np.random.random(size=rand_size)
