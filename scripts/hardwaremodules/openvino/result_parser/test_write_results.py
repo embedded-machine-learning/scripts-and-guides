@@ -1,5 +1,7 @@
 import sys, os, json, argparse
 
+import cv2
+import logging as log
 import numpy as np
 from openvino.inference_engine import IECore
 
@@ -49,6 +51,17 @@ if __name__ == "__main__":
 
     n, c, h, w = net.inputs[input_blob].shape
     images = np.ndarray(shape=(n, c, h, w))
+    for i in range(n):
+        image = cv2.imread(args.input[i])
+        if image.shape[:1] != (h, w):
+            log.warning(
+                "Image {} is resized from {} to {}".format(
+                    args.input[i], image.shape[:-1], (h, w)
+                )
+            )
+            image = cv2.resize(image, (w, h))
+        image = image.transpose((2, 0, 1))
+        images[i] = image
 
     # generate random input for network
     net_in = np.random.random(size=rand_size)
