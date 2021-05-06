@@ -39,6 +39,7 @@ if __name__ == "__main__":
     net.batch_size = 1
 
     n, c, h, w = net.inputs[input_blob].shape
+    images = np.ndarray(shape=(n, c, h, w))
 
     # generate random input for network
     net_in = np.random.random(size=rand_size)
