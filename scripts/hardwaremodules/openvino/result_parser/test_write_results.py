@@ -16,8 +16,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-i",
-        "--images",
-        default="./images",
+        "--input",
+        default="./input",
         help="images for the inference",
         type=str,
         required=False,
