@@ -14,6 +14,15 @@ if __name__ == "__main__":
         type=str,
         required=False,
     )
+    parser.add_argument(
+        "-i",
+        "--images",
+        default="./images",
+        help="images for the inference",
+        type=str,
+        required=False,
+    )
+
     args = parser.parse_args()
 
     model_name = args.model.split("/")[-1:][
