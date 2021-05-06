@@ -165,7 +165,21 @@ def extract_information_inf_rep(report_data):
                                     extracted_inf["framework"] = extracted_inf["full_name"].split("_")[0]
                                     extracted_inf["resolution"] = extracted_inf["full_name"].split("_")[2]
                                     extracted_inf["dataset"] = extracted_inf["full_name"].split("_")[3]
-                                    extracted_inf["custom_params"] = extracted_inf["full_name"].split("_")[4:]
+                                    extracted_inf["hwoptimization"] = ""
+                                    #extracted_inf["custom_params"] = extracted_inf["full_name"].split("_")[4:]
+
+                                    custom_list = []
+                                    extracted_inf["custom_params"]=[]
+                                    model_optimizer_prefix="OV"
+                                    if len(extracted_inf["full_name"].split("_", 4)) > 4:
+                                        rest_parameters = extracted_inf["full_name"].split("_", 4)[4]
+
+                                        for r in rest_parameters.split("_"):
+                                            if str(r).startswith(model_optimizer_prefix):
+                                                extracted_inf["hwoptimization"] = r
+                                            else:
+                                                custom_list.append(r)
+                                    extracted_inf['custom_parameters'] = str(custom_list)
                                 except:
                                     print("Could not split ", extracted_inf["full_name"], " to extract data, because a '_' is missing. " \
                                                                           "is the format correct?")
@@ -191,7 +205,7 @@ def extract_information_inf_rep(report_data):
                 continue # if row[0] not in keywords, skip row
 
     #Add OpenVino HW optimization
-    extracted_inf["hwoptimization"] = "OV_" + extracted_inf["precision"]
+    #extracted_inf["hwoptimization"] = "OV_" + extracted_inf["precision"]
 
     return extracted_inf
 

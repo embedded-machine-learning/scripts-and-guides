@@ -44,7 +44,11 @@ for /d %%D in (%MODELFOLDER%\*) do (
 	::For each folder name in exported models, 
 	set MODELNAME=%%~nxD
 	
-	call :perform_inference
+	for %%x in (CPU GPU) do (
+		::For each possible quantization
+		set HARDWARETYPE=%%x
+		call :perform_inference
+	)
 )
 goto :eof
 
@@ -52,16 +56,18 @@ goto :eof
 
 :perform_inference
 
+echo Apply to model %MODELNAME% with precision %HARDWARETYPE%
+
 echo #====================================#
 echo # Infer with OpenVino
 echo #====================================#
 echo "Start latency inference"
 python %SCRIPTPREFIX%\hardwaremodules\openvino\run_pb_bench_sizes.py ^
 -openvino_path %OPENVINOINSTALLDIR% ^
--hw CPU ^
+-hw %HARDWARETYPE% ^
 -batch_size 1 ^
 -api sync ^
--niter 10000 ^
+-niter 100 ^
 -xml exported-models-openvino/%MODELNAME%/saved_model.xml ^
 -output_dir="results/%MODELNAME%/%HARDWARENAME%/OpenVino"
 
@@ -77,8 +83,8 @@ echo # Convert Latencies
 echo #====================================#
 echo "Add measured latencies to result table"
 python %SCRIPTPREFIX%\hardwaremodules\openvino\latency_parser\openvino_latency_parser.py ^
---avg_rep results/%MODELNAME%/%HARDWARENAME%/OpenVino_sync\benchmark_average_counters_report_saved_model_CPU_sync.csv ^
---inf_rep results/%MODELNAME%/%HARDWARENAME%/OpenVino_sync\benchmark_report_saved_model_CPU_sync.csv ^
+--avg_rep results/%MODELNAME%/%HARDWARENAME%/OpenVino_sync\benchmark_average_counters_report_saved_model_%HARDWARETYPE%_sync.csv ^
+--inf_rep results/%MODELNAME%/%HARDWARENAME%/OpenVino_sync\benchmark_report_saved_model_%HARDWARETYPE%_sync.csv ^
 --output_path results/latency.csv
 
 ::--save_new #Always append
