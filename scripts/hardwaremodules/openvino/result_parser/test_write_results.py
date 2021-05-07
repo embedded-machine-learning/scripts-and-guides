@@ -90,7 +90,7 @@ if __name__ == "__main__":
             ymax = np.int(image_height * proposal[6])
             if proposal[2] > 0.5:
                 combination_str = (
-                    str(image_id)
+                    str(proposal[0])
                     + " "
                     + str(image_width)
                     + " "
