@@ -125,23 +125,3 @@ if __name__ == "__main__":
         ],
     )
     dataframe.to_csv("output" + ".csv", index=False)
-
-    res_new = {}
-    for key, val in res.items():
-        res_new = {key: val.tolist()}
-
-    print("Saving results to file")
-    with open("inf_res_" + model_name.split(".xml")[0] + ".json", "w") as f:
-        json.dump(res_new, f)
-        print("wrote result to file")
-
-    print("Open saved dict again to check structure")
-    with open("inf_res_" + model_name.split(".xml")[0] + ".json", "r") as f:
-        res_load_back = json.load(f)
-        print("read results")
-
-    res_load_back_new = {}
-    for key, val in res_load_back.items():
-        # print(key + "\n")
-        # print(np.asarray(val))
-        res_load_back_new = {key: np.asarray(val)}  # same structure as original result
