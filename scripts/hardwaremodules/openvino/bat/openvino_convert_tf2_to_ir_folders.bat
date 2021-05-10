@@ -64,7 +64,7 @@ set APIFILESSD=%SCRIPTPREFIX%\hardwaremodules\openvino\openvino_conversion_confi
 set APIFILE=ERROR
 
 if not x%MODELNAME:ssd=%==x%MODELNAME% (set APIFILE=%APIFILESSD%)
-if not x%MODELNAME:effi=%==x%MODELNAME% (set APIFILE=%APIFILEFF%)
+if not x%MODELNAME:effi=%==x%MODELNAME% (set APIFILE=%APIFILEEFF%)
 echo Use this API file: %APIFILE%
 
 echo "Start conversion"
