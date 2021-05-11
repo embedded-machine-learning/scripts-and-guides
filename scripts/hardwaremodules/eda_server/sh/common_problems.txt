@@ -1,0 +1,31 @@
+Hallo!
+
+Wenn der Task Spooler an EDA01, 02 oder die Endgeräte blockiert ist, sieht man die folgende Meldung:
+=== Init task spooler ===
+Setup task spooler socket for GPU.
+chmod: changing permissions of '/srv/ts_socket/GPU.socket': Operation not permitted
+task spooler output directory: /home/wendt/logs
+Task spooler initialized /srv/ts_socket/GPU.socket
+(tf24) [wendt@eda02 graz-pedestrian]$ ts -l
+c: cannot connect to the server
+(tf24) [wendt@eda02 graz-pedestrian]$
+
+Das Problem ist, dass ein Benutzer den Task Spooler blockiert. Er muss es auch wieder freigeben oder ein Sudo-User
+
+Lösung: Dieses Script aus Scripts-and-guides verwenden
+
+#!/bin/bash
+
+# put in home
+
+echo "Start script with . /[PATH_TO_SCRIPT], not with ./"
+
+echo "=== Init task spooler ==="
+echo "Setup task spooler socket for GPU."
+
+export TS_SOCKET="/srv/ts_socket/GPU.socket"
+chmod 777 /srv/ts_socket/GPU.socket
+export TS_TMPDIR=~/logs
+echo task spooler output directory: ~/logs
+
+echo "Task spooler initialized $TS_SOCKET"
