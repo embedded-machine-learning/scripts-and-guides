@@ -90,6 +90,7 @@ if __name__ == "__main__":
             w, h = w / net_w, h / net_h
 
         for i, detection in enumerate(detections):
+            combination_str = ""
             if len(net.outputs) == 1:
                 _, class_id, confidence, xmin, ymin, xmax, ymax = detection
             else:
@@ -97,31 +98,24 @@ if __name__ == "__main__":
                 xmin, ymin, xmax, ymax, confidence = detection
 
             if confidence > 0.5:
-                label = int(labels[class_id]) if args.labels else int(class_id)
+                label = int(class_id)
                 xmin = int(xmin * w)
                 ymin = int(ymin * h)
                 xmax = int(xmax * w)
                 ymax = int(ymax * h)
-                combination_str = (
-                    str(filename)
-                    + " "
-                    + str(w)
-                    + " "
-                    + str(h)
-                    + " "
-                    + str(label)
-                    + " "
-                    + str(xmin)
-                    + " "
-                    + str(ymin)
-                    + " "
-                    + str(xmax)
-                    + " "
-                    + str(ymax)
-                    + " "
-                    + str(confidence)
+                combined_data.append(
+                    [
+                        filename,
+                        str(w),
+                        str(h),
+                        str(label),
+                        str(xmin),
+                        str(ymin),
+                        str(xmax),
+                        str(ymax),
+                        str(confidence),
+                    ]
                 )
-                combined_data.append([combination_str.strip()])
 
     dataframe = pd.DataFrame(
         combined_data,
