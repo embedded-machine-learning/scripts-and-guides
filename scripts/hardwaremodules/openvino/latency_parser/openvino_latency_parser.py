@@ -64,15 +64,15 @@ parser.add_argument("-ar", '--avg_rep', type=str,
                     help='report containing average counters from the Openvino benchmark app', required=False)
 parser.add_argument("-ir", '--inf_rep', type=str,
                     help='report containing execution information from the Openvino benchmark app', required=False)
-#parser.add_argument("-e", '--existing_file', type=str,
-#                    help='a file in the desired format, where newly extracted data shall be appended', required=False)
+parser.add_argument("-hw", '--hardware_name', default=None, type=str,
+                    help='Hardware name for collecting statistical data in the reports.', required=False)
 parser.add_argument("-l", '--delimiter', type=str, default=";",
                     help='whatever the csv uses as delimiter', required=False)
 parser.add_argument("-o", '--output_path', type=str, default="results/latency.csv",
                     help='Output file to write new or to apped to.', required=False)
 
 parser.add_argument('--save_new', dest='save_new', action='store_true')
-#parser.add_argument('--append', dest='save_new', action='store_false')
+# parser.add_argument('--append', dest='save_new', action='store_false')
 parser.set_defaults(save=False)
 args = parser.parse_args()
 print(args)
@@ -80,9 +80,10 @@ print(args)
 # keywords used in the Openvino reports
 # extract from info rep: name, hardware, batch, mode (sync,async), throughput, latency
 keywords = ["target device", "--path_to_model", "number of parallel infer requests",
-                        "API", "batch size", "latency (ms)", "throughput"]#, "precision"]
+            "API", "batch size", "latency (ms)", "throughput"]  # , "precision"]
 # keywords used in the EML data structure
-latency_keywords = ["Date", "Model", "Model_Short",	"Framework", "Network", "Resolution", "Dataset", "Custom_Parameters",
+latency_keywords = ["Date", "Model", "Model_Short", "Framework", "Network", "Resolution", "Dataset",
+                    "Custom_Parameters",
                     "Hardware", "Hardware_Optimization", "Batch_Size", "Throughput", "Mean_Latency", "Latencies"]
 
 
@@ -127,22 +128,23 @@ def extract_information_avg_rep(report_data):
         # check if the rows contains valid data in format xxx.xxx where the . signifies a float value
         if len(row) > 3 and "." in row[4]:
             if float(row[4]) > 0:
-                #print(row[0], float(row[4]))
+                # print(row[0], float(row[4]))
                 layer_names.append(row[0])
                 layers_durations.append(float(row[4]))
             if row[0] == "Total":
                 network_duration = float(row[4])
-    #print("\nnetwork duration: {0:5f} ms\n".format(network_duration))
+    # print("\nnetwork duration: {0:5f} ms\n".format(network_duration))
 
     return layers_durations, layer_names, network_duration
 
 
 def extract_information_inf_rep(report_data):
     # inf rep data format is ["Command line parameters", parameters]
-    extracted_inf = {} # prepare a dictionary where to put the extracted information into
+    extracted_inf = {}  # prepare a dictionary where to put the extracted information into
 
-    #FIXME: How to handle precisions that are not connected to NCS2?
+    # FIXME: How to handle precisions that are not connected to NCS2?
     extracted_inf["precision"] = "UNSPECIFIED"
+    extracted_inf["custom_params"] = []
 
     for row in report_data:
         if row == []:
@@ -157,8 +159,9 @@ def extract_information_inf_rep(report_data):
                     extracted_inf["--path_to_model"] = row[1]
                     if "/" in extracted_inf["--path_to_model"]:
                         if ".xml" in extracted_inf["--path_to_model"]:
-                            extracted_inf["full_name"] = extracted_inf["--path_to_model"].split("/")[-2] #FIX AW: Model name is always the folder name
-                            #extracted_inf["full_name"] = extracted_inf["--path_to_model"].split("/")[-1].split(".xml")[0] # get full name from path to model
+                            extracted_inf["full_name"] = extracted_inf["--path_to_model"].split("/")[
+                                -2]  # FIX AW: Model name is always the folder name
+                            # extracted_inf["full_name"] = extracted_inf["--path_to_model"].split("/")[-1].split(".xml")[0] # get full name from path to model
                             if "_" in extracted_inf["full_name"]:
                                 try:
                                     extracted_inf["short_name"] = extracted_inf["full_name"].split("_")[1]
@@ -166,11 +169,10 @@ def extract_information_inf_rep(report_data):
                                     extracted_inf["resolution"] = extracted_inf["full_name"].split("_")[2]
                                     extracted_inf["dataset"] = extracted_inf["full_name"].split("_")[3]
                                     extracted_inf["hwoptimization"] = ""
-                                    #extracted_inf["custom_params"] = extracted_inf["full_name"].split("_")[4:]
+                                    # extracted_inf["custom_params"] = extracted_inf["full_name"].split("_")[4:]
 
                                     custom_list = []
-                                    extracted_inf["custom_params"]=[]
-                                    model_optimizer_prefix="OV"
+                                    model_optimizer_prefix = "OV"
                                     if len(extracted_inf["full_name"].split("_", 4)) > 4:
                                         rest_parameters = extracted_inf["full_name"].split("_", 4)[4]
 
@@ -179,10 +181,12 @@ def extract_information_inf_rep(report_data):
                                                 extracted_inf["hwoptimization"] = r
                                             else:
                                                 custom_list.append(r)
-                                    extracted_inf['custom_parameters'] = str(custom_list)
+                                    #extracted_inf['custom_params'] = str(custom_list)
+                                    extracted_inf['custom_params'] = custom_list
                                 except:
-                                    print("Could not split ", extracted_inf["full_name"], " to extract data, because a '_' is missing. " \
-                                                                          "is the format correct?")
+                                    print("Could not split ", extracted_inf["full_name"],
+                                          " to extract data, because a '_' is missing. " \
+                                          "is the format correct?")
                             else:
                                 extracted_inf["short_name"] = None
                                 extracted_inf["framework"] = None
@@ -192,41 +196,51 @@ def extract_information_inf_rep(report_data):
                         else:
                             extracted_inf["full_name"] = None
                     else:
-                        print("No ’/’ in ", extracted_inf["full_name"], ". Please check if parsed information is correct.")
+                        print("No ’/’ in ", extracted_inf["full_name"],
+                              ". Please check if parsed information is correct.")
                     continue
 
-                #FIXME: This is a special case, we need to make it general
+                # FIXME: This is a special case, we need to make it general
                 if row[0] == "target device" and row[1] == "MYRIAD":
                     extracted_inf["precision"] = "FP16"
 
-                extracted_inf[row[0]] = row[1] # add data to dict
-                print("filling in",row[1])
+                extracted_inf[row[0]] = row[1]  # add data to dict
+                print("filling in", row[1])
             except:
-                continue # if row[0] not in keywords, skip row
+                continue  # if row[0] not in keywords, skip row
 
-    #Add OpenVino HW optimization
-    #extracted_inf["hwoptimization"] = "OV_" + extracted_inf["precision"]
+    # Add OpenVino HW optimization
+    # extracted_inf["hwoptimization"] = "OV_" + extracted_inf["precision"]
 
     return extracted_inf
 
 
-def reformat_inf(extracted_inf):
+def reformat_inf(extracted_inf, hardware_name=None):
     # build a dataframe according to the latency data format in latency_keywords
-    new_frame = [str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))] # Date
-    new_frame.append(extracted_inf["full_name"])                    # Model
-    new_frame.append(extracted_inf["short_name"])                   # Model_Short
-    new_frame.append(extracted_inf["framework"])                    # Framework
-    new_frame.append(extracted_inf["short_name"])                   # Network
-    new_frame.append(extracted_inf["resolution"])                   # Resolution
-    new_frame.append(extracted_inf["dataset"])                      # Dataset
-    new_frame.append(list((extracted_inf["number of parallel infer requests"], extracted_inf["API"],
-                           extracted_inf["precision"], extracted_inf["custom_params"]))) # Custom_Parameters
-    new_frame.append(extracted_inf["target device"])                # Hardware
-    new_frame.append(extracted_inf["hwoptimization"])               # Hardware_Optimization
-    new_frame.append(extracted_inf["batch size"])                   # Batch_Size
-    new_frame.append(extracted_inf["throughput"])                   # Throughput
-    new_frame.append(extracted_inf["latency (ms)"])                 # Mean_Latency
-    new_frame.append([None])                                        # Latencies
+    new_frame = [str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))]  # Date
+    new_frame.append(extracted_inf["full_name"])  # Model
+    new_frame.append(extracted_inf["short_name"])  # Model_Short
+    new_frame.append(extracted_inf["framework"])  # Framework
+    new_frame.append(extracted_inf["short_name"])  # Network
+    new_frame.append(extracted_inf["resolution"])  # Resolution
+    new_frame.append(extracted_inf["dataset"])  # Dataset
+
+    custom_complete = list()
+    custom_complete.append(extracted_inf["number of parallel infer requests"])
+    custom_complete.append(extracted_inf["API"])
+    custom_complete.append(extracted_inf["precision"])
+    custom_complete.extend(extracted_inf["custom_params"])
+
+    new_frame.append(custom_complete)  # Custom_Parameters
+    if hardware_name:
+        new_frame.append(hardware_name + "_" + extracted_inf["target device"])  # Hardware_type including hardware device
+    else:
+        new_frame.append(extracted_inf["target device"])  # Hardware_type only
+    new_frame.append(extracted_inf["hwoptimization"])  # Hardware_Optimization
+    new_frame.append(extracted_inf["batch size"])  # Batch_Size
+    new_frame.append(extracted_inf["throughput"])  # Throughput
+    new_frame.append(extracted_inf["latency (ms)"])  # Mean_Latency
+    new_frame.append(None)  # Latencies
     print(new_frame)
     return new_frame
 
@@ -255,6 +269,7 @@ def parse_inf_report(report_path, delimiter):
 
     return extracted_inf
 
+
 def save_file(latency_keywords, reformated_inf, output_path, save_new):
     if not file_exists(output_path) or save_new:
         with open(output_path, "w", newline='') as f:
@@ -269,6 +284,7 @@ def save_file(latency_keywords, reformated_inf, output_path, save_new):
             writer.writerow(reformated_inf)
 
             print("Writing to " + output_path + " successful!")
+
 
 # def save_new_rep(reformated_inf, output_path):
 #     #print(extracted_inf)
@@ -297,7 +313,8 @@ if __name__ == "__main__":
     if args.avg_rep:
         print("Parsing the average counters report...")
         layers_durations, layer_names, network_duration = parse_avg_report(args.avg_rep, args.delimiter)
-        print("\nlayers_durations\n", layers_durations, "\nlayer_names\n",layer_names,"\nnetwork_duration\n", network_duration)
+        print("\nlayers_durations\n", layers_durations, "\nlayer_names\n", layer_names, "\nnetwork_duration\n",
+              network_duration)
     else:
         print("Skipping the average counters report...")
 
@@ -305,7 +322,7 @@ if __name__ == "__main__":
         print("Parsing the inference information report...")
         extracted_inf = parse_inf_report(args.inf_rep, args.delimiter)
         print("\nextracted_inf\n", extracted_inf)
-        reformated_inf = reformat_inf(extracted_inf)
+        reformated_inf = reformat_inf(extracted_inf, args.hardware_name)
         print("\nreformated_inf\n", reformated_inf)
     else:
         print("Skipping the inference information report...")
