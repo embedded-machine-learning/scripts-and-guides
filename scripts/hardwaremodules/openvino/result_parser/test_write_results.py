@@ -53,19 +53,19 @@ if __name__ == "__main__":
     n, c, h, w = net.inputs[input_blob].shape
     images = np.ndarray(shape=(n, c, h, w))
     images_hw = []
-    for i in range(n):
-        image = cv2.imread(args.input[i])
+    for filename in os.listdir(args.input):
+        image = cv2.imread(os.path.join(args.input, filename))
         image_height, image_width = image.shape[:-1]
         images_hw.append((image_height), (image_width))
         if image.shape[:1] != (h, w):
             log.warning(
                 "Image {} is resized from {} to {}".format(
-                    args.input[i], image.shape[:-1], (h, w)
+                    filename, image.shape[:-1], (h, w)
                 )
             )
             image = cv2.resize(image, (w, h))
         image = image.transpose((2, 0, 1))
-        images[i] = image
+        images.append(image)
 
     print("Loading network")
     exec_net = ie.load_network(network=net, device_name="MYRIAD", num_requests=1)
