@@ -50,51 +50,64 @@ if __name__ == "__main__":
     net.input_info[input_blob].precision = "U8"
     net.batch_size = 1
 
-    n, c, h, w = net.inputs[input_blob].shape
-    images = np.ndarray(shape=(n, c, h, w))
-    images_hw = []
-    for filename in os.listdir(args.input):
-        image = cv2.imread(os.path.join(args.input, filename))
-        image_height, image_width = image.shape[:-1]
-        images_hw.append((image_height, image_width))
-        if image.shape[:1] != (h, w):
-            log.warning(
-                "Image {} is resized from {} to {}".format(
-                    filename, image.shape[:-1], (h, w)
-                )
-            )
-            image = cv2.resize(image, (w, h))
-        image = image.transpose((2, 0, 1))
-        np.append(images, image)
-
     print("Loading network")
     exec_net = ie.load_network(network=net, device_name="MYRIAD", num_requests=1)
 
-    print("Starting inference")
-    res = exec_net.infer(inputs={input_blob: images})
-    # print(res)
-    print("\nType of result object", type(res))
-
-    res = res[out_blob]
-    data = res[0][0]
     combined_data = []
-    for number, proposal in enumerate(data):
-        if proposal[2] > 0:
-            image_id = np.int(proposal[0])
-            image_height, image_width = images_hw[image_id]
-            label = np.int(proposal[1])
-            confidence = proposal[2]
-            xmin = np.int(image_width * proposal[3])
-            ymin = np.int(image_height * proposal[4])
-            xmax = np.int(image_width * proposal[5])
-            ymax = np.int(image_height * proposal[6])
-            if proposal[2] > 0.5:
+    _, _, net_h, net_w = net.input_info[input_blob].input_data.shape
+
+    for filename in os.lisdir(args.input):
+        original_image = cv2.imread(os.path.join(args.input, filename))
+        image = original_image.copy()
+
+        if image.shape[:-1] != (net_h, net_w):
+            log.warning(
+                f"Image {args.input} is resized from {image.shape[:-1]} to {(net_h, net_w)}"
+            )
+            image = cv2.resize(image, (net_w, net_h))
+
+        image = image.transpose((2, 0, 1))
+        image = np.expand_dims(image, axis=0)
+
+        print("\nStarting inference for picture: " + filename)
+        res = exec_net.infer(inputs={input_blob: image})
+
+        # print(res)
+        print("\nType of result object", type(res))
+
+        output_image = original_image.copy()
+        h, w, _ = output_image.shape
+
+        if len(net.outputs) == 1:
+            res = res[out_blob]
+            # Change a shape of a numpy.ndarray with results ([1, 1, N, 7]) to get another one ([N, 7]),
+            # where N is the number of detected bounding boxes
+            detections = res.reshape(-1, 7)
+        else:
+            detections = res["boxes"]
+            labels = res["labels"]
+            # Redefine scale coefficients
+            w, h = w / net_w, h / net_h
+
+        for i, detection in enumerate(detections):
+            if len(net.outputs) == 1:
+                _, class_id, confidence, xmin, ymin, xmax, ymax = detection
+            else:
+                class_id = labels[i]
+                xmin, ymin, xmax, ymax, confidence = detection
+
+            if confidence > 0.5:
+                label = int(labels[class_id]) if args.labels else int(class_id)
+                xmin = int(xmin * w)
+                ymin = int(ymin * h)
+                xmax = int(xmax * w)
+                ymax = int(ymax * h)
                 combination_str = (
-                    str(proposal[0])
+                    str(filename)
                     + " "
-                    + str(image_width)
+                    + str(w)
                     + " "
-                    + str(image_height)
+                    + str(h)
                     + " "
                     + str(label)
                     + " "
