@@ -56,7 +56,7 @@ if __name__ == "__main__":
     for filename in os.listdir(args.input):
         image = cv2.imread(os.path.join(args.input, filename))
         image_height, image_width = image.shape[:-1]
-        images_hw.append((image_height), (image_width))
+        images_hw.append((image_height, image_width))
         if image.shape[:1] != (h, w):
             log.warning(
                 "Image {} is resized from {} to {}".format(
