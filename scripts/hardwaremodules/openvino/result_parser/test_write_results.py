@@ -65,7 +65,7 @@ if __name__ == "__main__":
             )
             image = cv2.resize(image, (w, h))
         image = image.transpose((2, 0, 1))
-        images.append(image)
+        np.append(images, image)
 
     print("Loading network")
     exec_net = ie.load_network(network=net, device_name="MYRIAD", num_requests=1)
