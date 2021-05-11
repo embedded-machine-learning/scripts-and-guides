@@ -25,6 +25,14 @@ if __name__ == "__main__":
         type=str,
         required=False,
     )
+    parser.add_argument(
+        "-d",
+        "--device",
+        default="CPU",
+        help="target device to run the inference",
+        type=str,
+        required=False,
+    )
 
     args = parser.parse_args()
 
@@ -51,7 +59,7 @@ if __name__ == "__main__":
     net.batch_size = 1
 
     print("Loading network")
-    exec_net = ie.load_network(network=net, device_name="MYRIAD", num_requests=1)
+    exec_net = ie.load_network(network=net, device_name=args.device, num_requests=1)
 
     combined_data = []
     _, _, net_h, net_w = net.input_info[input_blob].input_data.shape
