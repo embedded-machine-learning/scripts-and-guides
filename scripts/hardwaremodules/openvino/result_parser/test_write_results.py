@@ -56,7 +56,7 @@ if __name__ == "__main__":
     combined_data = []
     _, _, net_h, net_w = net.input_info[input_blob].input_data.shape
 
-    for filename in os.lisdir(args.input):
+    for filename in os.listdir(args.input):
         original_image = cv2.imread(os.path.join(args.input, filename))
         image = original_image.copy()
 
