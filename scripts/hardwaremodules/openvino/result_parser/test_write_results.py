@@ -53,47 +53,47 @@ from openvino.inference_engine import IECore
 
 # Own modules
 
-__author__ = 'Matvey Ivanov'
-__copyright__ = 'Copyright 2021, Christian Doppler Laboratory for ' \
-                'Embedded Machine Learning'
-__credits__ = ['Matvey Ivanov']
-__license__ = 'ISC'
-__version__ = '0.1.0'
-__maintainer__ = 'Matvey Ivanov'
-__email__ = 'matvey.ivanov@tuwien.ac.at'
-__status__ = 'Experiental'
+__author__ = "Matvey Ivanov"
+__copyright__ = (
+    "Copyright 2021, Christian Doppler Laboratory for " "Embedded Machine Learning"
+)
+__credits__ = ["Matvey Ivanov"]
+__license__ = "ISC"
+__version__ = "0.1.0"
+__maintainer__ = "Matvey Ivanov"
+__email__ = "matvey.ivanov@tuwien.ac.at"
+__status__ = "Experiental"
 
 parser = argparse.ArgumentParser(description="NCS2 settings test")
 parser.add_argument(
-        "-m",
-        "--model",
-        default="./model.xml",
-        help="model to test with",
-        type=str,
-        required=False,
-    )
+    "-m",
+    "--model",
+    default="./model.xml",
+    help="model to test with",
+    type=str,
+    required=False,
+)
 parser.add_argument(
-        "-i",
-        "--input",
-        default="./input",
-        help="images for the inference",
-        type=str,
-        required=False,
-    )
+    "-i",
+    "--input",
+    default="./input",
+    help="images for the inference",
+    type=str,
+    required=False,
+)
 parser.add_argument(
-        "-d",
-        "--device",
-        default="CPU",
-        help="target device to run the inference",
-        type=str,
-        required=False,
-    )
+    "-d",
+    "--device",
+    default="CPU",
+    help="target device to run the inference",
+    type=str,
+    required=False,
+)
 
 args = parser.parse_args()
 print(args)
 
 if __name__ == "__main__":
-
 
     model_name = args.model.split("/")[-1:][
         0
