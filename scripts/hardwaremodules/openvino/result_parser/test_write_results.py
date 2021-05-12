@@ -167,10 +167,10 @@ if __name__ == "__main__":
 
             if confidence > 0.5:
                 label = int(class_id)
-                xmin = float(xmin * w)
-                ymin = float(ymin * h)
-                xmax = float(xmax * w)
-                ymax = float(ymax * h)
+                xmin = float(xmin)
+                ymin = float(ymin)
+                xmax = float(xmax)
+                ymax = float(ymax)
                 combined_data.append(
                     [
                         filename,
