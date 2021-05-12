@@ -199,4 +199,4 @@ if __name__ == "__main__":
             "score",
         ],
     )
-    dataframe.to_csv("output" + ".csv", index=False)
+    dataframe.to_csv("output" + ".csv", index=False, sep=";")
