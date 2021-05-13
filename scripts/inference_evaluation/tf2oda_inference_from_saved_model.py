@@ -76,7 +76,7 @@ parser.add_argument("-l", '--labelmap', default='annotations/mscoco_label_map.pb
 parser.add_argument("-s", '--min_score', default=0.5, type=float,
                     help='Max score of detection box to save the image.', required=False)
 parser.add_argument("-out", '--detections_out', default='detections.csv',
-                    help='Labelmap path', required=False)
+                    help='Output file detections', required=False)
 parser.add_argument("-lat", '--latency_out', default="latency.csv", help='Output path for latencies file, which is '
                                                                          'appended or created new. ', required=False)
 

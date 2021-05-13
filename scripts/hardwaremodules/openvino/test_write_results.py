@@ -67,7 +67,7 @@ __status__ = "Experiental"
 parser = argparse.ArgumentParser(description="NCS2 settings test")
 parser.add_argument(
     "-m",
-    "--model",
+    "--model_path",
     default="./model.xml",
     help="model to test with",
     type=str,
@@ -75,8 +75,8 @@ parser.add_argument(
 )
 parser.add_argument(
     "-i",
-    "--input",
-    default="./input",
+    "--image_dir",
+    default="./images",
     help="images for the inference",
     type=str,
     required=False,
@@ -85,9 +85,18 @@ parser.add_argument(
     "-d",
     "--device",
     default="CPU",
-    help="target device to run the inference",
+    help="target device to run the inference [CPU, GPU, MYRIAD]",
     type=str,
     required=False,
+)
+
+parser.add_argument(
+    "-out",
+    '--detections_out',
+    default='detections.csv',
+    help='Output file detections',
+    type=str,
+    required=False
 )
 
 args = parser.parse_args()
@@ -95,15 +104,15 @@ print(args)
 
 if __name__ == "__main__":
 
-    model_name = args.model.split("/")[-1:][
+    model_name = args.model_path.split("/")[-1:][
         0
     ]  # extract model name from parsed model path
 
     if not ".xml" in model_name:
         sys.exit("Invalid model xml given!")
 
-    model_xml = args.model
-    model_bin = args.model.split(".xml")[0] + ".bin"
+    model_xml = args.model_path
+    model_bin = args.model_path.split(".xml")[0] + ".bin"
 
     if not os.path.isfile(model_xml) or not os.path.isfile(model_bin):
         sys.exit("Could not find IR model for: " + model_xml)
@@ -118,19 +127,19 @@ if __name__ == "__main__":
     net.input_info[input_blob].precision = "U8"
     net.batch_size = 1
 
-    print("Loading network")
+    print("Loading network and perform on ", args.device)
     exec_net = ie.load_network(network=net, device_name=args.device, num_requests=1)
 
     combined_data = []
     _, _, net_h, net_w = net.input_info[input_blob].input_data.shape
 
-    for filename in os.listdir(args.input):
-        original_image = cv2.imread(os.path.join(args.input, filename))
+    for filename in os.listdir(args.image_dir):
+        original_image = cv2.imread(os.path.join(args.image_dir, filename))
         image = original_image.copy()
 
         if image.shape[:-1] != (net_h, net_w):
             log.warning(
-                f"Image {args.input} is resized from {image.shape[:-1]} to {(net_h, net_w)}"
+                f"Image {args.image_dir} is resized from {image.shape[:-1]} to {(net_h, net_w)}"
             )
             image = cv2.resize(image, (net_w, net_h))
 
@@ -199,4 +208,5 @@ if __name__ == "__main__":
             "score",
         ],
     )
-    dataframe.to_csv("output" + ".csv", index=False, sep=";")
+    dataframe.to_csv(args.detections_out, index=False, sep=";")#
+    print("Written detections to ", args.detections_out)

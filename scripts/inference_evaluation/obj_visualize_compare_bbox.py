@@ -110,7 +110,7 @@ parser.add_argument("--title3", type=str, default="Image3", help='Title of image
 parser.add_argument("--use_three_images", action='store_true', default=False,
                     help="If set, three images will be used, instead of two")
 parser.add_argument("--color_gt", action='store_true', default=False,
-                    help="Color ground truth and set confidence to 100%")
+                    help="Color ground truth with not black and set confidence to 100%")
 
 args = parser.parse_args()
 print(args)

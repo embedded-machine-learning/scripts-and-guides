@@ -63,7 +63,8 @@ __maintainer__ = 'Alexander Wendt'
 __email__ = 'alexander.wendt@tuwien.ac.at'
 __status__ = 'Experiental'
 
-def get_info_from_modelname(model_name, model_short_name=None, model_optimizer_prefix='TRT'):
+
+def get_info_from_modelname(model_name, model_short_name=None, model_optimizer_prefix=['TRT', 'OV']):
     '''
     Extract information from file name
 
@@ -86,13 +87,14 @@ def get_info_from_modelname(model_name, model_short_name=None, model_optimizer_p
         rest_parameters = model_name.split("_", 4)[4]
 
         for r in rest_parameters.split("_"):
-            if str(r).startswith(model_optimizer_prefix):
+            #FIXME: Make a general if then for this, not just the 2 first entries in the list
+            if str(r).startswith(model_optimizer_prefix[0]) or str(r).startswith(model_optimizer_prefix[1]):
                 info['hardware_optimization'] = r
             else:
                 custom_list.append(r)
-                #if info['custom_parameters'] == "":
+                # if info['custom_parameters'] == "":
                 #    info['custom_parameters'] = r
-                #else:
+                # else:
                 #    info['custom_parameters'] = info['custom_parameters'] + "_" + r
 
     info['custom_parameters'] = str(custom_list)
