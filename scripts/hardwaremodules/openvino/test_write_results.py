@@ -138,19 +138,17 @@ if __name__ == "__main__":
         image = original_image.copy()
 
         if image.shape[:-1] != (net_h, net_w):
-            log.warning(
-                f"Image {args.image_dir} is resized from {image.shape[:-1]} to {(net_h, net_w)}"
-            )
+            log.debug(f"Image {args.image_dir} is resized from {image.shape[:-1]} to {(net_h, net_w)}")
             image = cv2.resize(image, (net_w, net_h))
 
         image = image.transpose((2, 0, 1))
         image = np.expand_dims(image, axis=0)
 
-        print("\nStarting inference for picture: " + filename)
+        print("Starting inference for picture: " + filename)
         res = exec_net.infer(inputs={input_blob: image})
 
-        # print(res)
-        print("\nType of result object", type(res))
+        #print(res)
+        #print("Type of result object", type(res))
 
         output_image = original_image.copy()
         h, w, _ = output_image.shape
@@ -208,5 +206,11 @@ if __name__ == "__main__":
             "score",
         ],
     )
+
+    # Create output directories
+    if not os.path.isdir(os.path.dirname(args.detections_out)):
+        os.makedirs(os.path.dirname(args.detections_out))
+        print("Created ", os.path.dirname(args.detections_out))
+
     dataframe.to_csv(args.detections_out, index=False, sep=";")#
     print("Written detections to ", args.detections_out)

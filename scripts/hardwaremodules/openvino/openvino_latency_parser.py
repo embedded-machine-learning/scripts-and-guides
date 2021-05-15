@@ -48,6 +48,9 @@ from datetime import datetime
 import argparse
 
 # Own modules
+sys.path.append('../../inference_evaluation')
+import inference_utils as util
+
 
 __author__ = 'Matvey Ivanov'
 __copyright__ = 'Copyright 2021, Christian Doppler Laboratory for ' \
@@ -159,13 +162,26 @@ def extract_information_inf_rep(report_data):
                     extracted_inf["--path_to_model"] = row[1]
                     if "/" in extracted_inf["--path_to_model"]:
                         if ".xml" in extracted_inf["--path_to_model"]:
-                            extracted_inf["full_name"] = extracted_inf["--path_to_model"].split("/")[
-                                -2]  # FIX AW: Model name is always the folder name
+                            extracted_inf["full_name"] = extracted_inf["--path_to_model"].split("/")[-2]  # FIX AW: Model name is always the folder name
                             # extracted_inf["full_name"] = extracted_inf["--path_to_model"].split("/")[-1].split(".xml")[0] # get full name from path to model
+
+                            model_info = util.get_info_from_modelname(extracted_inf["full_name"])
+                            #model_info['model_name'],
+                            #model_info['model_short_name'],
+                            #model_info['framework'],
+                            #model_info['network'],
+                            #str(model_info['resolution']),
+                            #model_info['dataset'],
+                            #str(model_info['custom_parameters']),
+                            #hardware_name,
+                            #str(model_info['hardware_optimization']
+
+
+
                             if "_" in extracted_inf["full_name"]:
                                 try:
-                                    extracted_inf["short_name"] = extracted_inf["full_name"].split("_")[1]
-                                    extracted_inf["framework"] = extracted_inf["full_name"].split("_")[0]
+                                    extracted_inf["short_name"] = extracted_inf["full_name"]   #is the same as the full name
+                                    extracted_inf["framework"] = list(map(int, (str(extracted_inf["full_name"]).split('_')[2]).split('x'))) #extracted_inf["full_name"].split("_")[0]
                                     extracted_inf["resolution"] = extracted_inf["full_name"].split("_")[2]
                                     extracted_inf["dataset"] = extracted_inf["full_name"].split("_")[3]
                                     extracted_inf["hwoptimization"] = ""

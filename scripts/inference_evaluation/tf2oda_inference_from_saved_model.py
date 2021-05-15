@@ -174,7 +174,7 @@ def infer_latency(infer, image_dir, hardware_name, model_name, model_short_name,
         preds = labeling
         end_time = time.time()
 
-        latency = end_time - start_time
+        latency = (end_time - start_time) * 1000    #in ms
 
         elapsed_time.append(latency)
         # elapsed_time = np.append(elapsed_time, end_time - start_time)

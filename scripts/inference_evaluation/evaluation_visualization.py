@@ -65,6 +65,8 @@ parser.add_argument("-lat", '--latency_file', default=None,
                     help='Directory with latency inputs', required=False)
 parser.add_argument("-per", '--performance_file', default=None,
                     help='Directory with performance inputs', required=False)
+parser.add_argument("-in", '--input_combined_file', default=None,
+                    help='Combined input file', required=False)
 parser.add_argument("-out", '--output_dir', default='results',
                     help='Output dir', required=False)
 parser.add_argument("-hwoptref", '--hwopt_reference', default=None,
@@ -126,9 +128,9 @@ def visualize_latency(df, output_dir):
                 mean_array = mean_array.reshape(-1)
                 values.append(mean_array)
             labels.append(network + "_" + hwopt)
-            #col = ast.literal_eval(row['Latencies'])
-            #values.append(np.array(col) * 1000)
-            #labels.append(network)
+            # col = ast.literal_eval(row['Latencies'])
+            # values.append(np.array(col) * 1000)
+            # labels.append(network)
 
         plot_boxplot(values, labels, output_dir, title="Latency " + hw)
         plot_violin_plot(values, labels, output_dir, title="Latency " + hw)
@@ -159,7 +161,7 @@ def plot_violin_plot(values, labels, output_dir, title='Latency', xlabel="Models
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
 
-    add_range = (np.max(values) - np.min(values))*0.10
+    add_range = (np.max(values) - np.min(values)) * 0.10
     plt.ylim([np.min(values) - add_range, np.max(values) + add_range])
 
     anchored_text = AnchoredText("Inferences: {}".format(values[0].shape[0]), loc=2)
@@ -197,7 +199,7 @@ def plot_boxplot(values, labels, output_dir=None, title='Latencies', xlabel="Mod
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
 
-    add_range = (np.max(values) - np.min(values))*0.10
+    add_range = (np.max(values) - np.min(values)) * 0.10
     plt.ylim([np.min(values) - add_range, np.max(values) + add_range])
 
     # plt.axhline(y=20, color='r', linestyle='-')
@@ -210,6 +212,7 @@ def plot_boxplot(values, labels, output_dir=None, title='Latencies', xlabel="Mod
     ax7.add_artist(anchored_text)
     plt.tight_layout()
     im.show_save_figure(fig7, output_dir, title.replace(' ', '_') + '_boxplot', show_image=False)
+
 
 def plot_bar(values, labels, output_dir, title='Performance mAP', xlabel="Models and platforms",
              ylabel='DetectionBoxes_Precision/mAP'):
@@ -231,6 +234,7 @@ def plot_bar(values, labels, output_dir, title='Performance mAP', xlabel="Models
     #    ax1.text(v + 3, i + .25, "{:.2f}".format(v))
     plt.tight_layout()
     im.show_save_figure(fig1, output_dir, title.replace(' ', '_') + '_barplot', show_image=False)
+
 
 def visualize_performance(df, output_dir):
     '''
@@ -366,6 +370,7 @@ def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency
 
     im.show_save_figure(fig, output_dir, title.replace(' ', '_') + '_scatter', show_image=False)
 
+
 def get_performance_deltas_for_hardware_optimizations(performance):
     '''
 
@@ -382,29 +387,29 @@ def get_performance_deltas_for_hardware_optimizations(performance):
         print(group)
 
         if len(group[(pd.isnull(group['Hardware_Optimization'])) |
-                      (group['Hardware_Optimization'] == 'None')]) > 0:
+                     (group['Hardware_Optimization'] == 'None')]) > 0:
             original_performance = \
-                    group[(pd.isnull(group['Hardware_Optimization'])) |
-                          (group['Hardware_Optimization'] == 'None')]['DetectionBoxes_Precision/mAP@.50IOU'].values[0]
+                group[(pd.isnull(group['Hardware_Optimization'])) |
+                      (group['Hardware_Optimization'] == 'None')]['DetectionBoxes_Precision/mAP@.50IOU'].values[0]
 
             for i, row in group.iterrows():
                 current_performance = row['DetectionBoxes_Precision/mAP@.50IOU']
                 relative_performance = np.round((current_performance - original_performance) / current_performance, 3)
 
                 enhanced_performance.loc[(enhanced_performance['Framework'] == row['Framework']) &
-                                     (enhanced_performance['Network'] == row['Network']) &
-                                     (enhanced_performance['Resolution'] == row['Resolution']) &
-                                     (enhanced_performance['Dataset'] == row['Dataset']) &
-                                     (enhanced_performance['Custom_Parameters'] == row['Custom_Parameters']) &
-                                     (enhanced_performance['Hardware'] == row['Hardware']) &
-                                     (enhanced_performance['Hardware_Optimization'] == row['Hardware_Optimization']),
-                                     'Relative_mAP'] = relative_performance
+                                         (enhanced_performance['Network'] == row['Network']) &
+                                         (enhanced_performance['Resolution'] == row['Resolution']) &
+                                         (enhanced_performance['Dataset'] == row['Dataset']) &
+                                         (enhanced_performance['Custom_Parameters'] == row['Custom_Parameters']) &
+                                         (enhanced_performance['Hardware'] == row['Hardware']) &
+                                         (enhanced_performance['Hardware_Optimization'] == row[
+                                             'Hardware_Optimization']),
+                                         'Relative_mAP'] = relative_performance
                 print("Created value for ", name)
         else:
             warnings.warn("No original latency for " + str(name))
 
     return enhanced_performance
-
 
 
 def get_latency_deltas_for_hardware_optimizations(latency, hwopt_reference=None):
@@ -426,12 +431,12 @@ def get_latency_deltas_for_hardware_optimizations(latency, hwopt_reference=None)
         print(name)
         print(group)
 
-        #Look for executions without any hardware optimizations to use to compare to
+        # Look for executions without any hardware optimizations to use to compare to
         if len(group[(pd.isnull(group['Hardware_Optimization'])) |
-                      (group['Hardware_Optimization'] == hwopt_reference)]) > 0:
+                     (group['Hardware_Optimization'] == hwopt_reference)]) > 0:
             original_latency = \
-                    group[(pd.isnull(group['Hardware_Optimization'])) |
-                          (group['Hardware_Optimization'] == hwopt_reference)]['Mean_Latency'].values[0]
+                group[(pd.isnull(group['Hardware_Optimization'])) |
+                      (group['Hardware_Optimization'] == hwopt_reference)]['Mean_Latency'].values[0]
 
             for i, row in group.iterrows():
                 current_latency = row['Mean_Latency']
@@ -468,37 +473,47 @@ def visualize_relative_latencies(latencies, output_dir, measurement='Relative_La
         values = list()
         labels = list()
         for name, group in hw_group.groupby('Hardware_Optimization'):
-            #group['Relative_Latency']
+            # group['Relative_Latency']
             values.append(np.array(group[measurement]))
             labels.append(name)
 
-        #if len(values[0])>1:
+        # if len(values[0])>1:
         plot_boxplot(values, labels, output_dir, title=title + " for " + hw_name, xlabel=xlabel,
-                 ylabel=ylabel)
+                     ylabel=ylabel)
         plot_violin_plot(values, labels, output_dir, title=title + " for " + hw_name, xlabel=xlabel,
-                 ylabel=ylabel)
-        #else:
+                         ylabel=ylabel)
+        # else:
         #    first_values = []
         #    for e in values:
         #        first_values.append(e[0])
         #    plot_bar(first_values, labels, output_dir, title=title + " for " + hw_name, xlabel=xlabel,
         #             ylabel=ylabel)
 
-def evaluate(latency_file, performance_file, output_dir, hwopt_reference=None):
+
+def evaluate(latency_file, performance_file, output_dir, hwopt_reference=None, input_combined_file=None):
     '''
 
     '''
 
-    # Read all latency files from that folder
-    if not os.path.exists(latency_file):
-        raise Exception(latency_file + " does not exist. Quit program")
-    latency = pd.read_csv(latency_file, sep=';')
-    # Read all performance files
-    if not os.path.exists(performance_file):
-        warnings.warn(performance_file + " does not exist. Continue with functions that only support latency.")
-        performance = None
+    if input_combined_file:
+        if not os.path.exists(input_combined_file):
+            raise Exception(input_combined_file + " does not exist. Quit program")
+        combined = pd.read_csv(input_combined_file, sep=';')
+        print("Loaded combined latency and performance file: ", input_combined_file)
+        latency = combined
+        performance = combined
+
     else:
-        performance = pd.read_csv(performance_file, sep=';')
+        # Read all latency files from that folder
+        if not os.path.exists(latency_file):
+            raise Exception(latency_file + " does not exist. Quit program")
+        latency = pd.read_csv(latency_file, sep=';')
+        # Read all performance files
+        if not os.path.exists(performance_file):
+            warnings.warn(performance_file + " does not exist. Continue with functions that only support latency.")
+            performance = None
+        else:
+            performance = pd.read_csv(performance_file, sep=';')
 
     relative_latencies = get_latency_deltas_for_hardware_optimizations(latency, hwopt_reference)
     visualize_relative_latencies(relative_latencies, output_dir)
@@ -507,7 +522,7 @@ def evaluate(latency_file, performance_file, output_dir, hwopt_reference=None):
     visualize_latency(latency, output_dir)
 
     if performance:
-        #Visualize relative performance
+        # Visualize relative performance
         relative_performance = get_performance_deltas_for_hardware_optimizations(performance)
         visualize_relative_latencies(relative_performance, output_dir, measurement='Relative_mAP',
                                      title="Performance Delta for Hardware Optimization Method",
@@ -521,7 +536,7 @@ def evaluate(latency_file, performance_file, output_dir, hwopt_reference=None):
 
 
 if __name__ == "__main__":
-    evaluate(args.latency_file, args.performance_file, args.output_dir, args.hwopt_reference)
+    evaluate(args.latency_file, args.performance_file, args.output_dir, args.hwopt_reference, args.input_combined_file)
     # visualize_values(args.infile)
 
     print("=== Program end ===")
