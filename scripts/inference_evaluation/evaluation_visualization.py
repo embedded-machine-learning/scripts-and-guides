@@ -69,10 +69,15 @@ parser.add_argument("-in", '--input_combined_file', default=None,
                     help='Combined input file', required=False)
 parser.add_argument("-out", '--output_dir', default='results',
                     help='Output dir', required=False)
+parser.add_argument("-latreq", '--latency_requirement', default=None,
+                    help='Latency requirement in ms', required=False)
+parser.add_argument("-perfreq", '--performance_requirement', default=None,
+                    help='Performance requirement', required=False)
 parser.add_argument("-hwoptref", '--hwopt_reference', default=None,
                     help='This is the name of the hwoptimization parameter that is used a reference'
                          'for latency and performance measurements. Default value is None', required=False)
 args = parser.parse_args()
+print(args)
 
 
 def visualize_latency(df, output_dir):
@@ -93,7 +98,8 @@ def visualize_latency(df, output_dir):
         device = row['Hardware']
         hwopt = row['Hardware_Optimization']
         print("Processing {} on {}".format(network, device))
-        if not np.isnan(row['Latencies']):
+        #FIXME: This is not a clean way to check if the field is empty
+        if not row['Latencies'] is None:
             col = ast.literal_eval(row['Latencies'])
             values.append(np.array(col))
         else:
@@ -101,7 +107,7 @@ def visualize_latency(df, output_dir):
             mean_array = np.array(row['Mean_Latency'])
             mean_array = mean_array.reshape(-1)
             values.append(mean_array)
-        labels.append(network + "_" + device + "_" + hwopt)
+        labels.append(str(network) + "_" + str(device) + "_" + str(hwopt))
 
     plot_boxplot(values, labels, output_dir, title="Latency All Hardware")
     plot_violin_plot(values, labels, output_dir, title="Latency All Hardware")
@@ -118,7 +124,7 @@ def visualize_latency(df, output_dir):
             hwopt = row['Hardware_Optimization']
             print("Processing {} on {}".format(network, hw))
 
-            if not np.isnan(row['Latencies']):
+            if not row['Latencies'] is None:
                 col = ast.literal_eval(row['Latencies'])
                 values.append(np.array(col))
             else:
@@ -127,7 +133,7 @@ def visualize_latency(df, output_dir):
                 mean_array = np.array(row['Mean_Latency'])
                 mean_array = mean_array.reshape(-1)
                 values.append(mean_array)
-            labels.append(network + "_" + hwopt)
+            labels.append(str(network) + "_" + str(hwopt))
             # col = ast.literal_eval(row['Latencies'])
             # values.append(np.array(col) * 1000)
             # labels.append(network)
@@ -149,6 +155,16 @@ def plot_violin_plot(values, labels, output_dir, title='Latency', xlabel="Models
         None
 
     '''
+    #Extract important values
+    df_table = pd.DataFrame(columns=['min', 'max', 'q25', 'median', 'q75', 'mean'])
+    for v in zip(labels, values):
+        df_table = df_table.append(pd.Series(name=v[0], data=[np.min(v[1]), np.max(v[1]), np.quantile(v[1], 0.25),
+                                                              np.quantile(v[1], 0.50), np.quantile(v[1], 0.75),
+                                                              np.mean(v[1])],
+                                                          index=['min', 'max', 'q25', 'median', 'q75', 'mean']))
+
+    df_table.round(0).astype(int).to_csv(os.path.join(output_dir, title.replace(' ', '_') + '_violinplot' + '.csv'), sep=";")
+
     # Create the Violinplot
     fig1, ax1 = plt.subplots(figsize=(5, 8))
     bp = ax1.violinplot(values, showmedians=True, showextrema=True)
@@ -161,13 +177,16 @@ def plot_violin_plot(values, labels, output_dir, title='Latency', xlabel="Models
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
 
-    add_range = (np.max(values) - np.min(values)) * 0.10
-    plt.ylim([np.min(values) - add_range, np.max(values) + add_range])
+    max_val = np.max(max(values, key=tuple))
+    min_val = np.min(min(values, key=tuple))
+    add_range = (max_val - min_val) * 0.10
+    plt.ylim([min_val - add_range, max_val + add_range])
 
     anchored_text = AnchoredText("Inferences: {}".format(values[0].shape[0]), loc=2)
     ax1.add_artist(anchored_text)
     ax1.grid(axis='y')
     plt.tight_layout()
+
     im.show_save_figure(fig1, output_dir, title.replace(' ', '_') + '_violinplot', show_image=False)
 
 
@@ -199,8 +218,10 @@ def plot_boxplot(values, labels, output_dir=None, title='Latencies', xlabel="Mod
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
 
-    add_range = (np.max(values) - np.min(values)) * 0.10
-    plt.ylim([np.min(values) - add_range, np.max(values) + add_range])
+    max_val = np.max(max(values, key=tuple))
+    min_val = np.min(min(values, key=tuple))
+    add_range = (max_val - min_val) * 0.10
+    plt.ylim([min_val - add_range, max_val + add_range])
 
     # plt.axhline(y=20, color='r', linestyle='-')
     ax7.grid(axis='y', which='both')
@@ -215,7 +236,7 @@ def plot_boxplot(values, labels, output_dir=None, title='Latencies', xlabel="Mod
 
 
 def plot_bar(values, labels, output_dir, title='Performance mAP', xlabel="Models and platforms",
-             ylabel='DetectionBoxes_Precision/mAP'):
+             ylabel='DetectionBoxes_Precision/mAP@.50IOU'):
     # mAP Visualization
     fig1, ax1 = plt.subplots(figsize=(7, 12))
     ax1.set_title(title)
@@ -236,7 +257,8 @@ def plot_bar(values, labels, output_dir, title='Performance mAP', xlabel="Models
     im.show_save_figure(fig1, output_dir, title.replace(' ', '_') + '_barplot', show_image=False)
 
 
-def visualize_performance(df, output_dir):
+def visualize_performance(df, output_dir, metric_precision='DetectionBoxes_Precision/mAP@.50IOU',
+                          metric_recall='DetectionBoxes_Recall/AR@100'):
     '''
 
 
@@ -245,21 +267,22 @@ def visualize_performance(df, output_dir):
     values = list()
     labels = list()
 
-    df_perf = df.sort_values(by=['DetectionBoxes_Precision/mAP'], ascending=False)
+    df_perf = df.sort_values(by=[metric_precision], ascending=False)
 
     for index, row in df_perf.iterrows():
         network = row['Model_Short']
         device = row['Hardware']
         print("Processing {} on {}".format(network, device))
-        values.append(row['DetectionBoxes_Precision/mAP'])
+        values.append(row[metric_precision])
         # Add labels
         labels.append(network + " " + device)
 
     # Visulization
-    plot_bar(values, labels, output_dir, title="Mean Average Precision", xlabel="Models and Hardware", ylabel="mAP")
+    plot_bar(values, labels, output_dir, title="Mean Average Precision", xlabel="Models and Hardware",
+             ylabel=metric_precision)
 
     # Recall Visualization
-    df_perf = df.sort_values(by=['DetectionBoxes_Recall/AR@1'], ascending=False)
+    df_perf = df.sort_values(by=[metric_recall], ascending=False)
 
     values = list()
     labels = list()
@@ -268,14 +291,14 @@ def visualize_performance(df, output_dir):
         network = row['Model_Short']
         device = row['Hardware']
         print("Processing {} on {}".format(network, device))
-        values.append(row['DetectionBoxes_Recall/AR@1'])
+        values.append(row[metric_recall])
         # Add labels
         labels.append(network + " " + device)
 
-    plot_bar(values, labels, output_dir, title="Recall", xlabel="Models and Hardware", ylabel="Recall/AR@1")
+    plot_bar(values, labels, output_dir, title="Recall", xlabel="Models and Hardware", ylabel=metric_recall)
 
 
-def visualize_performance_recall_optimum(latency, performance, output_dir):
+def visualize_performance_recall_optimum(latency, performance, output_dir, latency_requirement=None, performance_requirement=None):
     '''
     Find the pareto optimum for models for mAP and latency
 
@@ -286,39 +309,51 @@ def visualize_performance_recall_optimum(latency, performance, output_dir):
     performance_reduced = performance.drop(columns=['Date']).set_index(['Model_Short', 'Hardware'])
     performance_reduced = performance_reduced[~performance_reduced.index.duplicated(keep='first')]
 
-    lat_perf_df = pd.merge(latency_reduced, performance_reduced, how='inner', left_index=True, right_index=True)
+    lat_perf_df = pd.merge(latency_reduced, performance_reduced,
+                           how='inner', left_index=True, right_index=True,
+                           suffixes=("", "_extra"))
     lat_perf_df = lat_perf_df.reset_index()
 
     print("Available columns: ", lat_perf_df.columns)
     # Plot for all hardware
+    print("Plot mAP vs Latency All Hardware")
     plot_performance_latency(lat_perf_df, output_dir, title='mAP vs Latency All Hardware',
-                             y_col='DetectionBoxes_Precision/mAP',
-                             ylim=[0, 1])  # AP at IoU=.50:.05:.95 (primary challenge metric)
-    plot_performance_latency(lat_perf_df, output_dir, title='mAP vs Latency Zoom', y_col='DetectionBoxes_Precision/mAP')
+                             y_col='DetectionBoxes_Precision/mAP@.50IOU',
+                             ylim=[0, 1],
+                             latency_requirement=latency_requirement)  # AP at IoU=.50:.05:.95 (primary challenge metric)
+    print("Plot mAP vs Latency Zoom")
+    plot_performance_latency(lat_perf_df, output_dir, title='mAP vs Latency Zoom',
+                             y_col='DetectionBoxes_Precision/mAP@.50IOU',
+                             latency_requirement=latency_requirement)
 
+    print("Plot Recall vs Latency")
     plot_performance_latency(lat_perf_df, output_dir, title='Recall vs Latency',
-                             y_col='DetectionBoxes_Recall/AR@100')  # 100 Detections/image
+                             y_col='DetectionBoxes_Recall/AR@100',
+                             latency_requirement=latency_requirement)  # 100 Detections/image
 
     # Plot for each hardware separately
     unique_hardware = lat_perf_df['Hardware'].unique()
     for hw in unique_hardware:
         sub_df = lat_perf_df[lat_perf_df['Hardware'] == hw]
         plot_performance_latency(sub_df, output_dir, title='mAP vs Latency Zoom ' + hw,
-                                 y_col='DetectionBoxes_Precision/mAP',
-                                 plot_separation='Network_x')
+                                 y_col='DetectionBoxes_Precision/mAP@.50IOU',
+                                 plot_separation='Network',
+                                 latency_requirement=latency_requirement)
         plot_performance_latency(sub_df, output_dir, title='Recall vs Latency Zoom ' + hw,
-                                 y_col='DetectionBoxes_Precision/mAP',
-                                 plot_separation='Network_x')
+                                 y_col='DetectionBoxes_Recall/AR@100',
+                                 plot_separation='Network',
+                                 latency_requirement=latency_requirement)
 
 
-def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency', y_col='DetectionBoxes_Precision/mAP',
-                             ylim=None, xlim=None, latency_req=20, plot_separation='Hardware'):
+def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency', y_col='DetectionBoxes_Precision/mAP@.50IOU',
+                             ylim=None, xlim=None, latency_requirement=None, plot_separation='Hardware'):
     # Get unique hardware
     hardware_types = list(lat_perf_df[plot_separation].unique())
 
     performance_max = np.max(lat_perf_df[y_col].values)
     performance_min = np.min(lat_perf_df[y_col].values)
     latency_max = np.max(lat_perf_df['Mean_Latency'].values)
+    latency_min = np.min(lat_perf_df['Mean_Latency'].values)
 
     fig, ax = plt.subplots(figsize=[8, 8])
     plt.title(title)
@@ -349,10 +384,10 @@ def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency
                       for i in range(hw_type_df.shape[0])])
     plt.legend()
 
-    if latency_req:
-        plt.vlines(latency_req, 0, 1.0, color='red')
+    if latency_requirement:
+        plt.vlines(int(latency_requirement), 0, 1.0, color='red')
         texts.append(
-            plt.text(latency_req + 2, 0.5, "Requirement {:.2f}ms".format(20), rotation=90, verticalalignment='center'))
+            plt.text(int(latency_requirement) + 2, 0.5, "Requirement {:.2f}ms".format(int(latency_requirement)), rotation=90, verticalalignment='center'))
 
     plt.hlines(performance_max, 0, latency_max * 1.05, color='blue', linestyles="dotted")
     texts.append(
@@ -394,7 +429,7 @@ def get_performance_deltas_for_hardware_optimizations(performance):
 
             for i, row in group.iterrows():
                 current_performance = row['DetectionBoxes_Precision/mAP@.50IOU']
-                relative_performance = np.round((current_performance - original_performance) / current_performance, 3)
+                relative_performance = np.round(current_performance / original_performance, 3)
 
                 enhanced_performance.loc[(enhanced_performance['Framework'] == row['Framework']) &
                                          (enhanced_performance['Network'] == row['Network']) &
@@ -440,7 +475,7 @@ def get_latency_deltas_for_hardware_optimizations(latency, hwopt_reference=None)
 
             for i, row in group.iterrows():
                 current_latency = row['Mean_Latency']
-                relative_latency = np.round((current_latency - original_latency) / current_latency, 3)
+                relative_latency = np.round(current_latency / original_latency, 3)
 
                 enhanced_latency.loc[(enhanced_latency['Framework'] == row['Framework']) &
                                      (enhanced_latency['Network'] == row['Network']) &
@@ -490,7 +525,8 @@ def visualize_relative_latencies(latencies, output_dir, measurement='Relative_La
         #             ylabel=ylabel)
 
 
-def evaluate(latency_file, performance_file, output_dir, hwopt_reference=None, input_combined_file=None):
+def evaluate(latency_file, performance_file, output_dir, hwopt_reference=None, input_combined_file=None,
+             latency_requirement=None, performance_requirement=None):
     '''
 
     '''
@@ -515,28 +551,40 @@ def evaluate(latency_file, performance_file, output_dir, hwopt_reference=None, i
         else:
             performance = pd.read_csv(performance_file, sep=';')
 
+    if latency['Mean_Latency'][0] < 1:
+        warnings.warn("Mean latency <0. No network is so fast. Probably the unit is s. Converting to ms.")
+        latency['Mean_Latency'] = latency['Mean_Latency'] * 1000
+        if not latency['Latencies'][0] is None:
+            for index, row in latency.iterrows():
+                latency['Latencies'][index] = str(list(np.array(ast.literal_eval(row['Latencies']))*1000))
+
+
+
+
+
     relative_latencies = get_latency_deltas_for_hardware_optimizations(latency, hwopt_reference)
     visualize_relative_latencies(relative_latencies, output_dir)
 
     # Visualize latency
     visualize_latency(latency, output_dir)
 
-    if performance:
+    if performance is not None:
         # Visualize relative performance
         relative_performance = get_performance_deltas_for_hardware_optimizations(performance)
         visualize_relative_latencies(relative_performance, output_dir, measurement='Relative_mAP',
-                                     title="Performance Delta for Hardware Optimization Method",
-                                     ylabel="Relative Performance"
+                                     title="Relative Performance",
+                                     ylabel="Relative Performance [mAP]/([mAP] Original)"
                                      )
         # Visualize Performance
         visualize_performance(performance, output_dir)
 
         # mAP/latency curve
-        visualize_performance_recall_optimum(latency, performance, output_dir)
+        visualize_performance_recall_optimum(latency, performance, output_dir, latency_requirement)
 
 
 if __name__ == "__main__":
-    evaluate(args.latency_file, args.performance_file, args.output_dir, args.hwopt_reference, args.input_combined_file)
+    evaluate(args.latency_file, args.performance_file, args.output_dir, args.hwopt_reference, args.input_combined_file,
+             args.latency_requirement, args.performance_requirement)
     # visualize_values(args.infile)
 
     print("=== Program end ===")

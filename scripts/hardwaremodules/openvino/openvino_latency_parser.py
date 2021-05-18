@@ -48,8 +48,8 @@ from datetime import datetime
 import argparse
 
 # Own modules
-sys.path.append('../../inference_evaluation')
-import inference_utils as util
+#sys.path.append('../../inference_evaluation')
+#import inference_utils as util
 
 
 __author__ = 'Matvey Ivanov'
@@ -165,7 +165,7 @@ def extract_information_inf_rep(report_data):
                             extracted_inf["full_name"] = extracted_inf["--path_to_model"].split("/")[-2]  # FIX AW: Model name is always the folder name
                             # extracted_inf["full_name"] = extracted_inf["--path_to_model"].split("/")[-1].split(".xml")[0] # get full name from path to model
 
-                            model_info = util.get_info_from_modelname(extracted_inf["full_name"])
+                            #model_info = util.get_info_from_modelname(extracted_inf["full_name"])
                             #model_info['model_name'],
                             #model_info['model_short_name'],
                             #model_info['framework'],
