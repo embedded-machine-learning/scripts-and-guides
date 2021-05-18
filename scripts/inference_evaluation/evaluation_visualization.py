@@ -512,10 +512,10 @@ def visualize_relative_latencies(latencies, output_dir, measurement='Relative_La
             values.append(np.array(group[measurement]))
             labels.append(name)
 
-        # if len(values[0])>1:
-        plot_boxplot(values, labels, output_dir, title=title + " for " + hw_name, xlabel=xlabel,
+        if len(values) > 0:
+            plot_boxplot(values, labels, output_dir, title=title + " for " + hw_name, xlabel=xlabel,
                      ylabel=ylabel)
-        plot_violin_plot(values, labels, output_dir, title=title + " for " + hw_name, xlabel=xlabel,
+            plot_violin_plot(values, labels, output_dir, title=title + " for " + hw_name, xlabel=xlabel,
                          ylabel=ylabel)
         # else:
         #    first_values = []
