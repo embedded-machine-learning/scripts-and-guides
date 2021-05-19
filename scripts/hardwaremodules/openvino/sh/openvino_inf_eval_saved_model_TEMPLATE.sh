@@ -10,7 +10,7 @@ setup_env()
   echo Activate environment $PYTHONENV
   #call conda activate %PYTHONENV%
   #Environment is put directly in the nuc home folder
-  . ~/tf2odapi/init_eda_env.sh
+  . ~/init_eda_env.sh
 }
 
 get_model_name()
@@ -67,7 +67,7 @@ setup_env
 #echo "Start training of $MODELNAME on EDA02" | mail -s "Start training of $MODELNAME" $USEREMAIL
 
 #echo "Setup task spooler socket."
-. ~/tf2odapi/init_eda_ts.sh
+. /home/intel-nuc/init_eda_ts.sh
 
 
 echo Apply to model $MODELNAME

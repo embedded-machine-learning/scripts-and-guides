@@ -4,6 +4,15 @@
 # Functions
 ###
 
+setup_env()
+{
+  # Environment preparation
+  echo Activate environment $PYTHONENV
+  #call conda activate %PYTHONENV%
+  #Environment is put directly in the nuc home folder
+  . ~/tf2odapi/init_eda_env.sh
+}
+
 get_model_name()
 {
   MYFILENAME=`basename "$0"`
@@ -27,19 +36,23 @@ get_width_and_height()
 
 convert_to_ir()
 {
-  echo Apply to model %MODELNAME% with precision %PRECISION%
-
-
+  echo Apply to model $MODELNAME with precision $PRECISION
   echo "Define API config file"
+  
   APIFILEEFF=$SCRIPTPREFIX/hardwaremodules/openvino/openvino_conversion_config/efficient_det_support_api_v2.4.json
   APIFILESSD=$SCRIPTPREFIX/hardwaremodules/openvino/openvino_conversion_config/ssd_support_api_v2.4.json
   APIFILE=ERROR
 
-  if not x%MODELNAME:ssd=%==x%MODELNAME% (set APIFILE=%APIFILESSD%)
-  if not x%MODELNAME:effi=%==x%MODELNAME% (set APIFILE=%APIFILEEFF%)
-  echo Use this API file: $APIFILE
+  if [[ $MODELNAME == *"ssd"* ]]; then 
+    APIFILE=$APIFILESSD
+  elif [[ $MODELNAME == *"effi"* ]]; then 
+    APIFILE=$APIFILEEFF
+  else
+    echo "Error. API filename not found. $APIFILE"
+  fi
   
-  echo "Start conversion"
+  echo "Use this API file: $APIFILE"
+  echo "Start conversion of model $MODELNAME"
   python3 $OPENVINOINSTALLDIR/model-optimizer/mo_tf.py \
   --saved_model_dir="exported-models/$MODELNAME/saved_model" \
   --tensorflow_object_detection_api_pipeline_config=exported-models/$MODELNAME/pipeline.config \
@@ -47,22 +60,8 @@ convert_to_ir()
   --reverse_input_channels \
   --data_type $PRECISION \
   --output_dir=exported-models-openvino/$MODELNAME\_OV$PRECISION
-
   echo "Conversion finished"
 }
-
-#convert_to_trt()
-#{
-#  python3 $SCRIPTPREFIX/hardwaremodules/nvidia/convert_tf2_to_trt.py \
-#  --tensorflow_model=exported-models/$MODELNAME/saved_model \
-#  --batch_size=8 \
-#  --image_size="[$height, $width]" \
-#  --precision=$PRECISION \
-#  --dtype=uint8 \
-#  --data_dir=./images/validation \
-#  --output_dir=./exported-models-trt/$MODELNAME\_TRT$PRECISION
-#}
-
 
 ###
 # Main body of script starts here
@@ -77,23 +76,30 @@ echo INFO: EXECUTE SCRIPT IN TARGET BASE FOLDER, e.g. samples/starwars_reduced
 # Constant Definition
 USEREMAIL=alexander.wendt@tuwien.ac.at
 #MODELNAME=tf2oda_efficientdet_512x384_pedestrian_D0_LR02
+MODELNAME=tf2oda_ssdmobilenetv2_300x300_pets_D100
 PYTHONENV=tf24
 BASEPATH=`pwd`
 SCRIPTPREFIX=../../scripts-and-guides/scripts
 MODELSOURCE=jobs/*.config
 HARDWARENAME=IntelNUC
-LABELMAP=pedestrian_label_map.pbtxt
+LABELMAP=label_map.pbtxt
+
+#Openvino installation directory for the model optimizer
+OPENVINOINSTALLDIR=/opt/intel/openvino_repo/openvino-master-100521
 
 #Extract model name from this filename
 get_model_name
 
 #Setup environment
-#setup_env
+setup_env
+
+#Extract height and width from model
+get_width_and_height
 
 #echo "Start training of $MODELNAME on EDA02" | mail -s "Start training of $MODELNAME" $USEREMAIL
 
 #echo "Setup task spooler socket."
-#. ~/init_eda_ts.sh
+. ~/tf2odapi/init_eda_ts.sh
 
 
 echo Apply to model $MODELNAME

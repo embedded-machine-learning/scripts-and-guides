@@ -113,10 +113,10 @@ def perform_inference(bench_app_file, is_linux, xml_path):
     api = FLAGS.api
     report_dir = FLAGS.output_dir  # "profiling_data"
     if api == "sync":
-        report_dir += "_sync"
+    #    report_dir += "_sync"
         niter_str = ""
     elif api == "async":
-        report_dir += "_async_" #+ str(niter)
+    #    report_dir += "_async_" #+ str(niter)
         niter_str = str(niter)
     if not os.path.isdir(report_dir):
         os.makedirs(report_dir)
@@ -158,12 +158,12 @@ def perform_inference(bench_app_file, is_linux, xml_path):
     # rename the default report file name: Generate default names
     report_long_name = os.path.join(report_dir, "benchmark_average_counters_report.csv")
     report_long_target_name = os.path.join(report_dir, "benchmark_average_counters_report_" +
-                                           model_name.split(".pb")[0] + "_" + FLAGS.hw + "_" + str(
-        api) + niter_str + ".csv")
+                                           model_name.split(".pb")[0] + "_" + FLAGS.hw + "_" +
+                                           str(api) + niter_str + ".csv")
     report_short_name = os.path.join(report_dir, "benchmark_report.csv")
     report_short_target_name = os.path.join(report_dir, "benchmark_report_" +
-                                            model_name.split(".pb")[0] + "_" + FLAGS.hw + "_" + str(
-        api) + niter_str + ".csv")
+                                            model_name.split(".pb")[0] + "_" + FLAGS.hw + "_" +
+                                            str(api) + niter_str + ".csv")
     # Delete file if it already exists
     if os.path.isfile(report_long_target_name):
         os.remove(report_long_target_name)
@@ -317,7 +317,7 @@ def main(argv):
             xml_path = FLAGS.xml
             print("Already using a converted model -> skipping conversion")
         else:
-            sys.exit("Please enter a valid IR!")
+            sys.exit("Please enter a valid IR! Provided value: " + FLAGS.pb)
     else:
         print("Convert input model to OpenVino format")
         xml_path = convert_model(mo_file, xml_path)

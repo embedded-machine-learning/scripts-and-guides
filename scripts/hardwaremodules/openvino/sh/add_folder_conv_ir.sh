@@ -27,7 +27,7 @@ CURRENTFOLDER=`pwd`
 #MODELSOURCE=jobs/*.config
 MODELSOURCE=exported-models/*
 #MODELSOURCE=temp/exported-models-temp/*
-SCRIPTBASENAME=tf2_inf_eval_saved_model
+SCRIPTBASENAME=convert_tf2_to_ir
 
 echo "Setup task spooler socket."
 . /home/intel-nuc/init_eda_ts.sh
