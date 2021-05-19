@@ -2,7 +2,11 @@ import os
 import argparse
 import datetime
 import csv
-from ../../../inference_evaluation/inference_utils import get_info_from_modelname
+from inference_utils import get_info_from_modelname 
+'''
+	using the utils from scripts here:
+		https://github.com/embedded-machine-learning/scripts-and-guides/blob/main/scripts/inference_evaluation/inference_utils.py
+'''
 
 parser = argparse.ArgumentParser(description='Reporting the trtexec command')
 
