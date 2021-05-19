@@ -25,6 +25,15 @@ echo # Visualize Networks
 echo #====================================#
 
 python %SCRIPTPREFIX%\inference_evaluation\evaluation_visualization.py ^
---latency_file="results/latency.csv" ^
---performance_file="results/performance.csv" ^
---output_dir="results"
+--input_combined_file=result_best_hardware.csv ^
+--output_dir="./images" ^
+--hwopt_reference="" ^
+--latency_requirement=100
+
+:: Alternative for 2 different files. two different files will be removed in later versions.
+::python %SCRIPTPREFIX%\inference_evaluation\evaluation_visualization.py ^
+::--latency_file="results/latency.csv" ^
+::--performance_file="results/performance.csv" ^
+::--output_dir="results" ^
+::--hwopt_reference="" ^
+::--latency_requirement=100
