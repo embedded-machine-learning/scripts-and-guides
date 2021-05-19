@@ -10,13 +10,13 @@ setup_env()
   echo Activate environment $PYTHONENV
   #call conda activate %PYTHONENV%
   #Environment is put directly in the nuc home folder
-  . ~/init_eda_env.sh
+  . ~/tf2odapi/init_eda_env.sh
 }
 
 get_model_name()
 {
   MYFILENAME=`basename "$0"`
-  MODELNAME=`echo $MYFILENAME | sed 's/tf2_inf_eval_saved_model_//' | sed 's/.sh//'`
+  MODELNAME=`echo $MYFILENAME | sed 's/openvino_inf_eval_saved_model_//' | sed 's/.sh//'`
   echo Selected model based on folder name: $MODELNAME
 }
 
@@ -34,89 +34,120 @@ get_width_and_height()
 
 }
 
+infer()
+{
+  echo Apply to model $MODELNAME with type $HARDWARETYPE
+
+  echo #====================================#
+  echo # Infer with OpenVino
+  echo #====================================#
+  echo "Start latency inference"
+  python $SCRIPTPREFIX/hardwaremodules/openvino/run_pb_bench_sizes.py \
+  -openvino_path $OPENVINOINSTALLDIR \
+  -hw $HARDWARETYPE \
+  -batch_size 1 \
+  -api $APIMODE \
+  -niter 1000 \
+  -xml "exported-models-openvino/$MODELNAME/saved_model.xml" \
+  -output_dir="results/$MODELNAME/$HARDWARENAME/openvino"
+
+  #::-size [1,320,320,3] ^
+  #::-hw (CPU|MYRIAD)
+  #::-size (batch, width, height, channels=3)
+  #::-pb Frozen file
+
+  echo #====================================#
+  echo # Convert Latencies
+  echo #====================================#
+  echo "Add measured latencies to result table"
+  python3 $SCRIPTPREFIX/hardwaremodules/openvino/openvino_latency_parser.py \
+  --avg_rep results/$MODELNAME/$HARDWARENAME/openvino/benchmark_average_counters_report_$HARDWARETYPE\_$APIMODE.csv \
+  --inf_rep results/$MODELNAME/$HARDWARENAME/openvino/benchmark_report_$HARDWARETYPE\_$APIMODE.csv \
+  --output_path results/latency_$HARDWARENAME.csv \
+  --hardware_name $HARDWARENAME
+  #::--save_new #Always append
+
+  echo #====================================#
+  echo # Infer with OpenVino
+  echo #====================================#
+  echo "Start accuracy/performance inference"
+  python3 $SCRIPTPREFIX/hardwaremodules/openvino/test_write_results.py \
+  --model_path="exported-models-openvino/$MODELNAME/saved_model.xml" \
+  --image_dir="images/validation" \
+  --device=$HARDWARETYPE \
+  --detections_out="results/$MODELNAME/$HARDWARENAME/detections.csv"
+
+
+  echo #====================================#
+  echo # Convert to Pycoco Tools JSON Format
+  echo #====================================#
+  echo "Convert TF CSV to Pycoco Tools csv"
+  python $SCRIPTPREFIX/conversion/convert_tfcsv_to_pycocodetections.py \
+  --annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
+  --output_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json"
+
+  echo #====================================#
+  echo # Evaluate with Coco Metrics
+  echo #====================================#
+
+  python $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
+  --groundtruth_file="annotations/coco_pets_validation_annotations.json" \
+  --detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
+  --output_file="results/performance_$HARDWARENAME.csv" \
+  --model_name=$MODELNAME \
+  --hardware_name=$HARDWARENAME\_$HARDWARETYPE
+}
+
 
 ###
 # Main body of script starts here
 ###
 
 echo #==============================================#
-echo # CDLEML Process TF2 Object Detection API
+echo # CDLEML Process TF2 Object Detection API for OpenVino
 echo #==============================================#
 
-echo INFO: EXECUTE SCRIPT IN TARGET BASE FOLDER, e.g. samples/starwars_reduced
-
 # Constant Definition
-USEREMAIL=alexander.wendt@tuwien.ac.at
-#MODELNAME=tf2oda_efficientdetd0_320_240_coco17_pedestrian_all_LR002
+#USEREMAIL=alexander.wendt@tuwien.ac.at
+#MODELNAME=tf2oda_efficientdet_512x384_pedestrian_D0_LR02
+#MODELNAME=tf2oda_ssdmobilenetv2_300x300_pets_D100_OVFP16
 PYTHONENV=tf24
-BASEPATH=`pwd`
+#BASEPATH=`pwd`
 SCRIPTPREFIX=../../scripts-and-guides/scripts
-MODELSOURCE=jobs/*.config
 HARDWARENAME=IntelNUC
-LABELMAP=pedestrian_label_map.pbtxt
+LABELMAP=label_map.pbtxt
 
-#Extract model name from this filename
+#Openvino installation directory for the inferrer (not necessary the same as the model optimizer)
+OPENVINOINSTALLDIR=/opt/intel/openvino_2021
+APIMODE=sync
+HARDWARETYPELIST="CPU GPU MYRIAD"
+#HARDWARETYPELIST="CPU"
+
+echo Extract model name from this filename
 get_model_name
 
-#Extract height and width from model
+echo Extract height and width from model
 get_width_and_height
 
-#Setup environment
+echo Setup environment
 setup_env
 
 #echo "Start training of $MODELNAME on EDA02" | mail -s "Start training of $MODELNAME" $USEREMAIL
 
-#echo "Setup task spooler socket."
-. /home/intel-nuc/init_eda_ts.sh
+echo "Setup task spooler socket."
+. ~/tf2odapi/init_eda_ts.sh
 
+echo "Setup Openvino environment and variables"
+source /opt/intel/openvino_2021/bin/setupvars.sh
 
-echo Apply to model $MODELNAME
+alias python=python3
 
-echo #====================================#
-echo # Infer Images from Known Model
-echo #====================================#
+for HARDWARETYPE in $HARDWARETYPELIST
+do
+  #echo "$f"
+  #MODELNAME=`basename ${f%%.*}`
+  echo $HARDWARETYPE
+  infer
+  
+done
 
-echo Inference from model 
-python $SCRIPTPREFIX/inference_evaluation/tf2oda_inference_from_saved_model.py \
---model_path "exported-models/$MODELNAME/saved_model/" \
---image_dir "images/validation" \
---detections_out="results/$MODELNAME/$HARDWARENAME/detections.csv" \
---latency_out="results/latency_$HARDWARENAME.csv" \
---min_score=0.5 \
---model_name=$MODELNAME \
---hardware_name=$HARDWARENAME
---batch_size=1 \
-
-#--image_size="[$height, $width]" Optional to use if another size as provided in the model name is used
-#--batch_size: Default=1
-#--model_short_name=%MODELNAMESHORT% unused because the name is created in the csv file
-
-
-#echo #====================================#
-#echo # Convert Detections to Pascal VOC Format
-#echo #====================================#
-#echo "Convert TF CSV Format similar to voc to Pascal VOC XML"
-#python $SCRIPTPREFIX/conversion/convert_tfcsv_to_voc.py \
-#--annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
-#--output_dir="results/$MODELNAME/$HARDWARENAME/det_xmls" \
-#--labelmap_file="annotations/$LABELMAP"
-
-
-echo #====================================#
-echo # Convert to Pycoco Tools JSON Format
-echo #====================================#
-echo "Convert TF CSV to Pycoco Tools csv"
-python $SCRIPTPREFIX/conversion/convert_tfcsv_to_pycocodetections.py \
---annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
---output_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json"
-
-echo #====================================#
-echo # Evaluate with Coco Metrics
-echo #====================================#
-
-python $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
---groundtruth_file="annotations/coco_pets_validation_annotations.json" \
---detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
---output_file="results/performance_$HARDWARENAME.csv" \
---model_name=$MODELNAME \
---hardware_name=$HARDWARENAME

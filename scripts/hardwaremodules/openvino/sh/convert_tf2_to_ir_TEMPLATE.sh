@@ -71,8 +71,6 @@ echo #==============================================#
 echo # CDLEML Process TF2 Object Detection API
 echo #==============================================#
 
-echo INFO: EXECUTE SCRIPT IN TARGET BASE FOLDER, e.g. samples/starwars_reduced
-
 # Constant Definition
 USEREMAIL=alexander.wendt@tuwien.ac.at
 #MODELNAME=tf2oda_efficientdet_512x384_pedestrian_D0_LR02
@@ -86,6 +84,8 @@ LABELMAP=label_map.pbtxt
 
 #Openvino installation directory for the model optimizer
 OPENVINOINSTALLDIR=/opt/intel/openvino_repo/openvino-master-100521
+#PRECISION=INT8
+PRECISIONLIST="FP16 FP32"
 
 #Extract model name from this filename
 get_model_name
@@ -112,10 +112,6 @@ alias python=python3
 echo #====================================#
 echo # Convert TF2 Model to OpenVino Intermediate Representation
 echo #====================================#
-
-#PRECISION=INT8
-
-PRECISIONLIST="FP16 FP32"
 
 for PRECISION in $PRECISIONLIST
 do

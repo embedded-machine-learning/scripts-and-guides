@@ -30,7 +30,7 @@ MODELSOURCE=exported-models/*
 SCRIPTBASENAME=convert_tf2_to_ir
 
 echo "Setup task spooler socket."
-. /home/intel-nuc/init_eda_ts.sh
+. ~/tf2odapi/init_eda_ts.sh
 
 
 for f in $MODELSOURCE

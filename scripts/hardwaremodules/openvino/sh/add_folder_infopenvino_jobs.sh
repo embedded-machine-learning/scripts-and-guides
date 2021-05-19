@@ -7,10 +7,10 @@
 add_job()
 {
   echo "Generate Training Script for $MODELNAME"
-  cp tf2_inf_eval_saved_model_TEMPLATE.sh tf2_inf_eval_saved_model_$MODELNAME.sh
+  cp $SCRIPTBASENAME\_TEMPLATE.sh $SCRIPTBASENAME\_$MODELNAME.sh
   echo "Add task spooler jobs for $MODELNAME to the task spooler"
   echo "Shell script tf2_inf_eval_saved_model_$MODELNAME.sh"
-  ts -L AW_$MODELNAME $CURRENTFOLDER/tf2_inf_eval_saved_model_$MODELNAME.sh
+  ts -L AW_$MODELNAME $CURRENTFOLDER/$SCRIPTBASENAME\_$MODELNAME.sh
 }
 
 ###
@@ -25,8 +25,9 @@ PYTHONENV=tf24
 #SCRIPTPREFIX=~/tf2odapi/scripts-and-guides/scripts/training
 CURRENTFOLDER=`pwd`
 #MODELSOURCE=jobs/*.config
-#MODELSOURCE=exported-models/*
-MODELSOURCE=temp/exported-models-temp/*
+MODELSOURCE=exported-models-openvino/*
+#MODELSOURCE=temp/exported-models-temp/*
+SCRIPTBASENAME=openvino_inf_eval_saved_model
 
 echo "Setup task spooler socket."
 . ~/tf2odapi/init_eda_ts.sh
