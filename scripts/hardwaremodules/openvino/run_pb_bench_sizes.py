@@ -115,15 +115,16 @@ def perform_inference(bench_app_file, is_linux, xml_path):
     if not os.path.isdir(os.path.dirname(report_dir)):
         os.makedirs(os.path.dirname(report_dir))
         print("Created ", os.path.dirname(report_dir))
-        
-    if api == "sync":
+
+    #if api == "sync":
     #    report_dir += "_sync"
-        niter_str = ""
-    elif api == "async":
+    #    niter_str = ""
+    #elif api == "async":
     #    report_dir += "_async_" #+ str(niter)
-        niter_str = str(niter)
+    #    niter_str = str(niter)
     if not os.path.isdir(report_dir):
         os.makedirs(report_dir)
+
     if is_linux:
         c_bench = ("python3 " + bench_app_file +
                    " --path_to_model " + xml_path)
@@ -161,13 +162,9 @@ def perform_inference(bench_app_file, is_linux, xml_path):
         sys.exit("An error has occured during benchmarking!")
     # rename the default report file name: Generate default names
     report_long_name = os.path.join(report_dir, "benchmark_average_counters_report.csv")
-    report_long_target_name = os.path.join(report_dir, "benchmark_average_counters_report_" +
-                                           model_name.split(".pb")[0] + "_" + FLAGS.hw + "_" +
-                                           str(api) + niter_str + ".csv")
+    report_long_target_name = os.path.join(report_dir, "benchmark_average_counters_report_" +FLAGS.hw + "_" + api + ".csv")
     report_short_name = os.path.join(report_dir, "benchmark_report.csv")
-    report_short_target_name = os.path.join(report_dir, "benchmark_report_" +
-                                            model_name.split(".pb")[0] + "_" + FLAGS.hw + "_" +
-                                            str(api) + niter_str + ".csv")
+    report_short_target_name = os.path.join(report_dir, "benchmark_report_" + FLAGS.hw + "_" + api + ".csv")
     # Delete file if it already exists
     if os.path.isfile(report_long_target_name):
         os.remove(report_long_target_name)
