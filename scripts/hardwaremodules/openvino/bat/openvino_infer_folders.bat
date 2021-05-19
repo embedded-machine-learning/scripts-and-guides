@@ -69,7 +69,7 @@ python %SCRIPTPREFIX%\hardwaremodules\openvino\run_pb_bench_sizes.py ^
 -api %APIMODE% ^
 -niter 1000 ^
 -xml exported-models-openvino/%MODELNAME%/saved_model.xml ^
--output_dir="results/%MODELNAME%/%HARDWARENAME%/OpenVino"
+-output_dir="results/%MODELNAME%/%HARDWARENAME%/openvino"
 
 ::-size [1,320,320,3] ^
 

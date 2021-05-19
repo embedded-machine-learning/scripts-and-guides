@@ -112,6 +112,10 @@ def perform_inference(bench_app_file, is_linux, xml_path):
     niter = FLAGS.niter
     api = FLAGS.api
     report_dir = FLAGS.output_dir  # "profiling_data"
+    if not os.path.isdir(os.path.dirname(report_dir)):
+        os.makedirs(os.path.dirname(report_dir))
+        print("Created ", os.path.dirname(report_dir))
+        
     if api == "sync":
     #    report_dir += "_sync"
         niter_str = ""
