@@ -17,9 +17,9 @@ The latency measurement inteface consists of two components:
 - csv file with measurements
 - text file with a database key
 
-### Latency.csv
+### latency.csv
 The following column headers shall be used for latency exchange:
-- Id: Identifier for the measurement set, e.g. a hash like HJDSJD83. The id is used to merge and enhance measurement sets to get everything as a single entry in a database
+- Index: Identifier for the measurement set that consists of the date in seconds + the model name, e.g. 20210610134408_tf2oda_ssdmobilenetv2_300x300_pets. The id is used to merge and enhance measurement sets to get everything as a single entry in a database
 - Date: Format yyyy-MM-DD HH:mm:ss e.g. 2021-03-09  23:29:00
 - Model: Long model name as used as file name, e.g. tf2oda_ssdmobilenetv2_320x320_pedestrian
 - Model_Short: For usage in figures, a short version of the model should be used, e.g. ssdmobnet_320x320. In case no special short name is supposed to be used, the long name should be used.
@@ -35,10 +35,15 @@ The following column headers shall be used for latency exchange:
 - Mean_Latency: calculated value from single measurements
 - Latencies: single latency measurements
 
-Hint: The network specific settings can be extracted from the long name according to the naming convention mentioned above. Please use the method \"def get_info_from_modelname(model_name, model_short_name=None, model_optimizer_prefix=['TRT', 'OV']):\" from [inference_utils.py](./inference_utils.py) for that task
+In [ hw_module_example_latency.csv](./hw_module_example_latency.csv), we present an example interface to use as a guidance.
 
-In [ hw_module_example_latency.csv](./hw_module_example_latency.csv), we present an example interface
+**Developer Hint**: The network specific settings can be extracted from the long name according to the naming convention mentioned above. Please use the method \"def get_info_from_modelname(model_name, model_short_name=None, model_optimizer_prefix=['TRT', 'OV'])\" from [inference_utils.py](../../inference_evaluation/inference_utils.py) for that task
 
+**Developer Hint**: The index in the coloum index shall be generated with the method \"generate_measurement_index(model_name)\" from [inference_utils.py](../../inference_evaluation/inference_utils.py)
+
+**Developer Hint**: 
+
+### index.txt
 
 
 ## Object Detection Interface
