@@ -36,6 +36,7 @@ import argparse
 import time
 import warnings
 from datetime import datetime
+import logging
 
 # Libs
 import numpy as np
@@ -94,9 +95,17 @@ parser.add_argument("-hw", '--hardware_name', default="Hardware", type=str,
 
 parser.add_argument('-mop', '--model_optimizer_prefix', type=str, default='TRT',
                     help='Prefix for Model Optimizer Settings', required=False)
-
+parser.add_argument('-id', '--index_save_file', type=str, default='./tmp/index.txt',
+                    help='Path to put index file to keep the same key for different types of measurements.',
+                    required=False)
 args = parser.parse_args()
-print(args)
+
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+log.addHandler(logging.StreamHandler())
+
+log.info(args)
+#print(args)
 
 
 def batch_input(batch_size, data_path, d_type, hw, is_keras=False):
@@ -143,7 +152,8 @@ def batch_input(batch_size, data_path, d_type, hw, is_keras=False):
 
 
 def infer_latency(infer, image_dir, hardware_name, model_name, model_short_name, latency_out,
-                  N_warmup_run=50, N_run=1000, batch_size=1, d_type='uint8', image_size=[300, 300]):
+                  N_warmup_run=50, N_run=1000, batch_size=1, d_type='uint8', image_size=[300, 300],
+                  index_save_file="./tmp/index.txt"):
     '''
 
 
@@ -187,7 +197,17 @@ def infer_latency(infer, image_dir, hardware_name, model_name, model_short_name,
     # throughput = N_run * batch_size / elapsed_time.sum()
 
     # Create the latency.csv file
-    save_latencies_to_csv(elapsed_time, batch_size, N_run, hardware_name, model_name, model_short_name, latency_out)
+    # Generate identifier for this run
+    index = inf.generate_measurement_index(model_name)
+    inf.save_latencies_to_csv(elapsed_time, batch_size, N_run, hardware_name, model_name, model_short_name, latency_out,
+                          index)
+    #Save index to a file
+    file1 = open(index_save_file, 'w')
+    file1.write(index)
+    print("Index {} used for latency measurement".format(index))
+
+
+
 
 
 def load_model(model_path):
@@ -207,22 +227,6 @@ def load_model(model_path):
     print('Finished. Elapsed time: {:.0f}s'.format(elapsed_time))
 
     return detect_fn
-
-
-# def create_single_imagedict(source, image_name):
-#     '''
-#
-#
-#     :type
-#
-#     '''
-#     image_dict = {}
-#     image_path = os.path.join(source, image_name)
-#     image_np = bbox.load_image_into_numpy_array(image_path)
-#     input_tensor = np.expand_dims(image_np, 0)
-#     image_dict[image_name] = (image_np, input_tensor)
-#     return image_dict
-
 
 def detect_image(detect_fn, image_path):
     '''
@@ -266,123 +270,9 @@ def detect_image(detect_fn, image_path):
     return image_filename, image_np, boxes, classes, scores, latency
 
 
-def convert_reduced_detections_to_df(image_filename, image_np, boxes, classes, scores, min_score=0.8):
-    image_width = image_np.shape[1]
-    image_height = image_np.shape[0]
-
-    column_name = ['filename', 'width', 'height', 'class', 'xmin', 'ymin', 'xmax', 'ymax', 'score']
-    xml_df = pd.DataFrame(columns=column_name)
-
-    for i in range(scores.shape[0]):
-        if min_score <= scores[i]:
-            ymin, xmin, ymax, xmax = tuple(boxes[i].tolist())
-            content = [image_filename, image_width, image_height,
-                       classes[i], xmin, ymin, xmax, ymax, scores[i]]
-            xml_df = xml_df.append(pd.DataFrame([content], columns=column_name))
-
-    return xml_df
-
-
-def plot_image(image, title=None):
-    ax = plt.subplot(111)
-    ax.tick_params(labelbottom=False, labelleft=False)
-    if title:
-        plt.title(title, fontsize=40)
-    plt.imshow(image)
-
-    plt.axis('off')
-    plt.tight_layout()
-
-    return plt.gcf()
-
-
-def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, model_name, model_short_name, latency_out):
-    '''
-    Save a list of latencies to csv file
-
-    :argument
-
-
-    :return
-        None
-
-    '''
-
-    # Get model info
-    model_info = inf.get_info_from_modelname(model_name, model_short_name)
-
-    # Calucluate mean latency
-    mean_latency = np.array(latencies).mean()
-
-    # Calulate throughput
-    # throughput = 1 / mean_latency
-    throughput = number_runs * batch_size / np.array(latencies).sum()
-
-    # Save latencies
-    print("Mean inference time: {}".format(mean_latency))
-    series_index = ['Date',
-                    'Model',
-                    'Model_Short',
-                    'Framework',
-                    'Network',
-                    'Resolution',
-                    'Dataset',
-                    'Custom_Parameters',
-                    'Hardware',
-                    'Hardware_Optimization',
-                    'Batch_Size',
-                    'Throughput',
-                    'Mean_Latency',
-                    'Latencies']
-    # framework = str(model_name).split('_')[0]
-    # network = str(model_name).split('_')[1]
-    # resolution = str(model_name).split('_')[2]
-    # dataset = str(model_name).split('_')[3]
-    # if (len(model_name.split("_", 4))>4):
-    #    custom_parameters = model_name.split("_", 4)[4]
-    # else:
-    #    custom_parameters = ""
-    content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-               model_info['model_name'],
-               model_info['model_short_name'],
-               model_info['framework'],
-               model_info['network'],
-               str(model_info['resolution']),
-               model_info['dataset'],
-               str(model_info['custom_parameters']),
-               hardware_name,
-               str(model_info['hardware_optimization']),
-               1,
-               throughput,
-               mean_latency,
-               str(latencies)]
-    # Create DataFrame
-    df = pd.DataFrame([pd.Series(data=content, index=series_index, name="data")])
-    df.set_index('Date', inplace=True)
-    # Append dataframe wo csv if it already exists, else create new file
-    if os.path.isfile(latency_out):
-        old_df = pd.read_csv(latency_out, sep=';')
-        old_df['Custom_Parameters'] = old_df['Custom_Parameters'].replace(np.nan, '', regex=True)
-        old_df['Model_Short'] = old_df['Model_Short'].replace(np.nan, '', regex=True)
-        old_df['Hardware_Optimization'] = old_df['Hardware_Optimization'].replace(np.nan, '', regex=True)
-
-        merged_df = old_df.reset_index().merge(df.reset_index(), how="outer").set_index('Date').drop(
-            columns=['index'])  # pd.merge(old_df, df, how='outer')
-
-        merged_df.to_csv(latency_out, mode='w', header=True, sep=';')
-        # df.to_csv(latency_out, mode='a', header=False, sep=';')
-        print("Appended evaluation to ", latency_out)
-    else:
-        df.to_csv(latency_out, mode='w', header=True, sep=';')
-        print("Created new measurement file ", latency_out)
-
-
-
-
-
 def infer_images(model_path, image_dir, latency_out, detections_out, min_score, model_name,
                  hardware_name, model_short_name=None, batch_size=1, image_size=None,
-                 model_optimizer_prefix='TRT'):
+                 model_optimizer_prefix='TRT', index_save_file="./tmp/index.txt"):
     '''
     Load a saved model, infer and save detections
 
@@ -395,6 +285,8 @@ def infer_images(model_path, image_dir, latency_out, detections_out, min_score, 
     if not os.path.isdir(os.path.dirname(latency_out)):
         os.makedirs(os.path.dirname(latency_out))
         print("Created ", os.path.dirname(latency_out))
+
+    os.makedirs(os.path.dirname(index_save_file), exist_ok=True)
 
     # Get model infos
     model_info = inf.get_info_from_modelname(model_name, model_short_name, model_optimizer_prefix=model_optimizer_prefix)
@@ -424,7 +316,7 @@ def infer_images(model_path, image_dir, latency_out, detections_out, min_score, 
     print("Perform latency tests.")
     infer_latency(detector, image_dir, hardware_name, model_name, model_info['model_short_name'], latency_out,
                   N_warmup_run=50, N_run=1000, batch_size=batch_size, d_type='uint8',
-                  image_size=image_size)
+                  image_size=image_size, index_save_file=index_save_file)
 
     # Define scores and latencies
     latencies = []
@@ -438,7 +330,7 @@ def infer_images(model_path, image_dir, latency_out, detections_out, min_score, 
 
         latencies.append(latency)
         # latencies=latencies.append(pd.DataFrame([[model_name, hardware_name, latency]], columns=['Network', 'Hardware', 'Latency']))
-        bbox_df = convert_reduced_detections_to_df(image_filename, image_np, boxes, classes, scores, min_score)
+        bbox_df = inf.convert_reduced_detections_tf2_to_df(image_filename, image_np, boxes, classes, scores, min_score)
         detection_scores = detection_scores.append(bbox_df)
 
     print("Mean latency without batch processing: {}".format(np.array(latencies[1:-1]).mean()))
@@ -449,23 +341,11 @@ def infer_images(model_path, image_dir, latency_out, detections_out, min_score, 
     detection_scores.to_csv(detections_out, index=None, sep=';')
     print("Detections saved to ", detections_out)
 
-    # if len(latencies) > 1:
-    #    latencies.pop(0)
-    #    print("Removed the first inference time value as it usually includes a warm-up phase. Size of old list: {}. "
-    #          "Size of new list: {}".format(len(latencies) + 1, len(latencies)))
-
-    # batch_size=1
-    # number_runs=len(latencies)
-
-    # save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, model_name, model_short_name, latency_out)
-
-    # print("Saved latency values to ", latency_out)
-
 
 if __name__ == "__main__":
     infer_images(args.model_path, args.image_dir, args.latency_out, args.detections_out, args.min_score,
                  args.model_name, args.hardware_name, model_short_name=args.model_short_name,
                  batch_size=args.batch_size, image_size=args.image_size,
-                 model_optimizer_prefix=args.model_optimizer_prefix)
+                 model_optimizer_prefix=args.model_optimizer_prefix, index_save_file=args.index_save_file)
 
     print("=== Program end ===")

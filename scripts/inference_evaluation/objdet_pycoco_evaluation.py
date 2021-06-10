@@ -33,6 +33,7 @@ License_info:
 import argparse
 import os
 from datetime import datetime
+import logging
 
 # Libs
 from pycocotools.coco import COCO
@@ -66,10 +67,23 @@ parser.add_argument("-ms", '--model_short_name', default=None, type=str,
                     help='Model name for collecting model data.', required=False)
 parser.add_argument("-hw", '--hardware_name', default='Default_Hardware',
                     help='Add hardware name', required=False)
+parser.add_argument('-id', '--index_save_file', type=str, default='./tmp/index.txt',
+                    help='Use the string in the index file as a key for the measurement to combine it with latency '
+                         'measurements.', required=False)
 args = parser.parse_args()
 
+log = logging.getLogger()
+stdout=logging.StreamHandler()
+#formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+formatter = logging.Formatter('%(message)s')
+stdout.setFormatter(formatter)
+log.addHandler(stdout)
+log.setLevel(logging.DEBUG)
 
-def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, hardware_name, model_short_name=None):
+log.info(args)
+
+def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, hardware_name, model_short_name=None,
+                       index_save_file="./tmp/index.txt"):
     '''
     Format the results: https://cocodataset.org/#format-results
     Helping source: https://detectron2.readthedocs.io/en/latest/_modules/detectron2/evaluation/coco_evaluation.html
@@ -115,10 +129,38 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
     cocoEval.accumulate()
     cocoEval.summarize()
 
+    #Save the Coco evaluation to a csv file
+    save_evalution_to_csv(cocoEval, hardware_name, model_name, model_short_name, output_file, index_save_file)
+
+
+def save_evalution_to_csv(cocoEval, hardware_name, model_name, model_short_name, output_file, index_save_file=None):
+    '''
+    Save the Coco evaluation to a csv file
+
+    :param cocoEval:
+    :param hardware_name:
+    :param index_save_file:
+    :param model_name:
+    :param model_short_name:
+    :param output_file:
+    :return:
+    '''
+
+    # Load index file
+    if not os.path.exists(index_save_file):
+        log.warning("Index file does not exist: {}. Generate a new index.".format(index_save_file))
+        index = datetime.now().strftime("%Y%m%d%H%M%S")
+        print("No index was provided. Create index ", index)
+    else:
+        with open(index_save_file) as f:
+            index = f.readline()
+        log.debug("Load index from file: {}. Value: {}".format(index_save_file, index))
+
+
     # Create df for file export
     content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"), model_name, model_short_name, hardware_name]
-
-    series_index = ['Date',
+    series_index = ['Index',
+                    'Date',
                     'Model',
                     'Model_Short',
                     'Framework',
@@ -140,19 +182,10 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
                     'DetectionBoxes_Recall/AR@100 (small)',
                     'DetectionBoxes_Recall/AR@100 (medium)',
                     'DetectionBoxes_Recall/AR@100 (large)']
-
     model_info = inf.get_info_from_modelname(model_name, model_short_name)
 
-    #framework = str(model_name).split('_')[0]
-    #network = str(model_name).split('_')[1]
-    #resolution = str(model_name).split('_')[2]
-    #dataset = str(model_name).split('_')[3]
-    #if (len(model_name.split("_", 4))>4):
-    #    custom_parameters = model_name.split("_", 4)[4]
-    #else:
-    #    custom_parameters = ""
-
-    content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    content = [index,
+               datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                model_name,
                model_short_name,
                model_info['framework'],
@@ -163,22 +196,19 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
                hardware_name,
                str(model_info['hardware_optimization'])
                ]
-
     content.extend(cocoEval.stats)
-
     # Create DataFrame
     df = pd.DataFrame([pd.Series(data=content, index=series_index, name="data")])
-    df.set_index('Date', inplace=True)
-
+    df.set_index('Index', inplace=True)
     # Append dataframe wo csv if it already exists, else create new file
     if os.path.isfile(output_file):
         old_df = pd.read_csv(output_file, sep=';')
         old_df['Custom_Parameters'] = old_df['Custom_Parameters'].replace(np.nan, '', regex=True)
         old_df['Model_Short'] = old_df['Model_Short'].replace(np.nan, '', regex=True)
-        #old_df['Custom_Parameters'] = old_df['Custom_Parameters'].astype(str)
+        # old_df['Custom_Parameters'] = old_df['Custom_Parameters'].astype(str)
         old_df['Hardware_Optimization'] = old_df['Hardware_Optimization'].replace(np.nan, '', regex=True)
 
-        merged_df = old_df.reset_index().merge(df.reset_index(), how="outer").set_index('Date').drop(
+        merged_df = old_df.reset_index().merge(df.reset_index(), how="outer").set_index('Index').drop(
             columns=['index'])  # pd.merge(old_df, df, how='outer')
 
         merged_df.to_csv(output_file, mode='w', header=True, sep=';')
@@ -189,10 +219,10 @@ def evaluate_inference(coco_gt_file, coco_det_file, output_file, model_name, har
         print("Created new measurement file ", output_file)
 
 
-
 if __name__ == "__main__":
 
     evaluate_inference(args.groundtruth_file, args.detection_file, args.output_file,
-                       args.model_name, args.hardware_name, model_short_name=args.model_short_name)
+                       args.model_name, args.hardware_name, model_short_name=args.model_short_name,
+                       index_save_file=args.index_save_file)
 
     print("=== Program end ===")

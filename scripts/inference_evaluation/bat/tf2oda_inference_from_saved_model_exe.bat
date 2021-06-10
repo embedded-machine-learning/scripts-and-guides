@@ -31,6 +31,7 @@ python %SCRIPTPREFIX%\inference_evaluation\tf2oda_inference_from_saved_model.py 
 --min_score=0.5 ^
 --model_name=%MODELNAME% ^
 --model_short_name=%MODELNAMESHORT% ^
---hardware_name=%HARDWARENAME%
+--hardware_name=%HARDWARENAME% ^
+--index_save_file="./tmp/index.txt"
 
 
