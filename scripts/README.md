@@ -36,16 +36,16 @@ makes the process faster
 </div>
 
 
-## Implementation
-The EML Toolbox is built around uniformity. 
+## Implementation and Interfaces
+The EML Toolbox is built around uniformity and common interfaces to minimize the need for customization.
 
-### Folder Structure
-First, we use a uniform folder structure. The folders has the following structure, starting from some base folder, .e.g $HOME:
+### Interface Folder Structure
+We use a uniform folder structure. The advantage is that we can copy prepared scripts into this folder structure and execute without changing anything in the scripts. It reduces the engineering effort of setting up new projects. The folders has the following structure, starting from some base folder, .e.g $HOME:
 - ./eml_projects 		#Project folder for custom projects)
 	- ./eml_projects/[YOUR PROJECT1]
 	- ./eml_projects/[YOUR PROJECT2]
 - ./scripts-and-guides 	#Scripts and guides repository
-- ./models 				#Tesnorflow Object Detection API reporsitory, however optional
+- ./models 				#Tensorflow Object Detection API reporsitory, however optional
 - ./protobuf 			#Protobuf as part of the Tensorflow Object Detection API
 - ./tf24 				#Tensorflow 2.4 python virtual environment
 
@@ -57,6 +57,35 @@ workspace.
 <div align="center">
   <img src="./_img/uniform_folder_structure.png", width="500">
 </div>
+
+### Interface Network File Names
+Much information is put into the filename of a certain network. Many evaluation tools use this information from the position in the file name. Therefore, it is important to
+keep on to this conventions, in order to prevent cusomization of tools.
+
+Network file name convention:
+[FRAMEWORK]_[NETWORKNAME]_[RESOLUTION_X]x[RESOLUTION_Y]_[DATASET]_[CUSTOM_PARAMETER_1]_[CUSTOM_PARAMETER_2]..._[CUSTOM_PARAMETER_n]
+
+[FRAMEWORK]: 
+- cf: Caffe
+- tf2: Tensorflow 2
+- tf2oda: Tensorflow 2 Object Detection API 
+- dk: Darknet
+- pt: PyTorch
+
+If no dataset is known, the following syntax is used.
+[DATASET] unknown: "ND"
+
+Examples:
+- tf2_mobilenetV2_224x224_coco_D100
+- pt_refinedet_480x360_imagenet_LR03_WR04
+- tf2oda_ssdmobilenetv2_320x320_pedestrian
+
+<div align="center">
+  <img src="./_img/uniform_naming_convention.png", width="400">
+</div>
+
+### Interface Hardware Modules for Inference
+For the connection of platform specific inference engines and model optimizers, we use the following hardware module interfaces: [Hardware Module Interfaces](./hardwaremodules/interfaces)
 
 ### Execution Scripts
 Within the common folder structure, we use an uniform execution of scripts. In the ./scripts-and-guides repository, there are two types of scripts: generalized python scripts
@@ -84,44 +113,13 @@ Additional Toolbox Extras:
   <img src="./_img/uniform_script_execution.png", width="500">
 </div>
 
-### Network File Names
-Much information is put into the filename of a certain network. Many evaluation tools use this information from the position in the file name. Therefore, it is important to
-keep on to this conventions, in order to prevent cusomization of tools.
-
-Network file name convention:
-[FRAMEWORK]_[NETWORKNAME]_[RESOLUTION_X]x[RESOLUTION_Y]_[DATASET]_[CUSTOM_PARAMETER_1]_[CUSTOM_PARAMETER_2]..._[CUSTOM_PARAMETER_n]
-
-[FRAMEWORK]: 
-- cf: Caffe
-- tf2: Tensorflow 2
-- tf2oda: Tensorflow 2 Object Detection API 
-- dk: Darknet
-- pt: PyTorch
-
-If no dataset is known, the following syntax is used.
-[DATASET] unknown: "ND"
-
-Examples:
-- tf2_mobilenetV2_224x224_coco_D100
-- pt_refinedet_480x360_imagenet_LR03_WR04
-- tf2oda_ssdmobilenetv2_320x320_pedestrian
-
-<div align="center">
-  <img src="./_img/uniform_naming_convention.png", width="400">
-</div>
-
-### Hardware Module Interfaces
-For the connection of platform specific inference engines and model optimizers, we use the following hardware module interfaces: [Hardware Module Interfaces](./hardwaremodules/interfaces)
-
-
 ### Supported Hardware
-At the current state, the EML toolbox supports the following hardware platforms:
-- NVIDIA Xavier
-- Intel NUC
-
-It support the following networks:
-- Tensorflow 2 Object Detection API SSD-MobileNet
-- Tensorflow 2 Object Detection API EfficientDet
+At the current state, the EML toolbox supports the following network - hardware platform - hardware optimization combinations:
+- Tensorflow 2 Object Detection API SSD-MobileNet | NVIDIA Xavier | Tensorflow 2
+- Tensorflow 2 Object Detection API EfficientDet | NVIDIA Xavier | Tensorflow 2
+- Tensorflow 2 Object Detection API SSD-MobileNet | Intel NUC | OpenVino
+- Tensorflow 2 Object Detection API SSD-MobileNet | Intel NCS2 | OpenVino
+- Tensorflow 2 Object Detection API | Intel NUC | Tensorflow 2
 
 ## Guides how to use the Toolbox
 The following guides will help the user to setup and execute the EML Toolbox.
