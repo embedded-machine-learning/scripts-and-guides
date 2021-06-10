@@ -6,9 +6,18 @@ we added example interfaces to the hardware modules
 
 The basic idea is to exchange data through csv files, which are very general. Each measurement set shall be added as one row in the file. For each interface certain column 
 headers are defined. These headers are the interfaces, which shall be common. It is possible to merge latency and performance into one file with multiple or even sparse use of 
-headers
+headers.
+
+For developers, who are working with hardware modules, the following interfaces shall be developed for each hardware module.
+- Latency Measurement Interface
+- Object Detection Interface for object detection models
 
 ## Latency Measurement Interface
+The latency measurement inteface consists of two components:
+- csv file with measurements
+- text file with a database key
+
+### Latency.csv
 The following column headers shall be used for latency exchange:
 - Id: Identifier for the measurement set, e.g. a hash like HJDSJD83. The id is used to merge and enhance measurement sets to get everything as a single entry in a database
 - Date: Format yyyy-MM-DD HH:mm:ss e.g. 2021-03-09  23:29:00
@@ -26,9 +35,14 @@ The following column headers shall be used for latency exchange:
 - Mean_Latency: calculated value from single measurements
 - Latencies: single latency measurements
 
-The network specific settings can be extracted from the long name according to the naming convention.
+Hint: The network specific settings can be extracted from the long name according to the naming convention mentioned above. Please use the method \"def get_info_from_modelname(model_name, model_short_name=None, model_optimizer_prefix=['TRT', 'OV']):\" from [inference_utils.py](./inference_utils.py) for that task
 
 In [ hw_module_example_latency.csv](./hw_module_example_latency.csv), we present an example interface
+
+
+
+## Object Detection Interface
+
 
 ## Performance Measurement Interface for Object Detection
 The following column headers shall be used for performance of object detection exchange. The network+hardware identifier is 
