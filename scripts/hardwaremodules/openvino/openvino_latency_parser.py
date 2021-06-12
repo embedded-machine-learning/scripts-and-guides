@@ -73,6 +73,9 @@ parser.add_argument("-l", '--delimiter', type=str, default=";",
                     help='whatever the csv uses as delimiter', required=False)
 parser.add_argument("-o", '--output_path', type=str, default="results/latency.csv",
                     help='Output file to write new or to apped to.', required=False)
+parser.add_argument('-id', '--index_save_file', type=str, default='./tmp/index.txt',
+                    help='Path to put index file to keep the same key for different types of measurements.',
+                    required=False)
 
 parser.add_argument('--save_new', dest='save_new', action='store_true')
 # parser.add_argument('--append', dest='save_new', action='store_false')
@@ -85,7 +88,7 @@ print(args)
 keywords = ["target device", "--path_to_model", "number of parallel infer requests",
             "API", "batch size", "latency (ms)", "throughput"]  # , "precision"]
 # keywords used in the EML data structure
-latency_keywords = ["Date", "Model", "Model_Short", "Framework", "Network", "Resolution", "Dataset",
+latency_keywords = ["Index", "Date", "Model", "Model_Short", "Framework", "Network", "Resolution", "Dataset",
                     "Custom_Parameters",
                     "Hardware", "Hardware_Optimization", "Batch_Size", "Throughput", "Mean_Latency", "Latencies"]
 
@@ -140,6 +143,15 @@ def extract_information_avg_rep(report_data):
 
     return layers_durations, layer_names, network_duration
 
+def generate_measurement_index(model_name):
+    '''
+    Generate an index for a measurement that is used as a database key.
+
+    :param model_name: Model name long
+    :return: index
+    '''
+    index = datetime.now().strftime("%Y%m%d%H%M%S") + "_" + model_name
+    return index
 
 def extract_information_inf_rep(report_data):
     # inf rep data format is ["Command line parameters", parameters]
@@ -175,7 +187,6 @@ def extract_information_inf_rep(report_data):
                             #str(model_info['custom_parameters']),
                             #hardware_name,
                             #str(model_info['hardware_optimization']
-
 
 
                             if "_" in extracted_inf["full_name"]:
@@ -233,7 +244,18 @@ def extract_information_inf_rep(report_data):
 
 def reformat_inf(extracted_inf, hardware_name=None):
     # build a dataframe according to the latency data format in latency_keywords
-    new_frame = [str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))]  # Date
+    index = generate_measurement_index(extracted_inf["full_name"])
+
+    # Save index
+    # Save index to a file
+    os.makedirs(os.path.dirname(args.index_save_file), exist_ok=True)
+
+    file1 = open(args.index_save_file, 'w')
+    file1.write(index)
+    print("Index {} used for latency measurement".format(index))
+
+    new_frame = [index]
+    new_frame.append(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))  # Date
     new_frame.append(extracted_inf["full_name"])  # Model
     new_frame.append(extracted_inf["short_name"])  # Model_Short
     new_frame.append(extracted_inf["framework"])  # Framework
@@ -259,7 +281,6 @@ def reformat_inf(extracted_inf, hardware_name=None):
     new_frame.append(None)  # Latencies
     print(new_frame)
     return new_frame
-
 
 def parse_avg_report(report_path, delimiter):
     # check if passed report file exists

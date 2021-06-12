@@ -59,8 +59,8 @@ echo #====================================#
 echo # Convert TF2 Model to OpenVino Intermediate Representation
 echo #====================================#
 echo "Define API config file"
-set APIFILEEFF=%SCRIPTPREFIX%\hardwaremodules\openvino\openvino_conversion_config\efficient_det_support_api_v2.4.json
-set APIFILESSD=%SCRIPTPREFIX%\hardwaremodules\openvino\openvino_conversion_config\ssd_support_api_v2.4.json
+set APIFILEEFF=%OPENVINOINSTALLDIR%\model-optimizer\extensions\front\tf\efficient_det_support_api_v2.4.json
+set APIFILESSD=%OPENVINOINSTALLDIR%\model-optimizer\extensions\front\tf\\ssd_support_api_v2.4.json
 set APIFILE=ERROR
 
 if not x%MODELNAME:ssd=%==x%MODELNAME% (set APIFILE=%APIFILESSD%)

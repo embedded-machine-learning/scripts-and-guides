@@ -144,7 +144,7 @@ def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, mod
 
     # If
     if not index:
-        index = datetime.now().strftime("%Y%m%d%H%M%S")
+        index = datetime.now().strftime("%Y%m%d%H%M%S") + "_" + model_name
         print("No index was provided. Create index ", index)
 
     # Calucluate mean latency

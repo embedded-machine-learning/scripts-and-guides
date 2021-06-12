@@ -207,6 +207,9 @@ if __name__ == "__main__":
         ],
     )
 
+    # Warn if no detections
+    print(detections)
+
     # Create output directories
     if not os.path.isdir(os.path.dirname(args.detections_out)):
         os.makedirs(os.path.dirname(args.detections_out))

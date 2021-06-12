@@ -149,12 +149,16 @@ def save_evalution_to_csv(cocoEval, hardware_name, model_name, model_short_name,
     # Load index file
     if not os.path.exists(index_save_file):
         log.warning("Index file does not exist: {}. Generate a new index.".format(index_save_file))
-        index = datetime.now().strftime("%Y%m%d%H%M%S")
+        index = datetime.now().strftime("%Y%m%d%H%M%S") + "_" + model_name
         print("No index was provided. Create index ", index)
     else:
         with open(index_save_file) as f:
             index = f.readline()
         log.debug("Load index from file: {}. Value: {}".format(index_save_file, index))
+        
+        #Remove the index file as a new inex shall be used next time
+        os.remove(index_save_file)
+        log.debug("Temporary index file removed from {}".format(index_save_file))
 
 
     # Create df for file export

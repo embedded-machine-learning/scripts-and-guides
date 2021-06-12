@@ -69,7 +69,7 @@ python %SCRIPTPREFIX%\hardwaremodules\openvino\run_pb_bench_sizes.py ^
 -api %APIMODE% ^
 -niter 1000 ^
 -xml exported-models-openvino/%MODELNAME%/saved_model.xml ^
--output_dir="results/%MODELNAME%/%HARDWARENAME%/openvino"
+-output_dir="results/%MODELNAME%/%HARDWARENAME%/OpenVino"
 
 ::-size [1,320,320,3] ^
 
@@ -126,6 +126,15 @@ python %SCRIPTPREFIX%\inference_evaluation\objdet_pycoco_evaluation.py ^
 --output_file="results/performance.csv" ^
 --model_name=%MODELNAME% ^
 --hardware_name=%HARDWARENAME%_%HARDWARETYPE%
+
+echo #====================================#
+echo # Merge results to one result table
+echo #====================================#
+echo merge latency and evaluation metrics
+python %SCRIPTPREFIX%\inference_evaluation\merge_results.py ^
+--latency_file="results/latency.csv" ^
+--coco_eval_file="results/performance.csv" ^
+--output_file="results/combined_results.csv"
 
 echo "Inference finished"
 goto :eof
