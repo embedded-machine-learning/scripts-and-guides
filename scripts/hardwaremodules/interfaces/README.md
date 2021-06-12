@@ -22,6 +22,7 @@ The evaluation metric interface consists of the following component:
 
 ### latency.csv
 **This file shall be implemented for each hardware module.**
+
 In the latency.csv, the latency measurements are collected. Each measurement has is a single record.
 
 The following column headers shall be used for latency exchange:
@@ -49,6 +50,7 @@ In [ latency.csv](./latency.csv), we present an example interface to use as a gu
 
 ### index.txt
 **This file shall be implemented for each hardware module.**
+
 Usually, latency and evaluation metrics are measured separately. To be able to combine latency measurements with power or evaluation metric, we need to use a key value for the measurement.
 This is done by writing the single string value into a file, [index.txt](./index.txt) after each measurement of latency. This value is written as the first row in the index file.
 
@@ -65,6 +67,7 @@ In [index.txt](./index.txt), an example is given.
 
 ### Object Detection Interface
 **This file shall be implemented for each hardware module.**
+
 The result of the inference is latency and bounding boxes. Each framework has its special format. For further processing, the detections are brought into a common format. 
 This format is based on the Tensorflow 2 used format. In the file, each bounding box is a row.
 
