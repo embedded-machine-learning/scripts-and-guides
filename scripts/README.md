@@ -161,7 +161,7 @@ If everything is setup correctly and there are exported models in `./exported-mo
 5. Results will be written into `./results` with a folder for each model and hardware as well as result files according to [Hardware Module Interfaces](./hardwaremodules/interfaces)
 
 ## Requirements for Connected Projects
-**EML-IF 1:** The training project shall be setup with an virtual environment (venv) on EDA02 for training with at least demo data. A training demo or the real project shall be 
+**EML-IF 1:** The training project shall be setup with a virtual environment (venv) on EDA02 for training with at least demo data. A training demo or the real project shall be 
 able to be executed without any changes of the start script. 
 
 **EML-IF 2:** The following folder structure shall be used for the training and inference project unless customization is necessary:
@@ -173,11 +173,16 @@ able to be executed without any changes of the start script.
 **EML-IF 4:** Exported models after training shall use the following naming convention: 
 [https://github.com/embedded-machine-learning/scripts-and-guides/blob/main/scripts/README.md#interface-network-folder-and-file-names](https://github.com/embedded-machine-learning/scripts-and-guides/blob/main/scripts/README.md#interface-network-folder-and-file-names)
 
-**EML-IF 5:** All networks shall implement the following interface for latency measurements:
+**EML-IF 5:** The inference project shall be setup on at least one inference device with demo or real validation data. The project shall be 
+able to be executed without any changes of the start script. 
+
+**EML-IF 6:** All networks shall implement the following interface for latency measurements:
 [https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Interface-for-Hardware-Module-Developers](https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Interface-for-Hardware-Module-Developers)
 
-**EML-IF 6:** If applicable, All networks shall implement the following interface for object detection measurements:
+**EML-IF 7:** If applicable, All networks shall implement the following interface for object detection measurements:
 [https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Object-Detection-Interface](https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Object-Detection-Interface)
+
+
 
 ## Upcoming
 
