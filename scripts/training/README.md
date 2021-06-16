@@ -1,4 +1,4 @@
-# Training_Scripts
+# Training Scripts
 Everything that is needed to train a certain network on a server or locally is provided here. Together with each script, 
 you find sample data and a script file (.bat or .sh) that executes on the sample data.
 
@@ -8,6 +8,17 @@ Tensorflow 2.4
 Requirements file: requirements_tf24odapi.txt
 
 Install TF2 Object Detection API: install_tf2odapi.sh
+
+## Training Files Structure
+The Machine Learning Frameworks offer many possibilites to implement training and inference within a project. Much depends on the experience and habits of the developer. To overcome incompatibilites between frameworks and networks and to easily train multiple networks with the same or similar scripts, we define a certain basic structure for the execution of the training and optimization of networks. The purpose is also to encapsulate the python code, to be able only to use shell scripts for execution without customization.
+
+In the training folder, the following processes shall be executed as separate python scripts, i.e. a .sh script with arguments shall start the different process steps:
+1. Generate or download training data, e.g. generate_data.py (Optional)
+2. Train baseline model as the standard training script of a certain network, e.g. train.py
+3. Optimize or retrain model, which is the place, where our optimization algorithms will be applied (Optional)
+4. Export finished model from checkpoints or intermediate representations
+
+Note: The script train baseline model can be a part of the optimize model script
 
 ## Tensorflow 2 Object Detection API
 Load TF2 Object Detection API environment: init_eda_env.sh
