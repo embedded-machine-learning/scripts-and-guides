@@ -12,7 +12,7 @@ Install TF2 Object Detection API: install_tf2odapi.sh
 ## Training Files Structure
 The Machine Learning Frameworks offer many possibilites to implement training and inference within a project. Much depends on the experience and habits of the developer. To overcome incompatibilites between frameworks and networks and to easily train multiple networks with the same or similar scripts, we define a certain basic structure for the execution of the training and optimization of networks. The purpose is also to encapsulate the python code, to be able only to use shell scripts for execution without customization.
 
-In the training folder, the following processes shall be executed as separate python scripts, i.e. a .sh script with arguments shall start the different process steps:
+In the training folder, the following processes shall be executed as separate python scripts, i.e. an .sh script with arguments shall start the different process steps:
 1. Generate or download training data, e.g. generate_data.py (Optional)
 2. Train baseline model as the standard training script of a certain network, e.g. train.py
 3. Optimize or retrain model, which is the place, where our optimization algorithms will be applied (Optional)
