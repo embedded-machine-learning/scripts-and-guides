@@ -160,6 +160,25 @@ If everything is setup correctly and there are exported models in `./exported-mo
 4. As the task starts, inference will be done on the model that is part of the file name.
 5. Results will be written into `./results` with a folder for each model and hardware as well as result files according to [Hardware Module Interfaces](./hardwaremodules/interfaces)
 
+## Requirements for Connected Projects
+**EML-IF 1:** The training project shall be setup with an virtual environment (venv) on EDA02 for training with at least demo data. A training demo or the real project shall be 
+able to be executed without any changes of the the start script. 
+
+**EML-IF 2:** The following folder structure shall be used for the training and inference project unless customization is necessary:
+[https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/template_workspace](https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/template_workspace)
+
+**EML-IF 3:** Training and optimization scripts shall have the following structure:
+[https://github.com/embedded-machine-learning/scripts-and-guides/blob/main/scripts/training/README.md#training-files-structure](https://github.com/embedded-machine-learning/scripts-and-guides/blob/main/scripts/training/README.md#training-files-structure)
+
+**EML-IF 4:** Exported models after training shall use the folling naming convention: 
+[https://github.com/embedded-machine-learning/scripts-and-guides/blob/main/scripts/README.md#interface-network-folder-and-file-names](https://github.com/embedded-machine-learning/scripts-and-guides/blob/main/scripts/README.md#interface-network-folder-and-file-names)
+
+**EML-IF 5:** All networks shall implement the following interface for latency measurements:
+[https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Interface-for-Hardware-Module-Developers](https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Interface-for-Hardware-Module-Developers)
+
+**EML-IF 6:** If applicable, All networks shall implement the following interface for object detection measurements:
+[https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Object-Detection-Interface](https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Object-Detection-Interface)
+
 ## Upcoming
 
 ### Hardware Platforms
@@ -167,8 +186,6 @@ If everything is setup correctly and there are exported models in `./exported-mo
 
 ### Networks
 - YoloV4
-
-
 
 
 #### Usage of the Scripts Repository
