@@ -58,11 +58,13 @@ workspace.
   <img src="./_img/uniform_folder_structure.png", width="500">
 </div>
 
-### Interface Network File Names
-Much information is put into the filename of a certain network. Many evaluation tools use this information from the position in the file name. Therefore, it is important to
-keep on to this conventions, in order to prevent cusomization of tools.
+### Interface Network Folder and File Names
+Much information is put into the folder name of a certain network. Many evaluation tools use this information from the position in the file name. Therefore, it is important to
+keep on to this conventions, in order to prevent customization of tools. The following naming convention is based on the structure of Tensorflow 2. 
 
-Network file name convention:
+Each model shall be put into a separate folder. Model file names shall be kept the same, e.g. saved_model.pb, while the folder name helds information about the network.
+
+Network folder name convention:
 [FRAMEWORK]_[NETWORKNAME]_[RESOLUTION_X]x[RESOLUTION_Y]_[DATASET]_[CUSTOM_PARAMETER_1]_[CUSTOM_PARAMETER_2]..._[CUSTOM_PARAMETER_n]
 
 [FRAMEWORK]: 
@@ -158,6 +160,30 @@ If everything is setup correctly and there are exported models in `./exported-mo
 4. As the task starts, inference will be done on the model that is part of the file name.
 5. Results will be written into `./results` with a folder for each model and hardware as well as result files according to [Hardware Module Interfaces](./hardwaremodules/interfaces)
 
+## Requirements for Connected Projects
+**EML-IF 1:** The training project shall be setup with a virtual environment (venv) on EDA02 for training with at least demo data. A training demo or the real project shall be 
+able to be executed without any changes of the start script. 
+
+**EML-IF 2:** The following folder structure shall be used for the training and inference project unless customization is necessary:
+[https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/template_workspace](https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/template_workspace)
+
+**EML-IF 3:** Training and optimization scripts shall have the following structure:
+[https://github.com/embedded-machine-learning/scripts-and-guides/blob/main/scripts/training/README.md#training-files-structure](https://github.com/embedded-machine-learning/scripts-and-guides/blob/main/scripts/training/README.md#training-files-structure)
+
+**EML-IF 4:** Exported models after training shall use the following naming convention: 
+[https://github.com/embedded-machine-learning/scripts-and-guides/blob/main/scripts/README.md#interface-network-folder-and-file-names](https://github.com/embedded-machine-learning/scripts-and-guides/blob/main/scripts/README.md#interface-network-folder-and-file-names)
+
+**EML-IF 5:** The inference project shall be setup on at least one inference device with demo or real validation data. The project shall be 
+able to be executed without any changes of the start script. 
+
+**EML-IF 6:** All networks shall implement the following interface for latency measurements:
+[https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Interface-for-Hardware-Module-Developers](https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Interface-for-Hardware-Module-Developers)
+
+**EML-IF 7:** If applicable, All networks shall implement the following interface for object detection measurements:
+[https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Object-Detection-Interface](https://github.com/embedded-machine-learning/scripts-and-guides/tree/main/scripts/hardwaremodules/interfaces#Object-Detection-Interface)
+
+
+
 ## Upcoming
 
 ### Hardware Platforms
@@ -165,8 +191,6 @@ If everything is setup correctly and there are exported models in `./exported-mo
 
 ### Networks
 - YoloV4
-
-
 
 
 #### Usage of the Scripts Repository
