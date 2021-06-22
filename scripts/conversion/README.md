@@ -88,6 +88,30 @@ Examples:
 python convert_voc_to_tfrecord_mod.py -x "samples/annotations/xml" -i "samples/images" -l "samples/annotations/sw_label_map.pbtxt" -o "samples/prepared-records/train_voc.record" -n 2
 ```
 
+## VOC to Yololike format CustomText
+Source: [https://github.com/david8862/keras-YOLOv3-model-set](https://github.com/david8862/keras-YOLOv3-model-set)
+
+Data annotation file format:
+One row for one image in annotation file;
+Row format: image_file_path box1 box2 ... boxN;
+Box format: x_min,y_min,x_max,y_max,class_id (no space).
+Example: path/to/img1.jpg 50,100,150,200,0 30,50,200,120,3
+
+Script: `convert_voc_to_customtext.py` 
+
+Example: 
+```shell
+echo Convert training data
+set TYPE=train
+python %SCRIPTPREFIX%\conversion\convert_voc_to_customtext.py ^
+--annotations_dir=annotations/xmls ^
+--image_dir=images/%TYPE% ^
+--output_path=annotations/yolo/yolo_%TYPE%.txt ^
+--classes_path=annotations/labels.txt ^
+--include_difficult ^
+--include_no_obj
+```
+
 ## TF CSV to PASCAL VOC
 Tensorflow uses a csv format that looks like the yolo format for intermediate representations. This script converts from the intermediate format to Pascal VOC.
 
