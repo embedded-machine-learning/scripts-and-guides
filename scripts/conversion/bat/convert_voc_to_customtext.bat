@@ -1,3 +1,7 @@
+@echo off
+
+:main
+
 echo #==============================================#
 echo # CDLEML Process
 echo #==============================================#
@@ -18,8 +22,16 @@ echo #====================================#
 echo # Convert COV to Custom Text format that is used in https://github.com/david8862/keras-YOLOv3-model-set
 echo #====================================#
 
-echo Convert training data
-set TYPE=train
+for %%x in (train validation) do (
+		::For each possible quantization
+		set TYPE=%%x
+		call :convert
+	)
+	
+goto :eof
+
+:convert
+echo Convert %TYPE% data
 python %SCRIPTPREFIX%\conversion\convert_voc_to_customtext.py ^
 --annotations_dir=annotations/xmls ^
 --image_dir=images/%TYPE% ^
@@ -27,3 +39,7 @@ python %SCRIPTPREFIX%\conversion\convert_voc_to_customtext.py ^
 --classes_path=annotations/labels.txt ^
 --include_difficult ^
 --include_no_obj
+
+goto :eof
+
+:end

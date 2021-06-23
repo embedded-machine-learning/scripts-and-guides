@@ -192,7 +192,7 @@ def voc_to_yolo():
     #    sets = [item for item in sets if item[1] == args.set]
 
     # count class item number in each set
-    class_count = OrderedDict([(item, i+1) for i, item in enumerate(classes)])
+    class_count = OrderedDict([(item, i) for i, item in enumerate(classes)])
 
     #for year, image_set in sets:
     #Load all image ids from existing pascal voc files
@@ -215,10 +215,10 @@ def voc_to_yolo():
     list_file = open(os.path.join(args.output_path), 'w')
     pbar = tqdm(total=len(image_ids), desc='Converting VOC')
     for image_id in image_ids:
-        file_string = os.path.join(args.image_dir, image_id + ".jpg")
+        file_string = os.path.join(args.image_dir, image_id + ".jpg").replace('\\', '/')
         # check if the image file exists
         if not os.path.exists(file_string):
-            file_string = os.path.join(args.image_dir, image_id + ".jpeg")
+            file_string = os.path.join(args.image_dir, image_id + ".jpeg").replace('\\', '/')
         if not os.path.exists(file_string):
             raise ValueError('image file for id: {} not exists'.format(image_id))
 
@@ -227,7 +227,7 @@ def voc_to_yolo():
             convert_annotation(args.annotations_dir, image_id, list_file, args.include_difficult, classes, class_count)
             list_file.write('\n')
         elif args.include_no_obj:
-            warnings.warn("No xml file for image ", image_id)
+            warnings.warn("No xml file for image {}".format(image_id))
             # include no object image. just write file path
             #list_file.write(file_string)
             #list_file.write('\n')
