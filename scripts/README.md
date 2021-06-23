@@ -73,6 +73,7 @@ Network folder name convention:
 - tf2oda: Tensorflow 2 Object Detection API 
 - dk: Darknet
 - pt: PyTorch
+- tf2ke: Tensorflow 2 Keras
 
 If no dataset is known, the following syntax is used.
 [DATASET] unknown: "ND"
