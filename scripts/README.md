@@ -162,9 +162,9 @@ If everything is setup correctly and there are exported models in `./exported-mo
 5. Results will be written into `./results` with a folder for each model and hardware as well as result files according to [Hardware Module Interfaces](./hardwaremodules/interfaces)
 
 ## Requirements for Connected Projects
-The following requirements shall be implemented to be compatible to the EML Tool. If you are new to this topic, it is recommended to follow this process.
+The following requirements shall be implemented to be compatible to the EML Tool. If you are new to this topic, it is recommended to follow this process:
 1. Setup the target system exactly as described in a reliable guide with their example networks
-2. As soon as e.g. inference is possible with the standard method, then try to adapt the folder structure and execution scripts 
+2. As soon as inference is possible with the standard method, then try to adapt the folder structure and the execution scripts 
 
 **EML-IF 1:** The training project shall be setup with a virtual environment (venv) on EDA02 for training with at least demo data. A training demo or the real project shall be 
 able to be executed without any changes of the start script. 
