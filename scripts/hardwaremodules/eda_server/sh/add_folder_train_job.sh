@@ -23,6 +23,10 @@ SCRIPTPREFIX=~/tf2odapi/scripts-and-guides/scripts/training
 CURRENTFOLDER=`pwd`
 MODELSOURCE=jobs/*.config
 
+echo "#==============================================#"
+echo "# CDLEML Tool Add jobs to Task Spooler"
+echo "#==============================================#"
+
 echo "Setup task spooler socket."
 . ~/init_eda_ts.sh
 

@@ -1,10 +1,8 @@
 #!/bin/sh
 
-echo #==============================================#
-echo # CDLEML Process TF2 Object Detection API
-echo #==============================================#
-
-echo INFO: EXECUTE SCRIPT IN TARGET BASE FOLDER, e.g. samples/starwars_reduced
+echo "#==============================================#"
+echo "# CDLEML Tool TF2 Object Detection API Training"
+echo "#==============================================#"
 
 # Constant Definition
 USERNAME=wendt
@@ -13,6 +11,7 @@ USEREMAIL=alexander.wendt@tuwien.ac.at
 PYTHONENV=tf24
 BASEPATH=`pwd`
 SCRIPTPREFIX=../../scripts-and-guides/scripts/training
+
 
 #Extract model name from this filename
 MYFILENAME=`basename "$0"`
@@ -31,18 +30,18 @@ echo Activate environment $PYTHONENV
 echo "Start training of $MODELNAME on EDA02" | mail -s "Start training of $MODELNAME" $USEREMAIL
 
 
-echo #====================================#
-echo #Train model
-echo #====================================#
+echo "#====================================#"
+echo "#Train model"
+echo "#====================================#"
 echo model used $MODELNAME
 
 python $SCRIPTPREFIX/tf2oda_model_main_training.py \
 --pipeline_config_path=$BASEPATH/jobs/$MODELNAME.config \
 --model_dir=$BASEPATH/models/$MODELNAME
 
-echo #====================================#
-echo #Evaluate trained model
-echo #====================================#
+echo "#====================================#"
+echo "#Evaluate trained model"
+echo "#====================================#"
 echo Evaluate checkpoint performance in tensorboard
 
 python $SCRIPTPREFIX/tf2oda_evaluate_ckpt_performance.py \
@@ -56,24 +55,25 @@ python $SCRIPTPREFIX/tf2oda_read_tf_summary.py \
 --checkpoint_dir=$BASEPATH/models/$MODELNAME \
 --out_dir=result/$MODELNAME/metrics
 
-echo #====================================#
-echo #Export inference graph
-echo #====================================#
-echo Export model %modelname%
+echo "#====================================#"
+echo "#Export inference graph"
+echo "#====================================#"
+echo Export model $MODELNAME
 python $SCRIPTPREFIX/tf2oda_export_savedmodel.py \
 --input_type="image_tensor" \
 --pipeline_config_path=$BASEPATH/jobs/$MODELNAME.config \
 --trained_checkpoint_dir=$BASEPATH/models/$MODELNAME \
 --output_directory=exported-models/$MODELNAME
 
-echo #====================================#
-echo #Copy Exported Graph to Pickup folder
-echo #====================================#
+echo "#====================================#"
+echo "#Copy Exported Graph to Pickup folder"
+echo "#====================================#"
 mkdir tmp
 cp -ar exported-models/$MODELNAME tmp
 
+
 echo "Stop Training of $MODELNAME on EDA02" | mail -s "Training of $MODELNAME finished" $USEREMAIL
 
-echo #======================================================#
-echo # Training, evaluation and export of the model completed
-echo #======================================================# 
+echo "#======================================================#"
+echo "# Training, evaluation and export of the model completed"
+echo "#======================================================#"

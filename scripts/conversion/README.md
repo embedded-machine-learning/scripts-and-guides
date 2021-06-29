@@ -141,12 +141,28 @@ python %SCRIPTPREFIX%\conversion\convert_tfcsv_to_pycocodetections.py ^
 --output_file="results/%MODELNAME%/validation_for_inference/coco_pets_detection_annotations.json
 ```
 
-## TF2 Keras to TF1 Frozen
+## TF2 Keras to TF1 Frozen - OBSOLETE
+The following script converts a .h5 model to TF1 frozen model. Forced conversion should not be used. Therefore, this conversion method is obsolete. Instead, use convert_kerash5_to_tf2.py
+
 Source:
 
 Script: `convert_tf2keras_to_tf1frozen.py`
 
 Examples:
+
+## TF2 Keras to TF2 Saved Model
+Source:
+
+Script: `convert_kerash5_to_tf2.py`
+
+Examples:
+```
+python convert_kerash5_to_tf2.py ^
+--input_path="exported-models/tf2ke_yolo3mobilenetlite_448x448_pets/saved_model.h5" ^
+--output_dir="exported-models/tf2ke_yolo3mobilenetlite_448x448_pets"
+```
+
+
 
 ## Darkent2caffe
 Source: [Darknet](https://github.com/ysh329/darknet2caffe)
