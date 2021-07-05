@@ -84,7 +84,7 @@ python $SCRIPTPREFIX/inference_evaluation/tf2oda_inference_from_saved_model.py \
 --latency_out="results/latency_$HARDWARENAME.csv" \
 --min_score=0.5 \
 --model_name=$MODELNAME \
---hardware_name=$HARDWARENAME
+--hardware_name=$HARDWARENAME \
 --batch_size=1 \
 
 #--image_size="[$height, $width]" Optional to use if another size as provided in the model name is used
