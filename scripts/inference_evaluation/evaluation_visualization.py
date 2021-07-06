@@ -99,7 +99,7 @@ def visualize_latency(df, output_dir):
         hwopt = row['Hardware_Optimization']
         print("Processing {} on {}".format(network, device))
         #FIXME: This is not a clean way to check if the field is empty
-        if not row['Latencies'] is None:
+        if not row['Latencies'] is None and not np.isnan(row['Latencies']):
             col = ast.literal_eval(row['Latencies'])
             values.append(np.array(col))
         else:
@@ -124,7 +124,7 @@ def visualize_latency(df, output_dir):
             hwopt = row['Hardware_Optimization']
             print("Processing {} on {}".format(network, hw))
 
-            if not row['Latencies'] is None:
+            if not row['Latencies'] is None and not np.isnan(row['Latencies']):
                 col = ast.literal_eval(row['Latencies'])
                 values.append(np.array(col))
             else:
@@ -304,9 +304,17 @@ def visualize_performance_recall_optimum(latency, performance, output_dir, laten
 
     '''
 
-    latency_reduced = latency.drop(columns=['Date']).set_index(['Model_Short', 'Hardware'])
+    if 'Date' in latency.columns:
+        latency_reduced = latency.drop(columns=['Date'])
+    else:
+        latency_reduced = latency
+    latency_reduced.set_index(['Model_Short', 'Hardware'])
     latency_reduced = latency_reduced[~latency_reduced.index.duplicated(keep='first')]
-    performance_reduced = performance.drop(columns=['Date']).set_index(['Model_Short', 'Hardware'])
+    if 'Date' in performance.columns:
+        performance_reduced = performance.drop(columns=['Date'])
+    else:
+        performance_reduced = performance
+    performance_reduced.set_index(['Model_Short', 'Hardware'])
     performance_reduced = performance_reduced[~performance_reduced.index.duplicated(keep='first')]
 
     lat_perf_df = pd.merge(latency_reduced, performance_reduced,

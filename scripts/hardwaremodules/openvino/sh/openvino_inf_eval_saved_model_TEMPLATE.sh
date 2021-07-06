@@ -64,7 +64,8 @@ infer()
   --avg_rep results/$MODELNAME/$HARDWARENAME/openvino/benchmark_average_counters_report_$HARDWARETYPE\_$APIMODE.csv \
   --inf_rep results/$MODELNAME/$HARDWARENAME/openvino/benchmark_report_$HARDWARETYPE\_$APIMODE.csv \
   --output_path results/latency_$HARDWARENAME.csv \
-  --hardware_name $HARDWARENAME
+  --hardware_name $HARDWARENAME \
+  --index_save_file="./tmp/index.txt"
   #::--save_new #Always append
 
   echo #====================================#
@@ -95,7 +96,18 @@ infer()
   --detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
   --output_file="results/performance_$HARDWARENAME.csv" \
   --model_name=$MODELNAME \
-  --hardware_name=$HARDWARENAME\_$HARDWARETYPE
+  --hardware_name=$HARDWARENAME\_$HARDWARETYPE \
+  --index_save_file="./tmp/index.txt"
+  
+  echo #====================================#
+  echo # Merge results to one result table
+  echo #====================================#
+  echo merge latency and evaluation metrics
+  python3 $SCRIPTPREFIX/inference_evaluation/merge_results.py \
+  --latency_file="results/latency_$HARDWARENAME.csv" \
+  --coco_eval_file="results/performance_$HARDWARENAME.csv" \
+  --output_file="results/combined_results_$HARDWARENAME.csv"
+
 }
 
 
@@ -118,7 +130,8 @@ HARDWARENAME=IntelNUC
 LABELMAP=label_map.pbtxt
 
 #Openvino installation directory for the inferrer (not necessary the same as the model optimizer)
-OPENVINOINSTALLDIR=/opt/intel/openvino_2021
+#OPENVINOINSTALLDIR=/opt/intel/openvino_2021
+OPENVINOINSTALLDIR=/opt/intel/openvino_2021.4.582
 APIMODE=sync
 HARDWARETYPELIST="CPU GPU MYRIAD"
 #HARDWARETYPELIST="CPU"
@@ -137,8 +150,9 @@ setup_env
 echo "Setup task spooler socket."
 . ~/tf2odapi/init_eda_ts.sh
 
+#Setup openvino environment
 echo "Setup Openvino environment and variables"
-source /opt/intel/openvino_2021/bin/setupvars.sh
+source $OPENVINOINSTALLDIR/bin/setupvars.sh
 
 alias python=python3
 

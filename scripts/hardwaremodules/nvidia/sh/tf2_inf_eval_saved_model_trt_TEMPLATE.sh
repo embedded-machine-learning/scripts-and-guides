@@ -79,7 +79,8 @@ python3 $SCRIPTPREFIX/inference_evaluation/tf2oda_inference_from_saved_model.py 
 --latency_out="results/latency_$HARDWARENAME.csv" \
 --min_score=0.5 \
 --model_name=$MODELNAME \
---hardware_name=$HARDWARENAME
+--hardware_name=$HARDWARENAME \
+--index_save_file="./tmp/index.txt"
 
 #--model_short_name=%MODELNAMESHORT% unused because the name is created in the csv file
 
@@ -102,7 +103,6 @@ python3 $SCRIPTPREFIX/conversion/convert_tfcsv_to_pycocodetections.py \
 --annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
 --output_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json"
 
-
 echo #====================================#
 echo # Evaluate with Coco Metrics
 echo #====================================#
@@ -112,4 +112,14 @@ python3 $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
 --detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
 --output_file="results/performance_$HARDWARENAME.csv" \
 --model_name=$MODELNAME \
---hardware_name=$HARDWARENAME
+--hardware_name=$HARDWARENAME \
+--index_save_file="./tmp/index.txt"
+
+echo #====================================#
+echo # Merge results to one result table
+echo #====================================#
+echo merge latency and evaluation metrics
+python3 $SCRIPTPREFIX/inference_evaluation/merge_results.py \
+--latency_file="results/latency.csv" \
+--coco_eval_file="results/performance.csv" \
+--output_file="results/combined_results.csv"

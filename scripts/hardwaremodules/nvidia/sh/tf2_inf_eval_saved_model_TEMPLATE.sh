@@ -119,7 +119,7 @@ echo #====================================#
 echo # Merge results to one result table
 echo #====================================#
 echo merge latency and evaluation metrics
-python3 $SCRIPTPREFIX/inference_evaluation/merge_results.py ^
+python3 $SCRIPTPREFIX/inference_evaluation/merge_results.py \
 --latency_file="results/latency.csv" \
 --coco_eval_file="results/performance.csv" \
 --output_file="results/combined_results.csv"

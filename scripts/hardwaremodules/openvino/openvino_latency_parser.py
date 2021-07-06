@@ -191,11 +191,15 @@ def extract_information_inf_rep(report_data):
 
                             if "_" in extracted_inf["full_name"]:
                                 try:
-                                    extracted_inf["short_name"] = extracted_inf["full_name"]   #is the same as the full name
-                                    extracted_inf["framework"] = list(map(int, (str(extracted_inf["full_name"]).split('_')[2]).split('x'))) #extracted_inf["full_name"].split("_")[0]
-                                    extracted_inf["resolution"] = extracted_inf["full_name"].split("_")[2]
-                                    extracted_inf["dataset"] = extracted_inf["full_name"].split("_")[3]
-                                    extracted_inf["hwoptimization"] = ""
+                                    info = get_info_from_modelname(extracted_inf["full_name"], model_short_name=None, model_optimizer_prefix=['TRT', 'OV'])
+
+                                    extracted_inf["short_name"] = info['model_short_name'] #extracted_inf["full_name"]   #is the same as the full name
+                                    extracted_inf["resolution"] = info['resolution'] #list(map(int, (str(extracted_inf["full_name"]).split('_')[2]).split('x')))
+                                    extracted_inf["framework"] = info['framework'] #extracted_inf["full_name"].split("_")[0] #extracted_inf["full_name"].split("_")[0]
+                                    extracted_inf["network"] = info['network']
+                                    #extracted_inf["resolution"] = extracted_inf["full_name"].split("_")[2]
+                                    extracted_inf["dataset"] = info['dataset'] #extracted_inf["full_name"].split("_")[3]
+                                    extracted_inf["hwoptimization"] = info['hardware_optimization']
                                     # extracted_inf["custom_params"] = extracted_inf["full_name"].split("_")[4:]
 
                                     custom_list = []
@@ -241,6 +245,49 @@ def extract_information_inf_rep(report_data):
 
     return extracted_inf
 
+def get_info_from_modelname(model_name, model_short_name=None, model_optimizer_prefix=['TRT', 'OV']):
+    '''
+    Extract information from file name
+
+    :argument
+
+    :return
+
+    '''
+    info = dict()
+
+    info['model_name'] = model_name
+    info['framework'] = str(model_name).split('_')[0]
+    info['network'] = str(model_name).split('_')[1]
+    info['resolution'] = list(map(int, (str(model_name).split('_')[2]).split('x')))
+    info['dataset'] = str(model_name).split('_')[3]
+    info['hardware_optimization'] = ""
+    info['custom_parameters'] = ""
+    custom_list = []
+    if len(model_name.split("_", 4)) > 4:
+        rest_parameters = model_name.split("_", 4)[4]
+
+        for r in rest_parameters.split("_"):
+            #FIXME: Make a general if then for this, not just the 2 first entries in the list
+            if str(r).startswith(model_optimizer_prefix[0]) or str(r).startswith(model_optimizer_prefix[1]):
+                info['hardware_optimization'] = r
+            else:
+                custom_list.append(r)
+                # if info['custom_parameters'] == "":
+                #    info['custom_parameters'] = r
+                # else:
+                #    info['custom_parameters'] = info['custom_parameters'] + "_" + r
+
+    info['custom_parameters'] = str(custom_list)
+
+    # Enhance inputs
+    if model_short_name is None:
+        info['model_short_name'] = model_name
+        print("No short models name defined. Using the long name: ", model_name)
+    else:
+        info['model_short_name'] = model_short_name
+
+    return info
 
 def reformat_inf(extracted_inf, hardware_name=None):
     # build a dataframe according to the latency data format in latency_keywords

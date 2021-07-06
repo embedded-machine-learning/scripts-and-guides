@@ -25,8 +25,8 @@ PYTHONENV=tf24
 #SCRIPTPREFIX=~/tf2odapi/scripts-and-guides/scripts/training
 CURRENTFOLDER=`pwd`
 #MODELSOURCE=jobs/*.config
-#MODELSOURCE=exported-models/*
-MODELSOURCE=temp/exported-models-temp/*
+MODELSOURCE=exported-models/*
+#MODELSOURCE=temp/exported-models-temp/*
 
 echo "Setup task spooler socket."
 . ~/tf2odapi/init_eda_ts.sh

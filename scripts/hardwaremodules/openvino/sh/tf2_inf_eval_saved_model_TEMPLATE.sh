@@ -86,6 +86,7 @@ python $SCRIPTPREFIX/inference_evaluation/tf2oda_inference_from_saved_model.py \
 --model_name=$MODELNAME \
 --hardware_name=$HARDWARENAME \
 --batch_size=1 \
+--index_save_file="./tmp/index.txt"
 
 #--image_size="[$height, $width]" Optional to use if another size as provided in the model name is used
 #--batch_size: Default=1
@@ -119,4 +120,14 @@ python $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
 --detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
 --output_file="results/performance_$HARDWARENAME.csv" \
 --model_name=$MODELNAME \
---hardware_name=$HARDWARENAME
+--hardware_name=$HARDWARENAME \
+--index_save_file="./tmp/index.txt"
+
+echo #====================================#
+echo # Merge results to one result table
+echo #====================================#
+echo merge latency and evaluation metrics
+python3 $SCRIPTPREFIX/inference_evaluation/merge_results.py \
+--latency_file="results/latency_$HARDWARENAME.csv" \
+--coco_eval_file="results/performance_$HARDWARENAME.csv" \
+--output_file="results/combined_results_$HARDWARENAME.csv"

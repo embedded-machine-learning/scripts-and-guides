@@ -39,8 +39,10 @@ convert_to_ir()
   echo Apply to model $MODELNAME with precision $PRECISION
   echo "Define API config file"
   
-  APIFILEEFF=$SCRIPTPREFIX/hardwaremodules/openvino/openvino_conversion_config/efficient_det_support_api_v2.4.json
-  APIFILESSD=$SCRIPTPREFIX/hardwaremodules/openvino/openvino_conversion_config/ssd_support_api_v2.4.json
+  #APIFILEEFF=$SCRIPTPREFIX/hardwaremodules/openvino/openvino_conversion_config/efficient_det_support_api_v2.4.json
+  #APIFILESSD=$SCRIPTPREFIX/hardwaremodules/openvino/openvino_conversion_config/ssd_support_api_v2.4.json
+  APIFILEEFF=$OPENVINOINSTALLDIR/deployment_tools/model_optimizer/extensions/front/tf/efficient_det_support_api_v2.4.json
+  APIFILESSD=$OPENVINOINSTALLDIR/deployment_tools/model_optimizer/extensions/front/tf/ssd_support_api_v2.4.json
   APIFILE=ERROR
 
   if [[ $MODELNAME == *"ssd"* ]]; then 
@@ -53,7 +55,7 @@ convert_to_ir()
   
   echo "Use this API file: $APIFILE"
   echo "Start conversion of model $MODELNAME"
-  python3 $OPENVINOINSTALLDIR/model-optimizer/mo_tf.py \
+  python3 $OPENVINOINSTALLDIR/deployment_tools/model_optimizer/mo_tf.py \
   --saved_model_dir="exported-models/$MODELNAME/saved_model" \
   --tensorflow_object_detection_api_pipeline_config=exported-models/$MODELNAME/pipeline.config \
   --transformations_config=$APIFILE \
@@ -83,24 +85,27 @@ HARDWARENAME=IntelNUC
 LABELMAP=label_map.pbtxt
 
 #Openvino installation directory for the model optimizer
-OPENVINOINSTALLDIR=/opt/intel/openvino_repo/openvino-master-100521
+#OPENVINOINSTALLDIR=/opt/intel/openvino_repo/openvino
+OPENVINOINSTALLDIR=/opt/intel/openvino_2021.4.582
 #PRECISION=INT8
 PRECISIONLIST="FP16 FP32"
 
 #Extract model name from this filename
 get_model_name
 
-#Setup environment
+#Setup python environment
 setup_env
+
+#Setup openvino environment
+source $OPENVINOINSTALLDIR/bin/setupvars.sh
+
+#echo "Setup task spooler socket."
+. ~/tf2odapi/init_eda_ts.sh
 
 #Extract height and width from model
 get_width_and_height
 
 #echo "Start training of $MODELNAME on EDA02" | mail -s "Start training of $MODELNAME" $USEREMAIL
-
-#echo "Setup task spooler socket."
-. ~/tf2odapi/init_eda_ts.sh
-
 
 echo Apply to model $MODELNAME
 get_width_and_height
