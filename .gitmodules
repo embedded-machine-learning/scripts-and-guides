@@ -1,0 +1,3 @@
+[submodule "scripts/conversion/convert2yolo"]
+	path = scripts/conversion/convert2yolo
+	url = https://github.com/paulxiong/convert2Yolo.git
