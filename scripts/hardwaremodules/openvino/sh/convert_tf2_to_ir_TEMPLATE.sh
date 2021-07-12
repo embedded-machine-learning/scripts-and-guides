@@ -43,12 +43,15 @@ convert_to_ir()
   #APIFILESSD=$SCRIPTPREFIX/hardwaremodules/openvino/openvino_conversion_config/ssd_support_api_v2.4.json
   APIFILEEFF=$OPENVINOINSTALLDIR/deployment_tools/model_optimizer/extensions/front/tf/efficient_det_support_api_v2.4.json
   APIFILESSD=$OPENVINOINSTALLDIR/deployment_tools/model_optimizer/extensions/front/tf/ssd_support_api_v2.4.json
+  APIFILERCNN=$OPENVINOINSTALLDIR/deployment_tools/model_optimizer/extensions/front/tf/faster_rcnn_support_api_v2.4.json
   APIFILE=ERROR
 
   if [[ $MODELNAME == *"ssd"* ]]; then 
     APIFILE=$APIFILESSD
   elif [[ $MODELNAME == *"effi"* ]]; then 
     APIFILE=$APIFILEEFF
+  elif [[ $MODELNAME == *"rcnn"* ]]; then 
+    APIFILE=$APIFILERCNN
   else
     echo "Error. API filename not found. $APIFILE"
   fi

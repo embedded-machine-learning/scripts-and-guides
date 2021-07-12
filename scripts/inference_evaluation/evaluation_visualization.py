@@ -469,7 +469,8 @@ def get_latency_deltas_for_hardware_optimizations(latency, hwopt_reference=None)
     enhanced_latency = latency.copy()
     enhanced_latency['Relative_Latency'] = 0
     x = enhanced_latency.groupby(['Framework', 'Network', 'Resolution', 'Dataset', 'Custom_Parameters', 'Hardware'])
-
+    if len(x)==len(enhanced_latency):
+        warnings.warn("Something might be wrong with the grouping of results. Hardware is grouped by Framework, Network, Resolution, Dataset, Custom_Parameters, Hardware")
     for name, group in x:
         print(name)
         print(group)
