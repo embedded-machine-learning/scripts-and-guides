@@ -167,6 +167,28 @@ python convert_kerash5_to_tf2.py ^
 ## Darkent2caffe
 Source: [Darknet](https://github.com/ysh329/darknet2caffe)
 
+## VOC|COCO to Yolo
+The conversion from VOC or Coco to yolo is added to this repository as a subrepository.
+Source: [https://github.com/paulxiong/convert2Yolo/tree/8de035a4a003dcf6b5f383e8262ae4856646978c](https://github.com/paulxiong/convert2Yolo/tree/8de035a4a003dcf6b5f383e8262ae4856646978c)
+
+Script: - 
+
+Example: 
+```shell
+python C:\Projekte\21_SoC_EML\convert2Yolo\example.py ^
+--datasets VOC ^
+--img_path C:/Projekte/21_SoC_EML/scripts-and-guides-samples/oxford_pets_reduced/images/train ^
+--label C:/Projekte/21_SoC_EML/scripts-and-guides-samples/oxford_pets_reduced/annotations/xmls ^
+--convert_output_path C:/Projekte/21_SoC_EML/scripts-and-guides-samples/oxford_pets_reduced/annotations/yolo_labels ^
+--img_type ".jpg" ^
+--manifest_path C:/Projekte/21_SoC_EML/scripts-and-guides-samples/oxford_pets_reduced/annotations/ ^
+--cls_list_file C:/Projekte/21_SoC_EML/scripts-and-guides-samples/oxford_pets_reduced/annotations/labels.txt
+```
+
+Notes: 
+- see original repo for guide how to use the converter 
+- makedirs is not used. Therefore, folders like yolo_labels have to be created manually
+
 # Issues
 If there are any issues or suggestions for improvements, please add an issue to github's bug tracking system or please send a mail 
 to [Alexander Wendt](mailto:alexander.wendt@tuwien.ac.at)
