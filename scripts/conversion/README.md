@@ -5,7 +5,7 @@ other open source converters. Within each converter file, each source has been p
 documentation.
 
 ## Pre-requisites
-Tensorflow object detection api 2.0 is necessary
+Tensorflow object detection api 2.4 is necessary
 
 ## VOC to Coco
 Source: [https://github.com/yukkyo/voc2coco](https://github.com/yukkyo/voc2coco)
@@ -163,11 +163,43 @@ python convert_kerash5_to_tf2.py ^
 ```
 
 
+## Yolo to VOC
+Convert Yolo annotations to Pascal VOC.
+
+Source: https://gist.github.com/goodhamgupta/7ca514458d24af980669b8b1c8bcdafd
+
+Script: `convert_yolo_to_voc.py`
+
+Arguments:
+```
+optional arguments:
+  -h, --help            show this help message and exit
+  -ad ANNOTATION_DIR, --annotation_dir ANNOTATION_DIR
+                        Annotation directory with txt files of yolo annotations of the same name format as image files
+  -id IMAGE_DIR, --image_dir IMAGE_DIR
+                        Image file directory
+  -at TARGET_ANNOTATION_DIR, --target_annotation_dir TARGET_ANNOTATION_DIR
+                        Target directory for xml files
+  -cl CLASS_FILE, --class_file CLASS_FILE
+                        File with class labels
+  --create_empty_images
+                        Generates xmls also for images without any found objects, i.e. empty annotations. It is useful to prevent overfitting.
+```
+
+Example:
+```
+python %SCRIPTPREFIX%\conversion\convert_yolo_to_voc.py ^
+--annotation_dir "./annotations/yolo_labels" ^
+--target_annotation_dir "./annotations/voc_from_yolo_labels" ^
+--image_dir "images/train" ^
+--class_file "./annotations/labels.txt" ^
+--create_empty_images
+```
 
 ## Darkent2caffe
 Source: [Darknet](https://github.com/ysh329/darknet2caffe)
 
-## VOC|COCO to Yolo
+## VOC or COCO to Yolo
 The conversion from VOC or Coco to yolo is added to this repository as a subrepository.
 Source: [https://github.com/paulxiong/convert2Yolo/tree/8de035a4a003dcf6b5f383e8262ae4856646978c](https://github.com/paulxiong/convert2Yolo/tree/8de035a4a003dcf6b5f383e8262ae4856646978c)
 
@@ -188,6 +220,27 @@ python C:\Projekte\21_SoC_EML\convert2Yolo\example.py ^
 Notes: 
 - see original repo for guide how to use the converter 
 - makedirs is not used. Therefore, folders like yolo_labels have to be created manually
+
+## png to jpg
+Convert png images to jpg to keep a uniform format
+
+Source: -
+
+Script: `convert_png_to_jpg.py`
+
+Arguments:
+```
+optional arguments:
+  -h, --help            show this help message and exit
+  -id IMAGE_DIR, --image_dir IMAGE_DIR
+                        Image file directory
+```
+
+Example:
+```
+python %SCRIPTPREFIX%\conversion\convert_png_to_jpg.py ^
+--image_dir "images/train"
+```
 
 # Issues
 If there are any issues or suggestions for improvements, please add an issue to github's bug tracking system or please send a mail 

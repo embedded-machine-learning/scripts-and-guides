@@ -79,7 +79,7 @@ __maintainer__ = 'Alexander Wendt'
 __email__ = 'alexander.wendt@tuwien.ac.at'
 __status__ = 'Experiental'
 
-#If you get _tkinter.TclError: no display name and no $DISPLAY environment variable use
+# If you get _tkinter.TclError: no display name and no $DISPLAY environment variable use
 # matplotlib.use('Agg') instead
 matplotlib.use('TkAgg')
 
@@ -91,24 +91,28 @@ parser.add_argument('--output_dir', default="samples/result",
 
 parser.add_argument("--image_path1", type=str, default="images/0.jpg", help='Path to image, usually ground truth',
                     required=False)
-parser.add_argument("--image_path2", type=str, default="None", help='Path to image, usually some model to compare with. '
-                    'If not set, path of image1 will be used', required=False)
-parser.add_argument("--image_path3", type=str, default="None", help='Path to image, usually some model to compare with. '
-                    'If not set, path of image1 will be used', required=False)
+parser.add_argument("--image_path2", type=str, default=None, help='Path to image, usually some model to compare with. '
+                                                                  'If not set, path of image1 will be used',
+                    required=False)
+parser.add_argument("--image_path3", type=str, default=None, help='Path to image, usually some model to compare with. '
+                                                                  'If not set, path of image1 will be used',
+                    required=False)
 
 parser.add_argument("--annotation_dir1", type=str, default="annotations/xmls", help='Path to xml with bounding boxes.',
                     required=False)
-parser.add_argument("--annotation_dir2", type=str, default="None", help='Path to xml with bounding boxes. If not set, '
-                    'then, the value from annotation_dir1 will be used', required=False)
-parser.add_argument("--annotation_dir3", type=str, default="None", help='Path to xml with bounding boxes. If not set, '
-                    'then, the value from annotation_dir1 will be used', required=False)
+parser.add_argument("--annotation_dir2", type=str, default=None, help='Path to xml with bounding boxes. If not set, '
+                                                                      'then, the value from annotation_dir1 will be used',
+                    required=False)
+parser.add_argument("--annotation_dir3", type=str, default=None, help='Path to xml with bounding boxes. If not set, '
+                                                                      'then, the value from annotation_dir1 will be used',
+                    required=False)
 
 parser.add_argument("--title1", type=str, default="Image1", help='Title of image 1', required=False)
 parser.add_argument("--title2", type=str, default="Image2", help='Title of image 2', required=False)
 parser.add_argument("--title3", type=str, default="Image3", help='Title of image 3', required=False)
 
-parser.add_argument("--use_three_images", action='store_true', default=False,
-                    help="If set, three images will be used, instead of two")
+# parser.add_argument("--use_three_images", action='store_true', default=False,
+#                    help="If set, three images will be used, instead of two")
 parser.add_argument("--color_gt", action='store_true', default=False,
                     help="Color ground truth with not black and set confidence to 100%")
 
@@ -123,10 +127,11 @@ def load_labelmap(path):
     :return:
     '''
 
-    #labelmap = label_map_util.load_labelmap(path)
+    # labelmap = label_map_util.load_labelmap(path)
     category_index = label_map_util.create_category_index_from_labelmap(path)
 
     return category_index
+
 
 def load_model(model_path):
     '''
@@ -228,13 +233,24 @@ def load_model(model_path):
 #
 #     return detection_dict
 
+def plot_one_image(image, title1="Image1"):
+    ax = plt.subplot(111)
+    ax.tick_params(labelbottom=False, labelleft=False)
+    plt.title(title1, fontsize=40)
+    plt.axis('off')
+    plt.imshow(image)
+
+    plt.tight_layout()
+
+    return plt.gcf()
+
+
 def plot_two_images(image, image2, title1="Image1", title2="Image2"):
     ax = plt.subplot(121)
     ax.tick_params(labelbottom=False, labelleft=False)
     plt.title(title1, fontsize=40)
     plt.axis('off')
     plt.imshow(image)
-
 
     ax = plt.subplot(122)
     ax.tick_params(labelbottom=False, labelleft=False)
@@ -245,6 +261,7 @@ def plot_two_images(image, image2, title1="Image1", title2="Image2"):
     plt.tight_layout()
 
     return plt.gcf()
+
 
 def plot_three_images(image, image2, image3, title1="Image1", title2="Image2", title3="Image3"):
     ax = plt.subplot(131)
@@ -267,6 +284,7 @@ def plot_three_images(image, image2, image3, title1="Image1", title2="Image2", t
     plt.tight_layout()
 
     return plt.gcf()
+
 
 # def visualize_image_with_boundingbox(annotation_dir, category_index, image_name, image_path):
 #     image_np = load_image(image_path)
@@ -314,71 +332,81 @@ def plot_three_images(image, image2, image3, title1="Image1", title2="Image2", t
 def visualize_images(image_path1, image_path2, image_path3,
                      annotation_dir1, annotation_dir2, annotation_dir3,
                      title1, title2, title3,
-                     labelmap, output_dir, use_three_images, color_gt):
+                     labelmap, output_dir, color_gt):
     '''Main method'''
 
     # Get all paths
-    #image_path1 = args.image_path1
-    if args.image_path2 == "None":
-        image_path2 = image_path1
-    #else:
+    # image_path1 = args.image_path1
+    # if args.image_path2 == "None":
+    #    image_path2 = image_path1
+    # else:
     #    image_path2 = image_path2
 
-    if image_path3 == "None":
-        image_path3 = image_path1
-    #else:
+    # if image_path3 == "None":
+    #    image_path3 = image_path1
+    # else:
     #    image_path3 = image_path3
 
-    #annotation_dir1 = args.annotation_dir1
-    if annotation_dir2 == "None":
+    annotation_dir1 = args.annotation_dir1
+    if annotation_dir2 == None:
         annotation_dir2 = annotation_dir1
-    #else:
-    #annotation_dir2 = annotation_dir2
-    if annotation_dir3 == "None":
-        annotation_dir3 = annotation_dir1
-    #else:
-    #annotation_dir3 = annotation_dir3
+    else:
+        annotation_dir2 = annotation_dir2
 
-    #output_dir = args.output_dir
+    if annotation_dir3 == None:
+        annotation_dir3 = annotation_dir1
+    else:
+        annotation_dir3 = annotation_dir3
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         print("Created result directory: ", output_dir)
 
-    # Load images and image names
-    image_filename1 = os.path.basename(image_path1)
-    image_name1 = os.path.splitext(image_filename1)[0]
-    image_filename2 = os.path.basename(image_path2)
-    image_name2 = os.path.splitext(image_filename2)[0]
-    if use_three_images:
-        image_filename3 = os.path.basename(image_path3)
-        image_name3 = os.path.splitext(image_filename3)[0]
-
     # Load label path
     category_index = load_labelmap(os.path.abspath(labelmap))
 
-    # Generate the images with bounding boxes
-    image1 = bbox.visualize_image_with_boundingbox(annotation_dir1, category_index, image_name1, image_path1, color_gt=color_gt)
-    image2 = bbox.visualize_image_with_boundingbox(annotation_dir2, category_index, image_name2, image_path2, color_gt=color_gt)
-    if use_three_images:
+    # Load images and image names
+    image_filename1 = os.path.basename(image_path1)
+    image_name1 = os.path.splitext(image_filename1)[0]
+    image1 = bbox.visualize_image_with_boundingbox(annotation_dir1, category_index, image_name1, image_path1,
+                                                   color_gt=color_gt)
+
+    if image_path2 is not None:
+        image_filename2 = os.path.basename(image_path2)
+        image_name2 = os.path.splitext(image_filename2)[0]
+        image2 = bbox.visualize_image_with_boundingbox(annotation_dir2, category_index, image_name2, image_path2,
+                                                       color_gt=color_gt)
+
+    if image_path3 is not None:
+        image_filename3 = os.path.basename(image_path3)
+        image_name3 = os.path.splitext(image_filename3)[0]
         image3 = bbox.visualize_image_with_boundingbox(annotation_dir3, category_index, image_name3, image_path3,
                                                        color_gt=color_gt)
-        fig = plot_three_images(image1, image2, image3, title1, title2, title3)
-        out_name = "bbox_" + image_name1 + "_" + image_name2 + "_" + image_name3 + ".jpg"
-    else:
+
+    # Generate the images with bounding boxes
+
+    if image_path2 is None and image_path3 is None:
+        fig = plot_one_image(image1, title1)
+        out_name = "bbox_" + image_name1 + ".jpg"
+    elif image_path2 is not None and image_path3 is None:
         fig = plot_two_images(image1, image2, title1, title2)
         out_name = "bbox_" + image_name1 + "_" + image_name2 + ".jpg"
+    elif image_path2 is not None and image_path3 is not None:
+        fig = plot_three_images(image1, image2, image3, title1, title2, title3)
+        out_name = "bbox_" + image_name1 + "_" + image_name2 + "_" + image_name3 + ".jpg"
 
     plt.savefig(os.path.join(output_dir, out_name))
     print("Saved output image to ", os.path.join(output_dir, out_name))
 
-    #plt.show()
+    # plt.show()
+
 
 if __name__ == "__main__":
-    #if not args.pb and not args.xml:
+    # if not args.pb and not args.xml:
     #    sys.exit("Please pass either a frozen pb or IR xml/bin model")
     visualize_images(args.image_path1, args.image_path2, args.image_path3,
                      args.annotation_dir1, args.annotation_dir2, args.annotation_dir3,
                      args.title1, args.title2, args.title3,
-                     args.labelmap, args.output_dir, args.use_three_images, args.color_gt)
+                     args.labelmap, args.output_dir, args.color_gt)
 
     print("=== Program end ===")

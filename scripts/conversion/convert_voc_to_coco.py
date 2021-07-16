@@ -171,6 +171,7 @@ def convert_xmls_to_cocojson(annotation_paths: List[str],
         img_id = img_info['id']
         output_json_dict['images'].append(img_info)
 
+        print(img_id)
         for obj in ann_root.findall('object'):
             ann = get_coco_annotation_from_obj(obj=obj, label2id=label2id)
             ann.update({'image_id': img_id, 'id': bnd_id})
