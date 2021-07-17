@@ -123,13 +123,14 @@ from xml.dom import minidom
 import xml.etree.cElementTree as ET
 from PIL import Image
 
+
 # ANNOTATIONS_DIR_PREFIX = "path to your yolo annotations"
 
 # DESTINATION_DIR = "output path"
 
-#CLASS_MAPPING = {
+# CLASS_MAPPING = {
 #    '1': 'Char'
-#}
+# }
 
 
 def formatter(elem):
@@ -151,6 +152,8 @@ def create_root(file_prefix, width, height):
 
 
 def create_object_annotation(root, voc_labels):
+    #if len(voc_labels) == 0:
+    #    obj = ET.SubElement(root, "object")
     for voc_label in voc_labels:
         obj = ET.SubElement(root, "object")
         ET.SubElement(obj, "name").text = voc_label[0]
@@ -170,14 +173,15 @@ def create_file(file_prefix, width, height, voc_labels, target_annotation_dir):
         f.close()
 
 
-def read_image_file(image_file_path, annotation_dir, target_annotation_dir, classes_dict, image_dir, create_empty_images=True):
+def read_image_file(image_file_path, annotation_dir, target_annotation_dir, classes_dict, image_dir,
+                    create_empty_images=True):
     image_file_name = os.path.basename(image_file_path)
     file_prefix = os.path.basename(image_file_path).split('.jpg')[0]
     annotation_file_name = "{}.txt".format(file_prefix)
     annotation_file_path = os.path.join(annotation_dir, annotation_file_name)
 
-    #file_prefix = file_path.split(".txt")[0]
-    #image_file_name = "{}.jpg".format(file_prefix)
+    # file_prefix = file_path.split(".txt")[0]
+    # image_file_name = "{}.jpg".format(file_prefix)
     # img = Image.open("{}/{}".format("sites", image_file_name))
 
     img = Image.open(image_file_path)
@@ -216,12 +220,12 @@ def read_image_file(image_file_path, annotation_dir, target_annotation_dir, clas
 def read_file(file_path, annotation_dir, target_annotation_dir, classes_dict, image_dir):
     file_prefix = file_path.split(".txt")[0]
     image_file_name = "{}.jpg".format(file_prefix)
-    #img = Image.open("{}/{}".format("sites", image_file_name))
-    
+    # img = Image.open("{}/{}".format("sites", image_file_name))
+
     if os.path.exists(os.path.join(image_dir, image_file_name)):
         img = Image.open(os.path.join(image_dir, image_file_name))
         w, h = img.size
-        #with open(os.path.join(annotation_dir, )"labels/" + file_path, 'r') as file:
+        # with open(os.path.join(annotation_dir, )"labels/" + file_path, 'r') as file:
         with open(os.path.join(annotation_dir, file_path), 'r') as file:
             lines = file.readlines()
             voc_labels = []
@@ -229,7 +233,7 @@ def read_file(file_path, annotation_dir, target_annotation_dir, classes_dict, im
                 voc = []
                 line = line.strip()
                 data = line.split()
-                #voc.append(CLASS_MAPPING.get(data[0]))
+                # voc.append(CLASS_MAPPING.get(data[0]))
                 voc.append(classes_dict.get(data[0]))
                 bbox_width = float(data[3]) * w
                 bbox_height = float(data[4]) * h
@@ -251,7 +255,7 @@ def load_classes(class_file):
     with open(class_file) as f:
         for line in f:
             d[str(i)] = line.strip()
-            i=i+1
+            i = i + 1
 
     return d
 
@@ -269,7 +273,7 @@ def start(annotation_dir, target_annotation_dir, class_file, image_dir, create_e
         print("Process image", image_path)
         read_image_file(image_path, annotation_dir, target_annotation_dir, classes_dict, image_dir, create_empty_images)
 
-    #for filename in os.listdir(annotation_dir):
+    # for filename in os.listdir(annotation_dir):
     #    if filename.endswith('txt'):
     #        print(filename)
     #        read_file(filename, annotation_dir, target_annotation_dir, classes_dict, image_dir)

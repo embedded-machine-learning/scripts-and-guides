@@ -57,19 +57,22 @@ def remove_invalid_bounding_boxes_in_xml(annotation_folder, output_folder):
 
         ## Iterating over all children to find objects and then checking if the bounding box coordinates are out of rannge
         for object in root.findall("object"):
-            xmin = int(object.find("bndbox").find("xmin").text)
-            ymin = int(object.find("bndbox").find("ymin").text)
-            xmax = int(object.find("bndbox").find("xmax").text)
-            ymax = int(object.find("bndbox").find("ymax").text)
-            if (
-                (xmin < 0)
-                or (xmax > image_width)
-                or (ymin < 0)
-                or (ymax > image_height)
-            ):
-                print("in {}, size {}x{}, remove bbox xmin {}, ymin {}, xmax {}, ymax {}".
-                      format(xml_file, image_width, image_height, xmin, ymin, xmax, ymax))
-                root.remove(object)
+            if len(list(object))>0:
+                xmin = int(object.find("bndbox").find("xmin").text)
+                ymin = int(object.find("bndbox").find("ymin").text)
+                xmax = int(object.find("bndbox").find("xmax").text)
+                ymax = int(object.find("bndbox").find("ymax").text)
+                if (
+                    (xmin < 0)
+                    or (xmax > image_width)
+                    or (ymin < 0)
+                    or (ymax > image_height)
+                    or (xmin > xmax)
+                    or (ymin > ymax)
+                ):
+                    print("in {}, size {}x{}, remove bbox xmin {}, ymin {}, xmax {}, ymax {}".
+                          format(xml_file, image_width, image_height, xmin, ymin, xmax, ymax))
+                    root.remove(object)
 
         # Save xml again
         target_path = os.path.join(output_folder, os.path.basename(xml_file))
