@@ -1,0 +1,125 @@
+#!/bin/bash
+
+###
+# Functions
+###
+
+#add_job()
+#{
+#  echo "Generate Training Script for $MODELNAME"
+#  cp tf2oda_train_eval_export_TEMPLATE.sh tf2oda_train_eval_export_$MODELNAME.sh
+#  echo "Add task spooler jobs for $MODELNAME to the task spooler"
+#  ts -L AW_$MODELNAME $CURRENTFOLDER/tf2oda_train_eval_export_$MODELNAME.sh
+#}
+
+setup_env()
+{
+  # Environment preparation
+  echo Activate environment
+  #call conda activate %PYTHONENV%
+  #Environment is put directly in the nuc home folder
+  . /media/cdleml/128GB/Users/awendt/tf2odapi/init_env_tf2.sh
+  
+  echo "Setup task spooler socket."
+  . /media/cdleml/128GB/Users/awendt/init_tx2_ts.sh
+}
+
+get_model_name()
+{
+  MYFILENAME=`basename "$0"`
+  MODELNAME=`echo $MYFILENAME | sed 's/tf2_inf_eval_saved_model_trt_//' | sed 's/.sh//'`
+  echo Selected model: $MODELNAME
+}
+
+
+###
+# Main body of script starts here
+###
+
+echo #==============================================#
+echo # CDLEML Process TF2 Object Detection API
+echo #==============================================#
+
+echo INFO: EXECUTE SCRIPT IN TARGET BASE FOLDER, e.g. samples/starwars_reduced
+
+# Constant Definition
+USEREMAIL=alexander.wendt@tuwien.ac.at
+#MODELNAME=tf2oda_efficientdetd0_320_240_coco17_pedestrian_all_LR002
+PYTHONENV=tf24
+BASEPATH=`pwd`
+SCRIPTPREFIX=../../scripts-and-guides/scripts
+MODELSOURCE=jobs/*.config
+HARDWARENAME=TX2
+LABELMAP=pedestrian_label_map.pbtxt
+
+#Extract model name from this filename
+get_model_name
+
+#Setup environment
+setup_env
+
+#echo "Start training of $MODELNAME on EDA02" | mail -s "Start training of $MODELNAME" $USEREMAIL
+
+#echo "Setup task spooler socket."
+#. ~/init_eda_ts.sh
+
+
+echo Apply to model $MODELNAME
+
+echo #====================================#
+echo # Infer Images from Known Model
+echo #====================================#
+
+echo Inference from model 
+python3 $SCRIPTPREFIX/inference_evaluation/tf2oda_inference_from_saved_model.py \
+--model_path "exported-models-trt/$MODELNAME/" \
+--image_dir "images/validation" \
+--labelmap "annotations/$LABELMAP" \
+--detections_out="results/$MODELNAME/$HARDWARENAME/detections.csv" \
+--latency_out="results/latency_$HARDWARENAME.csv" \
+--min_score=0.5 \
+--model_name=$MODELNAME \
+--hardware_name=$HARDWARENAME \
+--index_save_file="./tmp/index.txt"
+
+#--model_short_name=%MODELNAMESHORT% unused because the name is created in the csv file
+
+
+#echo #====================================#
+#echo # Convert Detections to Pascal VOC Format
+#echo #====================================#
+#echo Convert TF CSV Format similar to voc to Pascal VOC XML
+#python3 $SCRIPTPREFIX/conversion/convert_tfcsv_to_voc.py \
+#--annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
+#--output_dir="results/$MODELNAME/$HARDWARENAME/det_xmls" \
+#--labelmap_file="annotations/$LABELMAP"
+
+
+echo #====================================#
+echo # Convert to Pycoco Tools JSON Format
+echo #====================================#
+echo Convert TF CSV to Pycoco Tools csv
+python3 $SCRIPTPREFIX/conversion/convert_tfcsv_to_pycocodetections.py \
+--annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
+--output_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json"
+
+echo #====================================#
+echo # Evaluate with Coco Metrics
+echo #====================================#
+echo coco evaluation
+python3 $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
+--groundtruth_file="annotations/coco_pets_validation_annotations.json" \
+--detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
+--output_file="results/performance_$HARDWARENAME.csv" \
+--model_name=$MODELNAME \
+--hardware_name=$HARDWARENAME \
+--index_save_file="./tmp/index.txt"
+
+echo #====================================#
+echo # Merge results to one result table
+echo #====================================#
+echo merge latency and evaluation metrics
+python3 $SCRIPTPREFIX/inference_evaluation/merge_results.py \
+--latency_file="results/latency_$HARDWARENAME.csv" \
+--coco_eval_file="results/performance_$HARDWARENAME.csv" \
+--output_file="results/combined_results_$HARDWARENAME.csv"
