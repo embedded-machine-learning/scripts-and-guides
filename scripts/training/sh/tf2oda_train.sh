@@ -30,7 +30,8 @@ echo model used $MODELNAME
 
 python $SCRIPTPREFIX/training/tf2oda_model_main_training.py \
 --pipeline_config_path=$BASEPATH/jobs/$MODELNAME.config \
---model_dir=$BASEPATH/models/$MODELNAME
+--model_dir=$BASEPATH/models/$MODELNAME \
+--time_measurement_path=results/$MODELNAME/metrics/training_time.txt
 
 echo #====================================#
 echo #Evaluate trained model
