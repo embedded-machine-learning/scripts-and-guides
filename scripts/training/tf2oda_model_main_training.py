@@ -30,6 +30,8 @@ python model_main_tf2.py -- \
 from absl import flags
 import tensorflow.compat.v2 as tf
 from object_detection import model_lib_v2
+import time
+import os
 
 flags.DEFINE_string('pipeline_config_path', None, 'Path to pipeline config '
                     'file.')
@@ -67,11 +69,16 @@ flags.DEFINE_integer(
 flags.DEFINE_boolean('record_summaries', True,
                      ('Whether or not to record summaries during'
                       ' training.'))
+flags.DEFINE_string('time_measurement_path', default=None, help='Save the training duration in s in a file. '
+                                                                'Provide the path. '
+                                                                'If None, training duration will not be saved.')
 
 FLAGS = flags.FLAGS
 
 
 def main(unused_argv):
+  start_time = time.time()
+
   flags.mark_flag_as_required('model_dir')
   flags.mark_flag_as_required('pipeline_config_path')
   tf.config.set_soft_device_placement(True)
@@ -108,6 +115,18 @@ def main(unused_argv):
           use_tpu=FLAGS.use_tpu,
           checkpoint_every_n=FLAGS.checkpoint_every_n,
           record_summaries=FLAGS.record_summaries)
+
+  end_time = time.time()
+  elapsed_time = end_time - start_time   # in seconds
+  print('Finished. Elapsed time: {:.0f}s'.format(elapsed_time))
+
+  if FLAGS.time_measurement_path:
+    #print("Save duration to file: ", FLAGS.time_measurement_path)
+    os.makedirs(os.path.dirname(FLAGS.time_measurement_path), exist_ok=True)
+    # Save index to a file
+    file1 = open(FLAGS.time_measurement_path, 'w')
+    file1.write(elapsed_time)
+    print("Saved elapsed time {}s to {}".format(elapsed_time, FLAGS.time_measurement_path))
 
 if __name__ == '__main__':
   tf.compat.v1.app.run()

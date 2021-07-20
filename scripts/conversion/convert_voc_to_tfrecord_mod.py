@@ -38,7 +38,8 @@ License_info:
 # ==============================================================================
 
 # The following script uses several method fragments the following script from Tensorflow
-# Source: https://github.com/tensorflow/models/tree/master/research/object_detection/dataset_tools
+# Source: https://github.com/tensorflow/models/tree/master/research/object_detection/dataset_tools and 
+# https://github.com/EricThomson/tfrecord-view/blob/master/voc_to_tfr.py
 
 """
 

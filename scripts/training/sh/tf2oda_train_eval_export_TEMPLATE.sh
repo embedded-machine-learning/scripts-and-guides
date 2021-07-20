@@ -54,7 +54,7 @@ python $SCRIPTPREFIX/tf2oda_evaluate_ckpt_performance.py \
 echo Read TF Summary from Tensorboard file
 python $SCRIPTPREFIX/tf2oda_read_tf_summary.py \
 --checkpoint_dir=$BASEPATH/models/$MODELNAME \
---out_dir=result/$MODELNAME/metrics
+--out_dir=results/$MODELNAME/metrics
 
 echo #====================================#
 echo #Export inference graph
@@ -65,6 +65,12 @@ python $SCRIPTPREFIX/tf2oda_export_savedmodel.py \
 --pipeline_config_path=$BASEPATH/jobs/$MODELNAME.config \
 --trained_checkpoint_dir=$BASEPATH/models/$MODELNAME \
 --output_directory=exported-models/$MODELNAME
+
+echo "Export Saved model to ONNX and apply ONNX model simplifier"
+# Source: https://www.onnxruntime.ai/docs/tutorials/tutorials/tf-get-started.html
+python -m tf2onnx.convert --saved-model ./exported-models/tf2oda_ssdmobilenetv2_320x320_peddet20/saved_model --output ./exported-models/tf2oda_ssdmobilenetv2_320x320_peddet20/saved_model_unsimplified.onnx --opset 13 --tag serve
+#python -m onnxsim ./exported-models/tf2oda_ssdmobilenetv2_320x320_peddet20/saved_model_unsimplified.onnx ./exported-models/tf2oda_ssdmobilenetv2_320x320_peddet20/saved_model.onnx
+
 
 echo "Stop Training of $MODELNAME on EDA02" | mail -s "Training of $MODELNAME finished" $USEREMAIL
 

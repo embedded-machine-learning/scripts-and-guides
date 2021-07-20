@@ -41,17 +41,23 @@ The EML Toolbox is built around uniformity and common interfaces to minimize the
 
 ### Interface Folder Structure
 We use a uniform folder structure. The advantage is that we can copy prepared scripts into this folder structure and execute without changing anything in the scripts. It reduces the engineering effort of setting up new projects. The folders has the following structure, starting from some base folder, .e.g $HOME:
-- ./eml_projects 		#Project folder for custom projects)
+- ./datasets				# Folder with datasets
+- ./demonstration_projects	# Projects with complete scripts and data, which are used to test the environments
+	- ./eml_projects/[YOUR DEMO]
+- ./eml_projects 			# Project folder for custom projects)
 	- ./eml_projects/[YOUR PROJECT1]
 	- ./eml_projects/[YOUR PROJECT2]
-- ./scripts-and-guides 	#Scripts and guides repository
-- ./models 				#Tensorflow Object Detection API reporsitory, however optional
-- ./protobuf 			#Protobuf as part of the Tensorflow Object Detection API
-- ./tf24 				#Tensorflow 2.4 python virtual environment
+- ./scripts-and-guides 		# Scripts and guides repository
+- ./scripts-and-guides-samples 		# Scripts and guides repository with sample projects
+- ./models 					# Tensorflow Object Detection API reporsitory, however optional
+- ./protobuf 				# Protobuf as part of the Tensorflow Object Detection API
+- ./envs					# Python environments (Note 20210719: new, optional interface addition to handle multiple environments)
+	- ./envs/tf24			# Tensorflow 2.4 python virtual environment
+	- ./envs/[YOUR ENVIRONMENT]
 
 The same structure is used for training as well as inference.
 
-Each individial project uses the common folder structure from [Template Folder Structure for Tensor Flow](./template_workspace), which is similar to the standard Tensorflow 2 
+Each individial project uses the common folder structure from [Template Folder Structure for Tensor Flow](https://github.com/embedded-machine-learning/interface_descriptions/tree/main/template_folders), which is similar to the standard Tensorflow 2 
 workspace. 
 
 <div align="center">
