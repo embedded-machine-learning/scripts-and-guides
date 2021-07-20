@@ -125,7 +125,7 @@ def main(unused_argv):
     os.makedirs(os.path.dirname(FLAGS.time_measurement_path), exist_ok=True)
     # Save index to a file
     file1 = open(FLAGS.time_measurement_path, 'w')
-    file1.write(elapsed_time)
+    file1.write(str(elapsed_time))
     print("Saved elapsed time {}s to {}".format(elapsed_time, FLAGS.time_measurement_path))
 
 if __name__ == '__main__':
