@@ -69,7 +69,7 @@ python $SCRIPTPREFIX/tf2oda_export_savedmodel.py \
 
 echo "Export Saved model to ONNX and apply ONNX model simplifier"
 # Source: https://www.onnxruntime.ai/docs/tutorials/tutorials/tf-get-started.html
-python -m tf2onnx.convert --saved-model ./exported-models/tf2oda_ssdmobilenetv2_320x320_peddet20/saved_model --output ./exported-models/tf2oda_ssdmobilenetv2_320x320_peddet20/saved_model_unsimplified.onnx --opset 13 --tag serve
+python -m tf2onnx.convert --saved-model ./exported-models/$MODELNAME/saved_model --output ./exported-models/$MODELNAME/saved_model_unsimplified.onnx --opset 13 --tag serve
 #python -m onnxsim ./exported-models/tf2oda_ssdmobilenetv2_320x320_peddet20/saved_model_unsimplified.onnx ./exported-models/tf2oda_ssdmobilenetv2_320x320_peddet20/saved_model.onnx
 
 
