@@ -53,6 +53,7 @@ BASEPATH=`pwd`
 SCRIPTPREFIX=../../scripts-and-guides/scripts
 MODELSOURCE=jobs/*.config
 HARDWARENAME=IntelNUC
+DATASET=../../datasets/oxford_pets_reduced
 LABELMAP=pedestrian_label_map.pbtxt
 
 #Extract model name from this filename
@@ -79,7 +80,7 @@ echo #====================================#
 echo Inference from model 
 python $SCRIPTPREFIX/inference_evaluation/tf2oda_inference_from_saved_model.py \
 --model_path "exported-models/$MODELNAME/saved_model/" \
---image_dir "images/validation" \
+--image_dir "$DATASET/images/val" \
 --detections_out="results/$MODELNAME/$HARDWARENAME/detections.csv" \
 --latency_out="results/latency_$HARDWARENAME.csv" \
 --min_score=0.5 \
@@ -116,7 +117,7 @@ echo # Evaluate with Coco Metrics
 echo #====================================#
 
 python $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
---groundtruth_file="annotations/coco_pets_validation_annotations.json" \
+--groundtruth_file="$DATASET/annotations/coco_pets_validation_annotations.json" \
 --detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
 --output_file="results/performance_$HARDWARENAME.csv" \
 --model_name=$MODELNAME \

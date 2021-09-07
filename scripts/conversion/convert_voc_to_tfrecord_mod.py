@@ -99,11 +99,10 @@ parser.add_argument("-i",
                     help="Path to the folder where the input image files are stored. "
                          "Defaults to the same directory as XML_DIR.",
                     type=str, default=None)
-#parser.add_argument("-c",
-#                    "--csv_path",
-#                    help="Path of output .csv file. If none provided, then no file will be "
-#                         "written.",
-#                    type=str, default=None)
+parser.add_argument("-ie",
+                    "--ignore_empty_instances",
+                    help="Ignore empty instances.",
+                    action='store_true', default=False)
 parser.add_argument("-n",
                     "--number_shards",
                     help="Number of shards.",
@@ -248,7 +247,7 @@ def split(df, group):
     return [data(filename, gb.get_group(x)) for filename, x in zip(gb.groups.keys(), gb.groups)]
 
 
-def create_tf_example(data, image_path, label_map_dict, ignore_difficult_instances=False, verbose=1):
+def create_tf_example(data, image_path, label_map_dict, ignore_empty_instances=False, verbose=1):
     """
     Convert image/xml-derived annotation dict to tensorflow example file to be
     incorporated into a TFRecord. Adapted from:
@@ -324,7 +323,7 @@ def create_tf_example(data, image_path, label_map_dict, ignore_difficult_instanc
         tf_example = tf.train.Example(features=tf_features)
         #if verbose: print("Image with annotations: ", image_path)
 
-    else:
+    elif not ignore_empty_instances:
         if verbose: print("No annotations available, empty image")
         obj_features = {
             'image/height': int64_feature(height),
@@ -334,8 +333,12 @@ def create_tf_example(data, image_path, label_map_dict, ignore_difficult_instanc
             'image/annotated': int64_feature(0)
         }
 
-    tf_features = tf.train.Features(feature=obj_features)
-    tf_example = tf.train.Example(features=tf_features)
+        tf_features = tf.train.Features(feature=obj_features)
+        tf_example = tf.train.Example(features=tf_features)
+    else:
+        print("Empty image. Ignoring")
+        tf_example = None
+
     return tf_example
 
 #Following feature encoders are from models/research/object_detection/dataset_util.py
@@ -403,7 +406,7 @@ def float_list_feature(value):
 #         print("WARNNG")
 #     return tf_example
 
-def write_tf_records_alt(class_labels, image_dir, xml_dir, output_path, num_shards):
+def write_tf_records_alt(class_labels, image_dir, xml_dir, output_path, num_shards, ignore_empty_instances):
     # Repo
     #class_labels = {"dog": 1, "cat": 2}
     #images_path #data_path = r"annotated_images/"
@@ -433,7 +436,7 @@ def write_tf_records_alt(class_labels, image_dir, xml_dir, output_path, num_shar
 
     #writer.close()
 
-    write_tf_records_only(output_path, num_shards, xml_preparation_list, class_labels, verbose=verbose)
+    write_tf_records_only(output_path, num_shards, xml_preparation_list, class_labels, ignore_empty_instances, verbose=verbose)
 
 
     print("Done encoding data TFRecord file")
@@ -447,7 +450,7 @@ def xml_to_dict(xml_path):
     return xml_data
 
 
-def write_tf_records_only(output_filename, num_shards, xml_preparation_list, class_labels, verbose=1):
+def write_tf_records_only(output_filename, num_shards, xml_preparation_list, class_labels, ignore_empty_instances, verbose=1):
     with contextlib2.ExitStack() as tf_record_close_stack:
         output_tfrecords = tf_record_creation_util.open_sharded_output_tfrecords(
             tf_record_close_stack, output_filename, num_shards)
@@ -458,13 +461,15 @@ def write_tf_records_only(output_filename, num_shards, xml_preparation_list, cla
             try:
                 #Create the example
                 #tf_example = create_tf_example(grouped_example, image_dir)
-                tf_example = create_tf_example(xml_data, image_path, class_labels, verbose=verbose)
+                tf_example = create_tf_example(xml_data, image_path, class_labels, ignore_empty_instances, verbose=verbose)
 
 
 
                 if tf_example:
                     shard_idx = idx % num_shards
                     output_tfrecords[shard_idx].write(tf_example.SerializeToString())
+                else:
+                    print("Empty example. Nothing to add.")
             except ValueError:
                 logging.warning('Invalid example: %s, ignoring.', image_path.filename)
 
@@ -545,7 +550,8 @@ def main(_):
     label_map = label_map_util.load_labelmap(args.labels_path)
     label_map_dict = label_map_util.get_label_map_dict(label_map)
 
-    write_tf_records_alt(label_map_dict, args.image_dir, args.xml_dir, args.output_path, args.number_shards)
+    write_tf_records_alt(label_map_dict, args.image_dir, args.xml_dir, args.output_path, args.number_shards,
+                         args.ignore_empty_instances)
 
     #write_tf_records(args.output_path, args.number_shards, args.image_dir, args.xml_dir)
     print("Program End")
