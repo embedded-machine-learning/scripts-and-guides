@@ -33,7 +33,7 @@ convert_to_trt()
   --image_size="[$height, $width]" \
   --precision=$PRECISION \
   --dtype=uint8 \
-  --data_dir=./images/validation \
+  --data_dir=$DATASET/images/val \
   --output_dir=./exported-models-trt/$MODELNAME\_TRT$PRECISION
 }
 
@@ -54,9 +54,11 @@ USEREMAIL=alexander.wendt@tuwien.ac.at
 PYTHONENV=tf24
 BASEPATH=`pwd`
 SCRIPTPREFIX=../../scripts-and-guides/scripts
+#DATASET=../../datasets/pedestrian_detection_graz_val_only
+DATASET=../../datasets/pedestrian_detection_graz_val_only_debug
 MODELSOURCE=jobs/*.config
 HARDWARENAME=IntelNUC
-LABELMAP=pedestrian_label_map.pbtxt
+LABELMAP=label_map.pbtxt
 
 #Extract model name from this filename
 get_model_name

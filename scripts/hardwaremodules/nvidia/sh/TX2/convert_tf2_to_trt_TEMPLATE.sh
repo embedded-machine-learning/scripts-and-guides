@@ -45,7 +45,7 @@ convert_to_trt()
   --image_size="[$height, $width]" \
   --precision=$PRECISION \
   --dtype=uint8 \
-  --data_dir=./images/validation \
+  --data_dir=./dataset/images/val \
   --output_dir=./exported-models-trt/$MODELNAME\_TRT$PRECISION
 }
 
@@ -61,14 +61,14 @@ echo #==============================================#
 echo INFO: EXECUTE SCRIPT IN TARGET BASE FOLDER, e.g. samples/starwars_reduced
 
 # Constant Definition
-USEREMAIL=alexander.wendt@tuwien.ac.at
+#USEREMAIL=alexander.wendt@tuwien.ac.at
 #MODELNAME=tf2oda_efficientdet_512x384_pedestrian_D0_LR02
-PYTHONENV=tf24
-BASEPATH=`pwd`
+#PYTHONENV=tf24
+#BASEPATH=`pwd`
 SCRIPTPREFIX=../../scripts-and-guides/scripts
 MODELSOURCE=jobs/*.config
 HARDWARENAME=TX2
-LABELMAP=pedestrian_label_map.pbtxt
+LABELMAP=label_map.pbtxt
 
 #Extract model name from this filename
 get_model_name

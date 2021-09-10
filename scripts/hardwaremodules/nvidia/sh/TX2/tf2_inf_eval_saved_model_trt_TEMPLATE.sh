@@ -43,14 +43,14 @@ echo #==============================================#
 echo INFO: EXECUTE SCRIPT IN TARGET BASE FOLDER, e.g. samples/starwars_reduced
 
 # Constant Definition
-USEREMAIL=alexander.wendt@tuwien.ac.at
+#USEREMAIL=alexander.wendt@tuwien.ac.at
 #MODELNAME=tf2oda_efficientdetd0_320_240_coco17_pedestrian_all_LR002
-PYTHONENV=tf24
-BASEPATH=`pwd`
+#PYTHONENV=tf24
+#BASEPATH=`pwd`
 SCRIPTPREFIX=../../scripts-and-guides/scripts
 MODELSOURCE=jobs/*.config
 HARDWARENAME=TX2
-LABELMAP=pedestrian_label_map.pbtxt
+LABELMAP=label_map.pbtxt
 
 #Extract model name from this filename
 get_model_name
@@ -73,8 +73,8 @@ echo #====================================#
 echo Inference from model 
 python3 $SCRIPTPREFIX/inference_evaluation/tf2oda_inference_from_saved_model.py \
 --model_path "exported-models-trt/$MODELNAME/" \
---image_dir "images/validation" \
---labelmap "annotations/$LABELMAP" \
+--image_dir "dataset/images/val" \
+--labelmap "dataset/annotations/$LABELMAP" \
 --detections_out="results/$MODELNAME/$HARDWARENAME/detections.csv" \
 --latency_out="results/latency_$HARDWARENAME.csv" \
 --min_score=0.5 \
@@ -92,7 +92,7 @@ python3 $SCRIPTPREFIX/inference_evaluation/tf2oda_inference_from_saved_model.py 
 #python3 $SCRIPTPREFIX/conversion/convert_tfcsv_to_voc.py \
 #--annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
 #--output_dir="results/$MODELNAME/$HARDWARENAME/det_xmls" \
-#--labelmap_file="annotations/$LABELMAP"
+#--labelmap_file="dataset/annotations/$LABELMAP"
 
 
 echo #====================================#
@@ -108,7 +108,7 @@ echo # Evaluate with Coco Metrics
 echo #====================================#
 echo coco evaluation
 python3 $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
---groundtruth_file="annotations/coco_pets_validation_annotations.json" \
+--groundtruth_file="dataset/annotations/coco_pets_validation_annotations.json" \
 --detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
 --output_file="results/performance_$HARDWARENAME.csv" \
 --model_name=$MODELNAME \

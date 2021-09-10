@@ -60,7 +60,7 @@ infer()
   echo # Convert Latencies
   echo #====================================#
   echo "Add measured latencies to result table"
-  python3 $SCRIPTPREFIX/hardwaremodules/openvino/openvino_latency_parser.py \
+  python3 $SCRIPTPREFIX/hardwaremodules/intel/openvino_latency_parser.py \
   --avg_rep results/$MODELNAME/$HARDWARENAME/openvino/benchmark_average_counters_report_$HARDWARETYPE\_$APIMODE.csv \
   --inf_rep results/$MODELNAME/$HARDWARENAME/openvino/benchmark_report_$HARDWARETYPE\_$APIMODE.csv \
   --output_path results/latency_$HARDWARENAME.csv \
@@ -72,7 +72,7 @@ infer()
   echo # Infer with OpenVino
   echo #====================================#
   echo "Start accuracy/performance inference"
-  python3 $SCRIPTPREFIX/hardwaremodules/openvino/test_write_results.py \
+  python3 $SCRIPTPREFIX/hardwaremodules/intel/test_write_results.py \
   --model_path="exported-models-openvino/$MODELNAME/saved_model.xml" \
   --image_dir="$DATASET/images/val" \
   --device=$HARDWARETYPE \
@@ -124,11 +124,10 @@ echo #==============================================#
 #MODELNAME=tf2oda_efficientdet_512x384_pedestrian_D0_LR02
 #MODELNAME=tf2oda_ssdmobilenetv2_300x300_pets_D100_OVFP16
 PYTHONENV=tf24
-#BASEPATH=`pwd`
 SCRIPTPREFIX=../../scripts-and-guides/scripts
 HARDWARENAME=IntelNUC
-DATASET=../../datasets/oxford_pets_reduced
-LABELMAP=label_map.pbtxt
+DATASET=./dataset
+#LABELMAP=label_map.pbtxt
 
 #Openvino installation directory for the inferrer (not necessary the same as the model optimizer)
 #OPENVINOINSTALLDIR=/opt/intel/openvino_2021

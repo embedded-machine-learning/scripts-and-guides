@@ -53,7 +53,7 @@ MODELSOURCE=exported-models/*
 #MODELSOURCE=temp/*
 
 echo "Setup task spooler socket."
-. /media/cdleml/128GB/Users/awendt/init_eda_ts.sh
+. /media/cdleml/128GB/Users/awendt/init_xavier_ts.sh
 
 echo "This file converts a saved_model.pb from exported-models into a TRT models for FP32, FP16 and INT8. Then it executes inference on all 4 models and saved the models in results."
 

@@ -4,31 +4,34 @@
 # Functions
 ###
 
-#add_job()
-#{
-#  echo "Generate Training Script for $MODELNAME"
-#  cp tf2oda_train_eval_export_TEMPLATE.sh tf2oda_train_eval_export_$MODELNAME.sh
-#  echo "Add task spooler jobs for $MODELNAME to the task spooler"
-#  ts -L AW_$MODELNAME $CURRENTFOLDER/tf2oda_train_eval_export_$MODELNAME.sh
-#}
-
 setup_env()
 {
   # Environment preparation
   echo Activate environment $PYTHONENV
   #call conda activate %PYTHONENV%
-  . ~/init_eda_env.sh
-
-  # echo "Activate python environment and add python path variables" $PYTHONENV
-  #source $PYTHONENV
-
+  #Environment is put directly in the nuc home folder
+  . ~/tf2odapi/init_eda_env.sh
 }
 
 get_model_name()
 {
   MYFILENAME=`basename "$0"`
   MODELNAME=`echo $MYFILENAME | sed 's/tf2_inf_eval_saved_model_//' | sed 's/.sh//'`
-  echo Selected model: $MODELNAME
+  echo Selected model based on folder name: $MODELNAME
+}
+
+get_width_and_height()
+{
+  elements=(${MODELNAME//_/ })
+  #$(echo $MODELNAME | tr "_" "\n")
+  #echo $elements
+  resolution=${elements[2]}
+  res_split=(${resolution//x/ })
+  height=${res_split[0]}
+  width=${res_split[1]}
+
+  echo batch processing height=$height and width=$width
+
 }
 
 
@@ -49,19 +52,23 @@ PYTHONENV=tf24
 BASEPATH=`pwd`
 SCRIPTPREFIX=../../scripts-and-guides/scripts
 MODELSOURCE=jobs/*.config
-HARDWARENAME=Xavier
-LABELMAP=pedestrian_label_map.pbtxt
+HARDWARENAME=IntelNUC
+DATASET=./dataset
+LABELMAP=label_map.pbtxt
 
 #Extract model name from this filename
 get_model_name
 
+#Extract height and width from model
+get_width_and_height
+
 #Setup environment
-#setup_env
+setup_env
 
 #echo "Start training of $MODELNAME on EDA02" | mail -s "Start training of $MODELNAME" $USEREMAIL
 
 #echo "Setup task spooler socket."
-#. ~/init_eda_ts.sh
+. ~/tf2odapi/init_eda_ts.sh
 
 
 echo Apply to model $MODELNAME
@@ -71,44 +78,46 @@ echo # Infer Images from Known Model
 echo #====================================#
 
 echo Inference from model 
-python3 $SCRIPTPREFIX/inference_evaluation/tf2oda_inference_from_saved_model.py \
+python $SCRIPTPREFIX/inference_evaluation/tf2oda_inference_from_saved_model.py \
 --model_path "exported-models/$MODELNAME/saved_model/" \
---image_dir "images/validation" \
---labelmap "annotations/$LABELMAP" \
+--image_dir "$DATASET/images/val" \
 --detections_out="results/$MODELNAME/$HARDWARENAME/detections.csv" \
 --latency_out="results/latency_$HARDWARENAME.csv" \
 --min_score=0.5 \
 --model_name=$MODELNAME \
 --hardware_name=$HARDWARENAME \
+--batch_size=1 \
 --index_save_file="./tmp/index.txt"
 
+#--image_size="[$height, $width]" Optional to use if another size as provided in the model name is used
+#--batch_size: Default=1
 #--model_short_name=%MODELNAMESHORT% unused because the name is created in the csv file
 
 
 #echo #====================================#
 #echo # Convert Detections to Pascal VOC Format
 #echo #====================================#
-#echo Convert TF CSV Format similar to voc to Pascal VOC XML
+#echo "Convert TF CSV Format similar to voc to Pascal VOC XML"
 #python $SCRIPTPREFIX/conversion/convert_tfcsv_to_voc.py \
 #--annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
 #--output_dir="results/$MODELNAME/$HARDWARENAME/det_xmls" \
-#--labelmap_file="annotations/$LABELMAP"
+#--labelmap_file="$DATASET/annotations/$LABELMAP"
 
 
 echo #====================================#
 echo # Convert to Pycoco Tools JSON Format
 echo #====================================#
-echo Convert TF CSV to Pycoco Tools csv
-python3 $SCRIPTPREFIX/conversion/convert_tfcsv_to_pycocodetections.py \
+echo "Convert TF CSV to Pycoco Tools csv"
+python $SCRIPTPREFIX/conversion/convert_tfcsv_to_pycocodetections.py \
 --annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
 --output_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json"
 
 echo #====================================#
 echo # Evaluate with Coco Metrics
 echo #====================================#
-echo coco evaluation
-python3 $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
---groundtruth_file="annotations/coco_pets_validation_annotations.json" \
+
+python $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
+--groundtruth_file="$DATASET/annotations/coco_pets_validation_annotations.json" \
 --detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
 --output_file="results/performance_$HARDWARENAME.csv" \
 --model_name=$MODELNAME \
@@ -120,6 +129,6 @@ echo # Merge results to one result table
 echo #====================================#
 echo merge latency and evaluation metrics
 python3 $SCRIPTPREFIX/inference_evaluation/merge_results.py \
---latency_file="results/latency.csv" \
---coco_eval_file="results/performance.csv" \
---output_file="results/combined_results.csv"
+--latency_file="results/latency_$HARDWARENAME.csv" \
+--coco_eval_file="results/performance_$HARDWARENAME.csv" \
+--output_file="results/combined_results_$HARDWARENAME.csv"

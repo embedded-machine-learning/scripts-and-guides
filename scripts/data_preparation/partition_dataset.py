@@ -31,7 +31,7 @@ def iterate_dir(source, dest, ratio, copy_xml, xml_directory, remove_source):
     dest = dest.replace('\\', '/')
     xml_directory = xml_directory.replace('\\', '/')
     train_dir = os.path.join(dest, 'train')
-    test_dir = os.path.join(dest, 'validation')
+    test_dir = os.path.join(dest, 'val')
     inference_dir = os.path.join(dest, 'inference')
 
     if xml_directory is None:

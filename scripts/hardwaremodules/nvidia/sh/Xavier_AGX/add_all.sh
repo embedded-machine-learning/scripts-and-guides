@@ -6,9 +6,9 @@ BASESCRIPT=tf2_inf_eval_saved_model
 # Functions
 add_job()
 {
-  #echo "Generate Training Script for $MODELNAME"
-  #echo "Copy convert_tf2_to_trt_TEMPLATE.sh to convert_tf2_to_trt_$MODELNAME.sh"
-  #cp convert_tf2_to_trt_TEMPLATE.sh convert_tf2_to_trt_$MODELNAME.sh
+  echo "Generate Training Script for $MODELNAME"
+  echo "Copy convert_tf2_to_trt_TEMPLATE.sh to convert_tf2_to_trt_$MODELNAME.sh"
+  cp convert_tf2_to_trt_TEMPLATE.sh convert_tf2_to_trt_$MODELNAME.sh
   
   echo "Copy tf2_inf_eval_saved_model_TEMPLATE.sh to tf2_inf_eval_saved_model_$MODELNAME.sh"
   cp tf2_inf_eval_saved_model_TEMPLATE.sh tf2_inf_eval_saved_model_$MODELNAME.sh
@@ -23,8 +23,8 @@ add_job()
   cp tf2_inf_eval_saved_model_trt_TEMPLATE.sh tf2_inf_eval_saved_model_trt_$MODELNAME\_TRTINT8.sh
   
   echo "Add task spooler jobs for $MODELNAME to the task spooler"
-  #echo "Add shell script convert_tf2_to_trt_$MODELNAME.sh"
-  #tsp -L AW_conv_$MODELNAME $CURRENTFOLDER/convert_tf2_to_trt_$MODELNAME.sh
+  echo "Add shell script convert_tf2_to_trt_$MODELNAME.sh"
+  tsp -L AW_conv_$MODELNAME $CURRENTFOLDER/convert_tf2_to_trt_$MODELNAME.sh
   echo "Add shell script tf2_inf_eval_saved_model_$MODELNAME.sh"
   tsp -L AW_inf_orig_$MODELNAME $CURRENTFOLDER/tf2_inf_eval_saved_model_$MODELNAME.sh
   echo "Add shell script tf2_inf_eval_saved_model_trt_$MODELNAME\_TRTFP32.sh"
@@ -53,7 +53,7 @@ MODELSOURCE=exported-models/*
 #MODELSOURCE=temp/*
 
 echo "Setup task spooler socket."
-. /media/cdleml/128GB/Users/awendt/init_eda_ts.sh
+. /media/cdleml/128GB/Users/awendt/init_xavier_ts.sh
 
 echo "This file converts a saved_model.pb from exported-models into a TRT models for FP32, FP16 and INT8. Then it executes inference on all 4 models and saved the models in results."
 
