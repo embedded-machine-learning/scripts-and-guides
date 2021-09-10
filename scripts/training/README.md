@@ -123,7 +123,7 @@ python %SCRIPTPREFIX%\zip_tool.py ^
 
 ## Using Tensorboard
 On the training server e.g. EDA01 or EDA02 start Tensorboard by doing the following:
-1. Execute ```tensorboard --logdir models/[MODELNAME]/train --bind_all```. It starts tensorboard in a the shell and exposes the interface to the network.
+1. Execute ```tensorboard --logdir models/[MODELNAME] --bind_all```. It starts tensorboard in a the shell and exposes the interface to the network. It reads both the train and the eval folder into tensorboard.
 2. Execute the http://[IP]:6006 in the browser to get the tensorboard panel
 3. Quit Tensorboard with Ctrl+C in the shell
 
