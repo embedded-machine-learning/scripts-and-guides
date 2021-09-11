@@ -42,7 +42,7 @@ infer()
   echo # Infer with OpenVino
   echo #====================================#
   echo "Start latency inference"
-  python $SCRIPTPREFIX/hardwaremodules/openvino/run_pb_bench_sizes.py \
+  python $SCRIPTPREFIX/hardwaremodules/intel/run_pb_bench_sizes.py \
   -openvino_path $OPENVINOINSTALLDIR \
   -hw $HARDWARETYPE \
   -batch_size 1 \
@@ -76,7 +76,7 @@ infer()
   --model_path="exported-models-openvino/$MODELNAME/saved_model.xml" \
   --image_dir="$DATASET/images/val" \
   --device=$HARDWARETYPE \
-  --detections_out="results/$MODELNAME/$HARDWARENAME/detections.csv"
+  --detections_out="results/$MODELNAME/$HARDWARENAME\_$HARDWARETYPE/detections.csv"
 
 
   echo #====================================#
@@ -84,16 +84,16 @@ infer()
   echo #====================================#
   echo "Convert TF CSV to Pycoco Tools csv"
   python $SCRIPTPREFIX/conversion/convert_tfcsv_to_pycocodetections.py \
-  --annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
-  --output_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json"
+  --annotation_file="results/$MODELNAME/$HARDWARENAME\_$HARDWARETYPE/detections.csv" \
+  --output_file="results/$MODELNAME/$HARDWARENAME\_$HARDWARETYPE/coco_detections.json"
 
   echo #====================================#
   echo # Evaluate with Coco Metrics
   echo #====================================#
 
   python $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
-  --groundtruth_file="$DATASET/annotations/coco_pets_validation_annotations.json" \
-  --detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
+  --groundtruth_file="$DATASET/annotations/coco_val_annotations.json" \
+  --detection_file="results/$MODELNAME/$HARDWARENAME\_$HARDWARETYPE/coco_detections.json" \
   --output_file="results/performance_$HARDWARENAME.csv" \
   --model_name=$MODELNAME \
   --hardware_name=$HARDWARENAME\_$HARDWARETYPE \
@@ -126,7 +126,8 @@ echo #==============================================#
 PYTHONENV=tf24
 SCRIPTPREFIX=../../scripts-and-guides/scripts
 HARDWARENAME=IntelNUC
-DATASET=./dataset
+DATASET=../../datasets/pedestrian_detection_graz_val_only_ss10
+#DATASET=../../datasets/pedestrian_detection_graz_val_only_debug
 #LABELMAP=label_map.pbtxt
 
 #Openvino installation directory for the inferrer (not necessary the same as the model optimizer)

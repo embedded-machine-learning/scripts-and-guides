@@ -53,7 +53,8 @@ BASEPATH=`pwd`
 SCRIPTPREFIX=../../scripts-and-guides/scripts
 MODELSOURCE=jobs/*.config
 HARDWARENAME=IntelNUC
-DATASET=./dataset
+DATASET=../../datasets/pedestrian_detection_graz_val_only_ss10
+#DATASET=../../datasets/pedestrian_detection_graz_val_only_debug
 LABELMAP=label_map.pbtxt
 
 #Extract model name from this filename
@@ -117,7 +118,7 @@ echo # Evaluate with Coco Metrics
 echo #====================================#
 
 python $SCRIPTPREFIX/inference_evaluation/objdet_pycoco_evaluation.py \
---groundtruth_file="$DATASET/annotations/coco_pets_validation_annotations.json" \
+--groundtruth_file="$DATASET/annotations/coco_val_annotations.json" \
 --detection_file="results/$MODELNAME/$HARDWARENAME/coco_detections.json" \
 --output_file="results/performance_$HARDWARENAME.csv" \
 --model_name=$MODELNAME \

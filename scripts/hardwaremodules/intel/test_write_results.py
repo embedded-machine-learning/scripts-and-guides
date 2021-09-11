@@ -43,6 +43,7 @@ from __future__ import print_function
 # Built-in/Generic Imports
 import sys, os, json, argparse
 import logging as log
+import time
 from datetime import datetime
 
 # Libs
@@ -134,6 +135,8 @@ if __name__ == "__main__":
     _, _, net_h, net_w = net.input_info[input_blob].input_data.shape
 
     for filename in os.listdir(args.image_dir):
+
+        total_latency_start_time = time.time()
         original_image = cv2.imread(os.path.join(args.image_dir, filename))
         image = original_image.copy()
 
@@ -191,6 +194,11 @@ if __name__ == "__main__":
                         str(confidence),
                     ]
                 )
+
+        total_latency_stop_time = time.time()
+        total_latency = total_latency_stop_time - total_latency_start_time
+        print("Total latency for {} : {}s".format(filename, total_latency))
+
 
     dataframe = pd.DataFrame(
         combined_data,
