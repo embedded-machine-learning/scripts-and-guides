@@ -246,6 +246,7 @@ def detect_image(detect_fn, image_path):
     # image_path = os.path.join(image_dir, image_name)
     # Convert image to array
     print("Process ", image_path)
+    total_latency_start_time = time.time()
     image_np = im.load_image_into_numpy_array(image_path)
 
     # Make image tensor of it
@@ -267,7 +268,11 @@ def detect_image(detect_fn, image_path):
     classes = detections['detection_classes'][0].numpy().astype(np.int32)
     scores = detections['detection_scores'][0].numpy()
 
-    return image_filename, image_np, boxes, classes, scores, latency
+    total_latency_stop_time = time.time()
+    total_latency = total_latency_stop_time - total_latency_start_time
+    print("Total latency for {} : {}s".format(image_filename, total_latency))
+
+    return image_filename, image_np, boxes, classes, scores, latency, total_latency
 
 
 def infer_images(model_path, image_dir, latency_out, detections_out, min_score, model_name,
@@ -320,20 +325,24 @@ def infer_images(model_path, image_dir, latency_out, detections_out, min_score, 
 
     # Define scores and latencies
     latencies = []
+    total_latencies = []
     detection_scores = pd.DataFrame(columns=['filename', 'width', 'height', 'class', 'xmin',
                                              'ymin', 'xmax', 'ymax', 'score'])
     # Process each image
     for image_name in image_list:
         # if run_detection:
-        image_filename, image_np, boxes, classes, scores, latency = \
+        image_filename, image_np, boxes, classes, scores, latency, total_latency = \
             detect_image(detector, os.path.join(image_dir, image_name))
 
         latencies.append(latency)
+        total_latencies.append(total_latency)
         # latencies=latencies.append(pd.DataFrame([[model_name, hardware_name, latency]], columns=['Network', 'Hardware', 'Latency']))
         bbox_df = inf.convert_reduced_detections_tf2_to_df(image_filename, image_np, boxes, classes, scores, min_score)
         detection_scores = detection_scores.append(bbox_df)
 
     print("Mean latency without batch processing: {}".format(np.array(latencies[1:-1]).mean()))
+    print("Mean total latency including image preprocessing: {}".format(np.array(total_latencies[1:-1]).mean()))
+
 
     # Save all detections
     # if run_detection and xml_dir and detection_scores.shape[0] > 0:

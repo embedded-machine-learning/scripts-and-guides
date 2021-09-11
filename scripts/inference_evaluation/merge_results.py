@@ -119,7 +119,11 @@ def merge_results(latency_file, coco_eval_file, output_file):
         old_df['Model_Short'] = old_df['Model_Short'].replace(np.nan, '', regex=True)
         # old_df['Custom_Parameters'] = old_df['Custom_Parameters'].astype(str)
         old_df['Hardware_Optimization'] = old_df['Hardware_Optimization'].replace(np.nan, '', regex=True)
+        old_df['Latencies'] = old_df['Latencies'].replace(np.nan, '', regex=True)
         lat_perf_df['Hardware_Optimization'] = lat_perf_df['Hardware_Optimization'].replace(np.nan, '', regex=True)
+
+        print("Old DF types: ", old_df.dtypes)
+        print("New DF types: ", lat_perf_df.dtypes)
 
         merged_df = old_df.reset_index().merge(lat_perf_df.reset_index(), how="outer").set_index('Index').drop(
             columns=['index'])  # pd.merge(old_df, df, how='outer')
