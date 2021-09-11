@@ -152,7 +152,7 @@ def save_latencies_to_csv(latencies, batch_size, number_runs, hardware_name, mod
 
     # Calulate throughput
     # throughput = 1 / mean_latency
-    throughput = number_runs * batch_size / np.array(latencies).sum()
+    throughput = number_runs * batch_size / np.array(latencies).sum() * 1000
 
     if len(latencies)>1:
         latency_string = str(latencies)
