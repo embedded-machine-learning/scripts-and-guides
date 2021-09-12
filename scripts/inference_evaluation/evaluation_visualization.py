@@ -99,7 +99,7 @@ def visualize_latency(df, output_dir):
         hwopt = row['Hardware_Optimization']
         print("Processing {} on {}".format(network, device))
         #FIXME: This is not a clean way to check if the field is empty
-        if not row['Latencies'] is None and not np.isnan(row['Latencies']):
+        if not row['Latencies'] is None: # and not np.isnan(row['Latencies']):
             col = ast.literal_eval(row['Latencies'])
             values.append(np.array(col))
         else:
@@ -124,7 +124,7 @@ def visualize_latency(df, output_dir):
             hwopt = row['Hardware_Optimization']
             print("Processing {} on {}".format(network, hw))
 
-            if not row['Latencies'] is None and not np.isnan(row['Latencies']):
+            if not row['Latencies'] is None: # and not np.isnan(row['Latencies']):
                 col = ast.literal_eval(row['Latencies'])
                 values.append(np.array(col))
             else:
