@@ -93,13 +93,16 @@ def visualize_latency(df, output_dir):
 
     values = list()
     labels = list()
+
     for index, row in df_perf.iterrows():
         network = row['Model_Short']
         device = row['Hardware']
         hwopt = row['Hardware_Optimization']
         print("Processing {} on {}".format(network, device))
         #FIXME: This is not a clean way to check if the field is empty
-        if not row['Latencies'] is None: # and not np.isnan(row['Latencies']):
+
+
+        if not row['Latencies'] is None: # or not np.isnan(row['Latencies']):
             col = ast.literal_eval(row['Latencies'])
             values.append(np.array(col))
         else:
@@ -163,7 +166,7 @@ def plot_violin_plot(values, labels, output_dir, title='Latency', xlabel="Models
                                                               np.mean(v[1])],
                                                           index=['min', 'max', 'q25', 'median', 'q75', 'mean']))
 
-    df_table.round(0).astype(int).to_csv(os.path.join(output_dir, title.replace(' ', '_') + '_violinplot' + '.csv'), sep=";")
+    df_table.round(2).astype(float).to_csv(os.path.join(output_dir, title.replace(' ', '_') + '_violinplot' + '.csv'), sep=";")
 
     # Create the Violinplot
     fig1, ax1 = plt.subplots(figsize=(5, 8))
@@ -242,7 +245,7 @@ def plot_bar(values, labels, output_dir, title='Performance mAP', xlabel="Models
     ax1.set_title(title)
     ax1.grid()
 
-    ticks = list(np.linspace(0, len(labels), len(labels)).astype(np.int))
+    ticks = list(np.linspace(0, len(labels)-1, len(labels)).astype(np.int))
 
     plt.xticks(ticks, labels)
     plt.xticks(rotation=90)
@@ -560,15 +563,15 @@ def evaluate(latency_file, performance_file, output_dir, hwopt_reference=None, i
         else:
             performance = pd.read_csv(performance_file, sep=';')
 
+    #latency['Latencies'] = latency['Latencies'].astype(object).replace(np.nan, None)
+    latency = latency.replace({np.nan: None})
+
     if latency['Mean_Latency'][0] < 1:
         warnings.warn("Mean latency <0. No network is so fast. Probably the unit is s. Converting to ms.")
         latency['Mean_Latency'] = latency['Mean_Latency'] * 1000
         if not latency['Latencies'][0] is None:
             for index, row in latency.iterrows():
                 latency['Latencies'][index] = str(list(np.array(ast.literal_eval(row['Latencies']))*1000))
-
-
-
 
 
     relative_latencies = get_latency_deltas_for_hardware_optimizations(latency, hwopt_reference)

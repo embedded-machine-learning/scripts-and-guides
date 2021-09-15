@@ -306,7 +306,7 @@ def reformat_inf(extracted_inf, hardware_name=None):
     new_frame.append(extracted_inf["full_name"])  # Model
     new_frame.append(extracted_inf["short_name"])  # Model_Short
     new_frame.append(extracted_inf["framework"])  # Framework
-    new_frame.append(extracted_inf["short_name"])  # Network
+    new_frame.append(extracted_inf["network"])  # Network
     new_frame.append(extracted_inf["resolution"])  # Resolution
     new_frame.append(extracted_inf["dataset"])  # Dataset
 
