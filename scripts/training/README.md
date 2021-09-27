@@ -127,6 +127,9 @@ On the training server e.g. EDA01 or EDA02 start Tensorboard by doing the follow
 2. Execute the http://[IP]:6006 in the browser to get the tensorboard panel
 3. Quit Tensorboard with Ctrl+C in the shell
 
+## FAQ, Problems and Solutions
+1. If ts cannot execute command: Check if EOF is Unix and not Windows!
+
 # Issues
 If there are any issues or suggestions for improvements, please add an issue to github's bug tracking system or please send a mail 
 to [Alexander Wendt](mailto:alexander.wendt@tuwien.ac.at)
