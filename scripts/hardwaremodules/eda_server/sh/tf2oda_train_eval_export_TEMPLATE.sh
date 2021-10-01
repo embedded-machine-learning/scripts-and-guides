@@ -53,7 +53,7 @@ python $SCRIPTPREFIX/tf2oda_evaluate_ckpt_performance.py \
 echo Read TF Summary from Tensorboard file
 python $SCRIPTPREFIX/tf2oda_read_tf_summary.py \
 --checkpoint_dir=$BASEPATH/models/$MODELNAME \
---out_dir=result/$MODELNAME/metrics
+--out_dir=results/$MODELNAME/metrics
 
 echo "#====================================#"
 echo "#Export inference graph"
