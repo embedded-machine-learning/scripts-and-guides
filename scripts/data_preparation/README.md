@@ -141,6 +141,8 @@ python %SCRIPTPREFIX%/remove_invalid_bounding_boxes_in_xml.py ^
 --output_folder="annotations/cleaned"
 ```
 
+## Todos
+1. Create a script that looks for images and annotations with multiple \".\" in the filename and replace them in the images as well as inside the Pascal VOC xml files.
 
 # Issues
 If there are any issues or suggestions for improvements, please add an issue to github's bug tracking system or please send a mail 
