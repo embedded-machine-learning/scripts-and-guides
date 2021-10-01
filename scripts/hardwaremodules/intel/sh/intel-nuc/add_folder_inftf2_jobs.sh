@@ -31,6 +31,8 @@ MODELSOURCE=exported-models/*
 echo "Setup task spooler socket."
 . ~/tf2odapi/init_eda_ts.sh
 
+#Send start mail
+ts -L AW_Send_start $CURRENTFOLDER/sendmail_Start_TF2_IntelNUC.sh
 
 for f in $MODELSOURCE
 do
@@ -42,4 +44,7 @@ do
   # take action on each file. $f store current file name
   #cat $f
 done
+
+#Send stop mail
+ts -L AW_Send_stop $CURRENTFOLDER/sendmail_Stop_TF2_IntelNUC.sh
 
