@@ -60,7 +60,7 @@ get_model_name
 #Setup environment
 setup_env
 
-echo "Start inference of $MODELNAME on EDA02" | mail -s "Start inference of $MODELNAME" $USEREMAIL
+echo "Start inference of $MODELNAME on EDA02 $(date +"%Y%m%d %T")" | mail -s "Start Inference $MODELNAME EDA02 $(date +"%Y%m%d %T")" $USEREMAIL
 
 #echo "Setup task spooler socket."
 #. ~/init_eda_ts.sh
@@ -87,14 +87,14 @@ python3 $SCRIPTPREFIX/inference_evaluation/tf2oda_inference_from_saved_model.py 
 #--model_short_name=%MODELNAMESHORT% unused because the name is created in the csv file
 
 
-#echo #====================================#
-#echo # Convert Detections to Pascal VOC Format
-#echo #====================================#
-#echo Convert TF CSV Format similar to voc to Pascal VOC XML
-#python $SCRIPTPREFIX/conversion/convert_tfcsv_to_voc.py \
-#--annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
-#--output_dir="results/$MODELNAME/$HARDWARENAME/det_xmls" \
-#--labelmap_file="$DATASET/annotations/$LABELMAP"
+echo #====================================#
+echo # Convert Detections to Pascal VOC Format
+echo #====================================#
+echo Convert TF CSV Format similar to voc to Pascal VOC XML
+python $SCRIPTPREFIX/conversion/convert_tfcsv_to_voc.py \
+--annotation_file="results/$MODELNAME/$HARDWARENAME/detections.csv" \
+--output_dir="results/$MODELNAME/$HARDWARENAME/det_xmls" \
+--labelmap_file="$DATASET/annotations/$LABELMAP"
 
 
 echo #====================================#
@@ -126,4 +126,4 @@ python3 $SCRIPTPREFIX/inference_evaluation/merge_results.py \
 --coco_eval_file="results/performance_$HARDWARENAME.csv" \
 --output_file="results/combined_results_$HARDWARENAME.csv"
 
-echo "Stop inference of $MODELNAME on EDA02" | mail -s "Stop inference of $MODELNAME" $USEREMAIL
+echo "Stop inference of $MODELNAME on EDA02 $(date +"%Y%m%d %T")" | mail -s "Stop Inference $MODELNAME EDA02 $(date +"%Y%m%d %T")" $USEREMAIL

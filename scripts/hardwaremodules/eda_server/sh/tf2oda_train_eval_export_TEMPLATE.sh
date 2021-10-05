@@ -27,7 +27,7 @@ echo Activate environment $PYTHONENV
 # echo "Activate python environment and add python path variables" $PYTHONENV
 #source $PYTHONENV
 
-echo "Start training of $MODELNAME on EDA02" | mail -s "Start training of $MODELNAME" $USEREMAIL
+echo "Start training of $MODELNAME on EDA02 $(date +"%Y%m%d %T")" | mail -s "Start Train $MODELNAME EDA02 $(date +"%Y%m%d %T")" $USEREMAIL
 
 
 echo "#====================================#"
@@ -72,7 +72,7 @@ mkdir tmp
 cp -ar exported-models/$MODELNAME tmp
 
 
-echo "Stop Training of $MODELNAME on EDA02" | mail -s "Training of $MODELNAME finished" $USEREMAIL
+echo "Stop training of $MODELNAME on EDA02 $(date +"%Y%m%d %T")" | mail -s "Stop Train $MODELNAME EDA02 $(date +"%Y%m%d %T")" $USEREMAIL
 
 echo "#======================================================#"
 echo "# Training, evaluation and export of the model completed"
