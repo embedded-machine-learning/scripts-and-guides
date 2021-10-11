@@ -13,7 +13,7 @@ source tf24/bin/activate
 
 echo # install necessary software
 pip install --upgrade pip
-pip install tensorflow
+pip install tensorflow==2.4.1
 echo #Test if Tensorflow works with CUDA on the machine. For TF2.4.1, you have to use CUDA 11.0
 python -c "import tensorflow as tf;print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
 
@@ -46,5 +46,8 @@ pip install numpy tdqm xmltodict pandas matplotlib pillow beautifulsoup4
 
 echo clone scripts and guides repo for source of scripts
 git clone https://github.com/embedded-machine-learning/scripts-and-guides.git
+
+echo "Important information: If there are any library errors, you have to install the correct versions manually. TFODAPI does install the latest version of "
+echo "tensorflow. However, in this script Tensorflow 2.4.1 is desired. Then, you have to uninstall the newer versions and replace with current versions."
 
 echo # Installation complete
