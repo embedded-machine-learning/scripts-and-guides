@@ -59,6 +59,10 @@ import xml.etree.ElementTree as ET
 from xml.dom.minidom import parseString
 from tqdm import tqdm
 import shutil
+import os
+from xml.dom import minidom
+import xml.etree.cElementTree as ET
+from PIL import Image
 
 # Own modules
 
@@ -117,11 +121,6 @@ print(args)
 #         </bndbox>
 #     </object>
 # <annotation>
-
-import os
-from xml.dom import minidom
-import xml.etree.cElementTree as ET
-from PIL import Image
 
 
 # ANNOTATIONS_DIR_PREFIX = "path to your yolo annotations"
