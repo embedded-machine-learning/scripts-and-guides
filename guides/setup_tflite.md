@@ -61,18 +61,18 @@ source venv_tflite/bin/activate
 Now every package that will be installed via pip, will be contained in this directory.
 To check which packages are installed enter
 ```
-pip list
+pip3 list
 ```
 
 Pip in your venv will most likely be outdatet. To update pip enter
 ```
-pip install --upgrade pip
+pip3 install --upgrade pip setuptools
 ```
 
 Now everything is ready to install the tflite interpreter
 For example for Python3.7 and ARM 32 enter
 ```
-pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_armv7l.whl
+pip3 install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_armv7l.whl
 ```
 and after a few seconds it should be completed.
 Links to other Tflite packages and how to run inference can be found in
