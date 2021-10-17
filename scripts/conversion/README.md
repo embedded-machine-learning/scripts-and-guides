@@ -196,6 +196,39 @@ python %SCRIPTPREFIX%\conversion\convert_yolo_to_voc.py ^
 --create_empty_images
 ```
 
+
+## Yolo Detections to Tensorflow Detections CSV File
+Convert Yolo detection annotations to Tensorflow detection annotations as csv. It is used to get all detection formats to fit the common detection format, i.e. tensorflow detection csv.
+
+Source: -
+
+Script: `convert_yolo_to_tfcsv.py`
+
+Arguments:
+```
+optional arguments:
+  -h, --help            show this help message and exit
+parser.add_argument("-ad", '--annotation_dir',
+                    default=None,
+                    help='Annotation directory with txt files of yolo annotations of the same name format as image files',
+                    required=False)
+parser.add_argument("-id", '--image_dir',
+                    default="images",
+                    help='Image file directory to get the image size from the corresponding image', required=False)
+parser.add_argument("-out", '--output',
+                    default="./detections.csv",
+                    help='Output file path for the detections csv.', required=False)
+```
+
+Example:
+```
+python %SCRIPTPREFIX%\conversion\convert_yolo_to_tfcsv.py ^
+--annotation_dir=results/pt_yolov5s_640x360_oxfordpets_e300/TeslaV100/labels ^
+--image_dir=images/validation ^
+--output=results/pt_yolov5s_640x360_oxfordpets_e300/TeslaV100/detections.csv
+```
+
+
 ## Darkent2caffe
 Source: [Darknet](https://github.com/ysh329/darknet2caffe)
 

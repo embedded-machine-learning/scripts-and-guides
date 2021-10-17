@@ -56,6 +56,13 @@ def clean_images(image_dir):
             PIL.Image.open(pathname_jpeg).convert('RGB').save(pathname_jpg, "jpeg")
         elif (encoded_jpg[0] != 0xff or encoded_jpg[1] != 0xd8 or encoded_jpg[2] != 0xff):
             print('not jpg:{}'.format(filename_src))
+        #
+            #https://stackoverflow.com/questions/33548956/detect-avoid-premature-end-of-jpeg-in-cv2-python
+            #with open(os.path.join(path, file), 'rb') as f:
+                #check_chars = f.read()[-2:]
+            #if check_chars != b'\xff\xd9':
+                #print('Not complete image')
+
 
 
 if __name__ == "__main__":
