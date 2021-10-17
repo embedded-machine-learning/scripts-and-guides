@@ -33,33 +33,13 @@ from __future__ import print_function
 
 # Built-in/Generic Imports
 import os
-import re
-import time
-import json
-import re
-import ntpath
 import warnings
 
 # Libs
-import argparse
-import numpy as np
 import glob
-import xml.etree.ElementTree as ET
-from multiprocessing import Pool
-import matplotlib
-from six import BytesIO
 import pandas as pd
-import tkinter
 import argparse
-import collections
-import xmltodict
 from PIL import Image
-import numpy as np
-import dicttoxml
-import xml.etree.ElementTree as ET
-from xml.dom.minidom import parseString
-from tqdm import tqdm
-import shutil
 
 # Own modules
 
