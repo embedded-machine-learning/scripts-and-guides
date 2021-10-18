@@ -84,7 +84,7 @@ def read_annotation_file(annotation_filepath, image_dir):
         w, h = img.size
 
         if os.path.exists(annotation_filepath):
-            print("Convert annotation {}".format(annotation_filepath))
+            #print("Convert annotation {}".format(annotation_filepath))
             # with open(os.path.join(annotation_dir, )"labels/" + file_path, 'r') as file:
 
             # Create DF for tf csv
@@ -158,7 +158,7 @@ def convert_yolo_to_tfcsv(annotation_dir, image_dir, output_path):
         single_annotation_df = read_annotation_file(annotation_filepath, image_dir)
 
         if single_annotation_df is not None:
-            print("File parsed")
+            ##print("File parsed")
             detections_df = detections_df.append(single_annotation_df, ignore_index=True)
         else:
             print("{} has no corresponding image. Continue.".format(annotation_filepath))
