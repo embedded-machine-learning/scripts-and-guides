@@ -126,7 +126,7 @@ def read_annotation_file(annotation_filepath, image_dir):
                                'score': score}
 
                     df = df.append(new_row, ignore_index=True)
-                    print("Added ", new_row)
+                    #print("Added ", new_row)
                     # voc.append(classes_dict.get(data[0]))
                     # voc_labels.append(voc)
                 # create_file(file_prefix, w, h, voc_labels, target_annotation_dir)

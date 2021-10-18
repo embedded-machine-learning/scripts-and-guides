@@ -192,7 +192,7 @@ def infer_latency(infer, image_dir, hardware_name, model_name, model_short_name,
         # all_preds.append(preds)
 
         if i % 50 == 0:
-            print('Steps {}-{} average: {:4.1f}ms'.format(i, i + 50, (np.array(elapsed_time[-50:]).mean()) * 1000))
+            print('Steps {}-{} average: {:4.1f}ms'.format(i, i + 50, (np.array(elapsed_time[-50:]).mean())))
 
     # throughput = N_run * batch_size / elapsed_time.sum()
 
