@@ -53,7 +53,7 @@ tsp  -L LABEL-FOR-SCRIPT /PATH-TO-SCRIPT
 tsp
 oder tsp -l
 ```
-### Zeigen des Outputfiles
+### Zeigen des gerade laufenden Outputfiles
 ```
 tsp -c <id>
 ```
@@ -73,6 +73,12 @@ kill $(tsp - p <id>)
 ### Entfernen eines Prozesses:
 ```
 tsp -r <id>
+```
+
+### Queue aufräumen:
+Löschen von fertigen Jobs.
+```
+tsp -C
 ```
 
 ### Übertragen von Dateien:
