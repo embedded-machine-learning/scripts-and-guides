@@ -595,7 +595,11 @@ def evaluate(latency_file, performance_file, output_dir, hwopt_reference=None, i
 
 
 if __name__ == "__main__":
-    evaluate(args.latency_file, args.performance_file, args.output_dir, args.hwopt_reference, args.input_combined_file,
+    if args.performance_file or args.latency_file:
+        raise SystemExit("Use combined_results file instead of separate latency and performance files.")
+
+
+    evaluate(None, None, args.output_dir, args.hwopt_reference, args.input_combined_file,
              args.latency_requirement, args.performance_requirement)
     # visualize_values(args.infile)
 
