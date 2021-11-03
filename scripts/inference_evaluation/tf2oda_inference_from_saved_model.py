@@ -237,8 +237,8 @@ def detect_image(detect_fn, image_path):
 
     :return:
     '''
-    elapsed = []
-    detection_dict = dict()
+    #elapsed = []
+    #detection_dict = dict()
 
     # print("Start detection")
     # for image_name in image_list:
