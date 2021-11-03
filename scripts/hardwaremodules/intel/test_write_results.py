@@ -100,6 +100,17 @@ parser.add_argument(
     required=False
 )
 
+parser.add_argument(
+    "-ls",
+    '--labels_start',
+    default=0,
+    help='Start value of the classes. For TF2ODA, the start value is 0. For AutoML EfficientDet, the start value is 1.'
+         'Look into the detections file and compare with ground truth if the metric passes bad 0 match although the '
+         'bounding boxes were correctly drawed. In such a case, the labels_start might be 1 and not 0.',
+    type=int,
+    required=False
+)
+
 args = parser.parse_args()
 print(args)
 
@@ -176,7 +187,7 @@ if __name__ == "__main__":
                 xmin, ymin, xmax, ymax, confidence = detection
 
             if confidence > 0.5:
-                label = int(class_id)
+                label = int(class_id) + args.labels_start
                 xmin = float(xmin)
                 ymin = float(ymin)
                 xmax = float(xmax)

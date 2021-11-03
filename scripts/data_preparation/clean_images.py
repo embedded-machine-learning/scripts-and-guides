@@ -5,6 +5,7 @@ import sys
 
 import tensorflow as tf
 import PIL
+import cv2
 
 def main(argv):
     # Initiate argument parser
@@ -56,12 +57,17 @@ def clean_images(image_dir):
             PIL.Image.open(pathname_jpeg).convert('RGB').save(pathname_jpg, "jpeg")
         elif (encoded_jpg[0] != 0xff or encoded_jpg[1] != 0xd8 or encoded_jpg[2] != 0xff):
             print('not jpg:{}'.format(filename_src))
-        #
-            #https://stackoverflow.com/questions/33548956/detect-avoid-premature-end-of-jpeg-in-cv2-python
-            #with open(os.path.join(path, file), 'rb') as f:
-                #check_chars = f.read()[-2:]
-            #if check_chars != b'\xff\xd9':
-                #print('Not complete image')
+
+        #https://stackoverflow.com/questions/33548956/detect-avoid-premature-end-of-jpeg-in-cv2-python
+        with open(pathname_jpg, 'rb') as im:
+            im.seek(-2, 2)
+            if im.read() == b'\xff\xd9':
+                print('Image OK :', pathname_jpg)
+            else:
+                # fix image
+                img = cv2.imread(pathname_jpg)
+                cv2.imwrite(pathname_jpg, img)
+                print('FIXED corrupted image :', pathname_jpg)
 
 
 
