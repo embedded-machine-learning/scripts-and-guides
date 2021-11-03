@@ -84,6 +84,8 @@ parser.add_argument("-hw", '--hardware_name', default="Inteli7", type=str,
 
 parser.add_argument("-l", '--labelmap', default='annotations/mscoco_label_map.pbtxt.txt',
                     help='Labelmap path', required=False)
+parser.add_argument("-lr", '--latency_runs', default=1000,
+                    help='Number of runs for latency check', required=False)
 
 parser.add_argument("-out", '--detections_out', default='./results/detections.csv',
                     help='Output file detections', required=False)
@@ -278,7 +280,7 @@ def detect_image(driver, image_path):
 
 def infer_images(model_path, image_dir, latency_out, detections_out, min_score, model_name,
                  hardware_name, model_short_name=None, batch_size=1, image_size=None,
-                 model_optimizer_prefix='TRT', index_save_file="./tmp/index.txt"):
+                 model_optimizer_prefix='TRT', index_save_file="./tmp/index.txt", latency_runs=1000):
     """
 
 
@@ -331,7 +333,7 @@ def infer_images(model_path, image_dir, latency_out, detections_out, min_score, 
 
     print("Perform latency tests.")
     infer_latency(driver, image_dir, hardware_name, model_name, model_info['model_short_name'], latency_out,
-                  N_warmup_run=50, N_run=1000, batch_size=batch_size, d_type='uint8',
+                  N_warmup_run=50, N_run=latency_runs, batch_size=batch_size, d_type='uint8',
                   image_size=image_size, index_save_file=index_save_file)
 
 
@@ -447,6 +449,6 @@ if __name__ == "__main__":
     infer_images(args.model_path, args.image_dir, args.latency_out, args.detections_out, args.min_score,
                  args.model_name, args.hardware_name, model_short_name=args.model_short_name,
                  batch_size=args.batch_size, image_size=args.image_size,
-                 model_optimizer_prefix=None, index_save_file=args.index_save_file)
+                 model_optimizer_prefix=None, index_save_file=args.index_save_file, latency_runs=args.latency_runs)
 
     print("=== Program end ===")
