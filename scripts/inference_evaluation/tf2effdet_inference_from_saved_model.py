@@ -84,7 +84,7 @@ parser.add_argument("-hw", '--hardware_name', default="Inteli7", type=str,
 
 parser.add_argument("-l", '--labelmap', default='annotations/mscoco_label_map.pbtxt.txt',
                     help='Labelmap path', required=False)
-parser.add_argument("-lr", '--latency_runs', default=1000,
+parser.add_argument("-lr", '--latency_runs', default=1000, type=int,
                     help='Number of runs for latency check', required=False)
 
 parser.add_argument("-out", '--detections_out', default='./results/detections.csv',
