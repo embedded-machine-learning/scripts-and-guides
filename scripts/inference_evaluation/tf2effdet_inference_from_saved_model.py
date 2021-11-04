@@ -37,15 +37,9 @@ import warnings
 
 # Libs
 import numpy as np
-from PIL import Image
-import tensorflow as tf
 import os
 import time
 import pandas as pd
-
-import tensorflow as tf
-from tensorflow.keras.applications.inception_v3 import preprocess_input, decode_predictions
-from tensorflow.keras.preprocessing import image
 
 # Own modules
 import image_utils as im
