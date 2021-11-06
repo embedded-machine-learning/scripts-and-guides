@@ -139,12 +139,12 @@ def generate_detections(annotation_file, output_file):
         xmax = float(row['xmax'] * width)
         #xmax = int(np.round(row['xmax'] * width))
         if xmax>width:
-            warnings.warn("xmax {} > {}. Setting xmax={}".format(xmax, width))
+            warnings.warn("xmax {} > {}. Setting xmax={}".format(xmax, width, width))
             xmax=width
         ymax = float(row['ymax'] * height)
         #ymax = int(np.round(row['ymax'] * height))
         if ymax>height:
-            warnings.warn("ymax {} > {}. Setting ymax={}".format(ymax, height))
+            warnings.warn("ymax {} > {}. Setting ymax={}".format(ymax, height, height))
             ymax=height
         assert xmax > xmin and ymax > ymin, f"Box size error !: (xmin, ymin, xmax, ymax): {xmin, ymin, xmax, ymax}"
         o_width = xmax - xmin
