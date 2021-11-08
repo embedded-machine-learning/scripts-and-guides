@@ -35,29 +35,15 @@ import os
 import argparse
 import time
 import warnings
-from datetime import datetime
 import logging
 
 # Libs
 import numpy as np
 import cv2
-import pandas as pd
-import torch
-from PIL import Image
 
-# If you get _tkinter.TclError: no display name and no $DISPLAY environment variable use
-# matplotlib.use('Agg') instead
-# matplotlib.use('TkAgg')
-
-import matplotlib.pyplot as plt
-
-import tensorflow as tf
 import torch
 from torchvision import datasets, transforms
 #import helper
-
-from tensorflow.keras.applications.inception_v3 import preprocess_input, decode_predictions
-from tensorflow.keras.preprocessing import image
 
 # Own modules
 import image_utils as im
