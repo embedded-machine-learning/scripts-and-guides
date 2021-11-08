@@ -40,13 +40,12 @@ import logging
 # Libs
 import numpy as np
 import cv2
-
+import re
 import torch
 from torchvision import datasets, transforms
 #import helper
 
 # Own modules
-import image_utils as im
 import inference_utils as inf
 
 __author__ = 'Alexander Wendt'
@@ -98,6 +97,13 @@ log.addHandler(logging.StreamHandler())
 
 log.info(args)
 
+def get_images_name(image_folder):
+    image_folder = image_folder.replace('\\', '/')
+    image_names = [f for f in os.listdir(image_folder)
+                   if re.search(r'([a-zA-Z0-9\s_\\.\-\(\):])+(.jpg|.jpeg|.png)$', f)]
+
+    return image_names
+
 def infer_latency_images(model_path, image_dir, latency_out, model_name,
                  hardware_name, model_short_name=None, batch_size=1, image_size=None,
                  model_optimizer_prefix='TRT', index_save_file="./tmp/index.txt", N_warmup_run=50, N_run=1000):
@@ -130,7 +136,7 @@ def infer_latency_images(model_path, image_dir, latency_out, model_name,
 
     # Load inference images
     print("Loading images from ", image_dir)
-    image_list = im.get_images_name(image_dir)
+    image_list = get_images_name(image_dir)
 
     # Convert image to numpy array
     img = cv2.imread(os.path.join(image_dir, image_list[0]))
