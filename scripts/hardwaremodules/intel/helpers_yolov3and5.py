@@ -13,7 +13,7 @@ def save_detections_to_csv(output_object, filename, img_width, img_height, combi
 
     """
 
-    label = output_object['class_id']
+    label = int(output_object['class_id'])+1    # For TF detection format, the first class is 1, i.e. add 1
     xmin = float(output_object['xmin'])/img_width
     ymin = float(output_object['ymin'])/img_height
     xmax = float(output_object['xmax'])/img_width
