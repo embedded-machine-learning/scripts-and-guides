@@ -52,6 +52,7 @@ import pandas as pd
 from openvino.inference_engine import IECore
 import cv2
 # Own modules
+import helpers_yolov3and5 as helper
 
 __author__ = "Matvey Ivanov"
 __copyright__ = (
@@ -309,6 +310,11 @@ if __name__ == "__main__":
         for o in objects:
             print(o)
 
+            # Save to detections file.
+            # Format:
+            # {'xmin': 442, 'xmax': 621, 'ymin': 91, 'ymax': 273, 'class_id': 0, 'confidence': 0.9272235631942749}
+            helper.save_detections_to_csv(o, filename, w, h, combined_data)
+
         if args.show:
             # show frame with bounding boxes
             origin_im_size = original_image.shape[:-1]
@@ -336,6 +342,28 @@ if __name__ == "__main__":
             # ESC key
             if key == 27:
                 break
+
+    # Create detections
+    dataframe = pd.DataFrame(
+        combined_data,
+        columns=[
+            "filename",
+            "width",
+            "height",
+            "class",
+            "xmin",
+            "ymin",
+            "xmax",
+            "ymax",
+            "score",
+        ],
+    )
+
+    # Create output directories
+    os.makedirs(os.path.dirname(args.detections_out), exist_ok=True)
+
+    dataframe.to_csv(args.detections_out, index=False, sep=";")  #
+    print("Written detections to ", args.detections_out)
 
     """
         for i, detection in enumerate(detections):

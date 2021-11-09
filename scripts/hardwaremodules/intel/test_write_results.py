@@ -161,8 +161,8 @@ if __name__ == "__main__":
         print("Starting inference for picture: " + filename)
         res = exec_net.infer(inputs={input_blob: image})
 
-        #print(res)
-        #print("Type of result object", type(res))
+        # print(res)
+        # print("Type of result object", type(res))
 
         output_image = original_image.copy()
         h, w, _ = output_image.shape
@@ -210,7 +210,6 @@ if __name__ == "__main__":
         total_latency = total_latency_stop_time - total_latency_start_time
         print("Total latency for {} : {}s".format(filename, total_latency))
 
-
     dataframe = pd.DataFrame(
         combined_data,
         columns=[
@@ -234,5 +233,5 @@ if __name__ == "__main__":
         os.makedirs(os.path.dirname(args.detections_out))
         print("Created ", os.path.dirname(args.detections_out))
 
-    dataframe.to_csv(args.detections_out, index=False, sep=";")#
+    dataframe.to_csv(args.detections_out, index=False, sep=";")  #
     print("Written detections to ", args.detections_out)
