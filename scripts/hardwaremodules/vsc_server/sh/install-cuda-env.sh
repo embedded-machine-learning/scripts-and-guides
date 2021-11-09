@@ -31,4 +31,8 @@ echo 'Installing requirements from .txt file'
 # installing packages needed for the prep-kaist.py
 pip install -r requirements.txt
 #
+
+# If problems, upgrade numpy
+pip install numpy --upgrade
+
 echo 'Done!'
