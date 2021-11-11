@@ -45,6 +45,7 @@ squeue --account [ACCOUNT NAME]
 Note: Quit interactive session with exit and exit. It shall look like this:
 salloc: Relinquishing job allocation 10016841
 salloc: Job allocation 10016841 has been revoked.
+sqos: see available ressources
 
 ### Setup Tensorflow 2.4.1 Environment
 Setup Environment:
