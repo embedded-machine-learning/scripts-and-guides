@@ -358,9 +358,9 @@ def visualize_images(image_path1, image_path2, image_path3,
     else:
         annotation_dir3 = annotation_dir3
 
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        print("Created result directory: ", output_dir)
+    #if not os.path.exists(output_dir):
+    os.makedirs(output_dir, exist_ok=True)
+    #    print("Created result directory: ", output_dir)
 
     # Load label path
     category_index = load_labelmap(os.path.abspath(labelmap))

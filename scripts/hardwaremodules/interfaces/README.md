@@ -75,7 +75,7 @@ The format looks like the following:
 - filename: Image file name
 - width: Image width in pixels, e.g. 500
 - height: Image height in pixels, e.g. 300
-- class: Class integer
+- class: Class integer starting with 1 for the first class (like in PASCAL VOC. If e.g. yolo, where the first class is 0, then add +1 to the class) 
 - xmin: Relative position for x min, xmin[px]/image width[px]
 - ymin: Relative position for y min, ymin[px]/image height[px]
 - xmax: Relative position for x max, xmax[px]/image width[px]
