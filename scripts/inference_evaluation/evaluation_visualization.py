@@ -131,8 +131,10 @@ def visualize_latency(df, output_dir):
             values.append(mean_array)
         labels.append(str(network) + "_" + str(device) + "_" + str(hwopt))
 
-    plot_boxplot(values, labels, output_dir, title="Latency All Hardware")
-    plot_violin_plot(values, labels, output_dir, title="Latency All Hardware")
+    max_val = np.max(max(values, key=tuple))
+    min_val = np.min(min(values, key=tuple))
+    plot_boxplot(values, labels, output_dir, title="Latency All Hardware", max_val=max_val, min_val=min_val)
+    plot_violin_plot(values, labels, output_dir, title="Latency All Hardware", max_val=max_val, min_val=min_val)
 
     # Plot latencies per hardware
     unique_hardware = df_perf['Hardware'].unique()
@@ -189,6 +191,7 @@ def plot_violin_plot(values, labels, output_dir, title='Latency', xlabel="Models
                                                               np.mean(v[1])],
                                              index=['min', 'max', 'q25', 'median', 'q75', 'mean']))
 
+    df_table.index.name = 'Model'
     df_table.round(2).astype(float).to_csv(os.path.join(output_dir, title.replace(' ', '_') + '_violinplot' + '.csv'),
                                            sep=";")
 
@@ -204,8 +207,8 @@ def plot_violin_plot(values, labels, output_dir, title='Latency', xlabel="Models
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
 
-    #max_val = np.array(values).max() #np.max(max(values, key=tuple))
-    #min_val = np.array(values).min() #np.min(min(values, key=tuple))
+    # max_val = np.array(values).max() #np.max(max(values, key=tuple))
+    # min_val = np.array(values).min() #np.min(min(values, key=tuple))
     add_range = (max_val - min_val) * 0.10
     plt.ylim([min_val - add_range, max_val + add_range])
 
@@ -245,7 +248,7 @@ def plot_boxplot(values, labels, output_dir=None, title='Latencies', xlabel="Mod
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
 
-    #Set max y. Min y is 1.0 and max the max value
+    # Set max y. Min y is 1.0 and max the max value
 
     add_range = (max_val - min_val) * 0.10
     plt.ylim([min_val - add_range, max_val + add_range])
@@ -271,10 +274,10 @@ def plot_bar(values, labels, output_dir, title='Performance mAP', xlabel="Models
 
     ticks = list(np.linspace(0, len(labels) - 1, len(labels)).astype(int))
 
-    #max_val = np.array(values).max() #np.max(max(values, key=tuple))
-    #min_val = np.array(values).min() #np.min(min(values, key=tuple))
-    #add_range = (max_val - min_val) * 0.10
-    #plt.ylim([min_val - add_range, max_val + add_range])
+    # max_val = np.array(values).max() #np.max(max(values, key=tuple))
+    # min_val = np.array(values).min() #np.min(min(values, key=tuple))
+    # add_range = (max_val - min_val) * 0.10
+    # plt.ylim([min_val - add_range, max_val + add_range])
 
     plt.xticks(ticks, labels)
     plt.xticks(rotation=90)
@@ -308,6 +311,19 @@ def visualize_performance(df, output_dir, metric_precision='DetectionBoxes_Preci
         values.append(row[metric_precision])
         # Add labels
         labels.append(network + " " + device)
+
+    # max_val = np.max(values)
+    # min_val = np.min(values)
+    # plot_boxplot(values, labels, output_dir, title="Performance All Hardware", max_val=max_val, min_val=min_val)
+    # plot_violin_plot(values, labels, output_dir, title="Performance All Hardware", max_val=max_val, min_val=min_val)
+
+    # Extract important values
+    data = {'Model': labels, metric_precision: values}
+    df_table = pd.DataFrame(data)
+    df_table.set_index('Model', inplace=True)
+    df_table.round(2).astype(float).to_csv(
+        os.path.join(output_dir, "Mean Average Precision".replace(' ', '_') + '_violinplot' + '.csv'),
+        sep=";")
 
     # Visulization
     plot_bar(values, labels, output_dir, title="Mean Average Precision", xlabel="Models and Hardware",
@@ -418,7 +434,11 @@ def plot_performance_latency(lat_perf_df, output_dir=None, title='mAP_vs_Latency
     latency_max = np.max(lat_perf_df['Mean_Latency'].values)
     latency_min = np.min(lat_perf_df['Mean_Latency'].values)
 
-    fig, ax = plt.subplots(figsize=[8, 8])
+    if lat_perf_df.shape[0] > 15:
+        fig, ax = plt.subplots(figsize=[12, 12])
+        print("More than 15 objects. Use large figure.")
+    else:
+        fig, ax = plt.subplots(figsize=[8, 8])
     plt.title(title)
     plt.xlabel('Latency [ms]')
     plt.ylabel(y_col)
@@ -481,13 +501,13 @@ def get_performance_deltas_for_hardware_optimizations(performance, hwopt_referen
     enhanced_performance = performance.copy()
     enhanced_performance['Relative_mAP'] = -1
 
-    enhanced_performance['Custom_Parameters'] = enhanced_performance['Custom_Parameters'].astype(str)\
-        .replace('None', '[]')\
-        .replace('NaN', '[]')\
+    enhanced_performance['Custom_Parameters'] = enhanced_performance['Custom_Parameters'].astype(str) \
+        .replace('None', '[]') \
+        .replace('NaN', '[]') \
         .replace('nan', '[]')
-    enhanced_performance['Hardware_Optimization'] = enhanced_performance['Hardware_Optimization'].astype(str)\
-        .replace('None', '')\
-        .replace('NaN', '')\
+    enhanced_performance['Hardware_Optimization'] = enhanced_performance['Hardware_Optimization'].astype(str) \
+        .replace('None', '') \
+        .replace('NaN', '') \
         .replace('nan', '')
 
     x = enhanced_performance.groupby(['Framework', 'Network', 'Resolution', 'Dataset', 'Custom_Parameters', 'Hardware'])
@@ -505,7 +525,8 @@ def get_performance_deltas_for_hardware_optimizations(performance, hwopt_referen
                      (group['Hardware_Optimization'] == hwopt_reference)]) > 0:
             original_performance = \
                 group[(pd.isnull(group['Hardware_Optimization'])) |
-                      (group['Hardware_Optimization'] == hwopt_reference)]['DetectionBoxes_Precision/mAP@.50IOU'].values[0]
+                      (group['Hardware_Optimization'] == hwopt_reference)][
+                    'DetectionBoxes_Precision/mAP@.50IOU'].values[0]
 
             for i, row in group.iterrows():
                 current_performance = row['DetectionBoxes_Precision/mAP@.50IOU']
@@ -544,13 +565,13 @@ def get_latency_deltas_for_hardware_optimizations(latency, hwopt_reference=None)
     enhanced_latency = latency.copy()
     enhanced_latency['Relative_Latency'] = -1
 
-    enhanced_latency['Custom_Parameters'] = enhanced_latency['Custom_Parameters'].astype(str)\
-        .replace('None', '[]')\
-        .replace('NaN', '[]')\
+    enhanced_latency['Custom_Parameters'] = enhanced_latency['Custom_Parameters'].astype(str) \
+        .replace('None', '[]') \
+        .replace('NaN', '[]') \
         .replace('nan', '[]')
-    enhanced_latency['Hardware_Optimization'] = enhanced_latency['Hardware_Optimization'].astype(str)\
-        .replace('None', '')\
-        .replace('NaN', '')\
+    enhanced_latency['Hardware_Optimization'] = enhanced_latency['Hardware_Optimization'].astype(str) \
+        .replace('None', '') \
+        .replace('NaN', '') \
         .replace('nan', '')
 
     # Group by network execution to compare all HW optimization methods should be compared to the no HW optimization method
@@ -568,8 +589,9 @@ def get_latency_deltas_for_hardware_optimizations(latency, hwopt_reference=None)
         if len(group[(pd.isnull(group['Hardware_Optimization'])) | (
                 group['Hardware_Optimization'] == hwopt_reference)]) > 0:
             original_latency = \
-            group[(pd.isnull(group['Hardware_Optimization'])) | (group['Hardware_Optimization'] == hwopt_reference)][
-                'Mean_Latency'].values[0]
+                group[
+                    (pd.isnull(group['Hardware_Optimization'])) | (group['Hardware_Optimization'] == hwopt_reference)][
+                    'Mean_Latency'].values[0]
 
             for i, row in group.iterrows():
                 current_latency = row['Mean_Latency']
@@ -613,9 +635,11 @@ def visualize_relative_latencies(latencies, output_dir, measurement='Relative_La
             values.append(np.array(group[measurement]))
             labels.append(name)
 
-        if len(values) > 0:
-            max_val = np.array(values[1:]).max()  # np.max(max(values, key=tuple))
-            min_val = np.array(values[1:]).min()  # np.min(min(values, key=tuple))
+        if len(values) > 0 and len(values[1:]) > 0:
+            max_val = np.max(
+                np.array([np.max(x) for x in values]))  # np.array(values[1:]).max()  # np.max(max(values, key=tuple))
+            min_val = np.min(
+                np.array([np.min(x) for x in values]))  # np.array(values[1:]).min()  # np.min(min(values, key=tuple))
 
             plot_boxplot(values[1:], labels[1:], output_dir, title=title + " for " + hw_name, xlabel=xlabel,
                          ylabel=ylabel, max_val=max_val, min_val=min_val)
