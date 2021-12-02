@@ -70,7 +70,7 @@ tsp -U <id-id>
 
 ### Töten eines Prozesses:
 ```
-kill $(tsp - p <id>)
+kill $(tsp -p <id>)
 ```
 ### Entfernen eines Prozesses:
 ```
